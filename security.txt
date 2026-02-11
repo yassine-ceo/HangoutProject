@@ -1,0 +1,4 @@
+Contact: mailto:security@hypezone-maroc.vercel.app
+Preferred-Languages: en
+Canonical: https://hypezone-maroc.vercel.app/security.txt
+Policy: https://hypezone-maroc.vercel.app/
