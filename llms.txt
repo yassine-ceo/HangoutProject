@@ -1,0 +1,12 @@
+# HypeZone (Morocco)
+Site: https://hypezone-maroc.vercel.app/
+Purpose: Chat rooms by city and neighborhood in Morocco.
+
+Main pages:
+- https://hypezone-maroc.vercel.app/
+- https://hypezone-maroc.vercel.app/rabat/
+- https://hypezone-maroc.vercel.app/casablanca/
+- https://hypezone-maroc.vercel.app/marrakech/
+- https://hypezone-maroc.vercel.app/fes/
+- https://hypezone-maroc.vercel.app/tangier/
+- https://hypezone-maroc.vercel.app/agadir/
