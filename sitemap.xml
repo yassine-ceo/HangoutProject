@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <url>
+    <loc>https://hypezone-rabat.vercel.app/</loc>
+  </url>
+
+  <url>
+    <loc>https://hypezone-rabat.vercel.app/rabat/</loc>
+  </url>
+
+  <url>
+    <loc>https://hypezone-rabat.vercel.app/sale/</loc>
+  </url>
+
+  <url>
+    <loc>https://hypezone-rabat.vercel.app/casablanca/</loc>
+  </url>
+
+  <url>
+    <loc>https://hypezone-rabat.vercel.app/marrakech/</loc>
+  </url>
+
+  <url>
+    <loc>https://hypezone-rabat.vercel.app/fes/</loc>
+  </url>
+
+  <url>
+    <loc>https://hypezone-rabat.vercel.app/tangier/</loc>
+  </url>
+
+  <url>
+    <loc>https://hypezone-rabat.vercel.app/agadir/</loc>
+  </url>
+
+</urlset>
