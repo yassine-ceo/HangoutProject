@@ -204,8 +204,10 @@
     #mainScroll{scrollbar-gutter:stable}
     .post-visual{min-height:260px;height:clamp(260px,55vw,420px)}
     .post-visual img{width:100%;height:100%;object-fit:cover}
-    .sponsored-pill{font-size:10px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.88)}
+    .sponsored-pill{font-size:10px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;padding:4px 12px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.88)}
     .sponsored-sub{font-size:11px;color:rgba(255,255,255,.60);margin-top:2px}
+    .ad-header{position:relative}
+    .sponsored-center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none}
     .ad-visual{background:linear-gradient(180deg,rgba(0,210,255,.10),rgba(0,0,0,0));padding:14px}
     .ad-shell{background:#0b0f14;border:1px solid rgba(255,255,255,.10);border-radius:18px;overflow:hidden;min-height:180px;display:flex;align-items:center;justify-content:center;padding:8px}
     .gate-card{background:radial-gradient(120% 120% at 10% 0%, rgba(0,210,255,.18), rgba(0,0,0,0)), #0b0f14;border:1px solid rgba(255,255,255,.14);border-radius:26px;max-width:420px;width:100%;padding:18px;box-shadow:0 30px 90px rgba(0,0,0,.85)}
@@ -217,6 +219,20 @@
     .gate-google img{width:20px;height:20px;background:#fff;border-radius:50%;padding:2px}
     .gate-tiktok{margin:12px auto 0;display:flex;align-items:center;justify-content:center;gap:10px;color:#fff;text-decoration:none;font-weight:900;font-size:12px;width:fit-content;padding:10px 14px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12)}
     .gate-tiktok svg{width:16px;height:16px;fill:#fff;stroke:none}
+    .tour-overlay{position:fixed;inset:0;z-index:4200;display:none;align-items:flex-start;justify-content:center;padding:18px;background:radial-gradient(circle at var(--tx,50%) var(--ty,30%), rgba(0,0,0,0) 0, rgba(0,0,0,0) var(--tr,110px), rgba(0,0,0,.86) calc(var(--tr,110px) + 2px));backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+    .tour-box{margin-top:calc(var(--tby, 120px));width:min(520px,92vw);background:radial-gradient(120% 120% at 0% 0%, rgba(0,210,255,.22), rgba(0,0,0,0)), rgba(12,14,18,.92);border:1px solid rgba(255,255,255,.14);border-radius:22px;padding:16px 16px 14px;box-shadow:0 35px 90px rgba(0,0,0,.9);animation:tourPop .38s ease both}
+    @keyframes tourPop{0%{transform:translateY(12px) scale(.96);opacity:0}100%{transform:translateY(0) scale(1);opacity:1}}
+    .tour-title{font-size:15px;font-weight:1000;letter-spacing:.2px}
+    .tour-desc{margin-top:8px;font-size:13px;color:rgba(255,255,255,.72);line-height:1.55}
+    .tour-actions{display:flex;justify-content:space-between;align-items:center;margin-top:14px;gap:10px}
+    .tour-progress{font-size:11px;color:rgba(255,255,255,.5);font-weight:800}
+    .tour-ok{border:none;cursor:pointer;border-radius:14px;padding:12px 14px;font-weight:1000;font-size:12px;background:linear-gradient(135deg,#00d2ff,#007aff);color:#000;min-width:120px;box-shadow:0 14px 40px rgba(0,210,255,.22)}
+    .tour-skip{border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:#fff;border-radius:14px;padding:12px 14px;font-weight:900;font-size:12px;cursor:pointer}
+    .tour-arrow{position:fixed;left:var(--ax,50%);top:var(--ay,50%);transform:translate(-50%,-50%);z-index:4210;pointer-events:none;animation:arrowPulse 1.05s ease-in-out infinite}
+    @keyframes arrowPulse{0%,100%{transform:translate(-50%,-50%) scale(1);filter:drop-shadow(0 10px 30px rgba(0,210,255,.22))}50%{transform:translate(-50%,-52%) scale(1.06);filter:drop-shadow(0 14px 40px rgba(0,210,255,.35))}}
+    .tour-arrow svg{width:78px;height:78px;fill:none;stroke:rgba(0,210,255,.95);stroke-width:8;stroke-linecap:round;stroke-linejoin:round}
+    .tour-ring{position:fixed;left:var(--tx,50%);top:var(--ty,30%);transform:translate(-50%,-50%);width:calc(var(--tr,110px)*2);height:calc(var(--tr,110px)*2);border-radius:999px;border:2px solid rgba(0,210,255,.45);box-shadow:0 0 0 6px rgba(0,210,255,.08), 0 35px 120px rgba(0,210,255,.22);pointer-events:none;z-index:4205;animation:ringGlow 1.2s ease-in-out infinite}
+    @keyframes ringGlow{0%,100%{opacity:.9;transform:translate(-50%,-50%) scale(1)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.03)}}
     @media (min-width:768px){
       #mainScroll{padding-bottom:150px}
       .topbar,.event-banner,.rooms-layout{max-width:var(--maxW);margin-left:auto;margin-right:auto}
@@ -381,9 +397,9 @@
 
   <div class="dock-wrapper" id="dockWrap">
     <div class="dock">
-      <button class="dock-btn active" onclick="switchView('feed',this)"><svg><use href="#i-home-strong"></use></svg> Home</button>
-      <button class="fab-main" onclick="openCreate()"><svg><use href="#i-plus-strong"></use></svg></button>
-      <button class="dock-btn" onclick="switchView('rooms',this)"><svg><use href="#i-rooms-strong"></use></svg> Rooms</button>
+      <button class="dock-btn active" id="dockHome" onclick="switchView('feed',this)"><svg><use href="#i-home-strong"></use></svg> Home</button>
+      <button class="fab-main" id="dockCreate" onclick="openCreate()"><svg><use href="#i-plus-strong"></use></svg></button>
+      <button class="dock-btn" id="dockRooms" onclick="switchView('rooms',this)"><svg><use href="#i-rooms-strong"></use></svg> Rooms</button>
     </div>
   </div>
 
@@ -519,6 +535,25 @@
     </div>
   </div>
 
+  <div id="tourOverlay" class="tour-overlay">
+    <div class="tour-ring"></div>
+    <div class="tour-arrow" id="tourArrow">
+      <svg viewBox="0 0 100 100">
+        <path d="M82 18C60 20 44 32 34 46c-7 10-10 22-10 34"></path>
+        <path d="M18 70l6 14 14-6"></path>
+      </svg>
+    </div>
+    <div class="tour-box" id="tourBox">
+      <div class="tour-title" id="tourTitle">Welcome</div>
+      <div class="tour-desc" id="tourDesc"></div>
+      <div class="tour-actions">
+        <button class="tour-skip" id="tourSkip">Skip</button>
+        <div class="tour-progress" id="tourProg"></div>
+        <button class="tour-ok" id="tourOk">OK</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const sb=supabase.createClient("https://tujdnvnrizgqroaozsqp.supabase.co","sb_publishable_WyigevxmzR2gLtbog2Ztfg_8pdmSwop");
     let session,currentBg,currentPostId,currentRoomKey=null,currentRoomLabel=null,recorder,chunks=[],roomSub,currentPlayingBtn=null,myProfile={},isEditing=!1,currentEditingUser=null,roomPollTimer=null,lastRoomCreatedAt=null,seenRoomMsgIds=new Set,roomProfileCache={};
@@ -576,10 +611,7 @@
       return {cityName:(e.city||"Rabat"),hood:(t||"Agdal")}
     }
 
-    function showLoginGate(){
-      document.getElementById("loginGate").style.display="flex"
-    }
-
+    function showLoginGate(){document.getElementById("loginGate").style.display="flex"}
     function requireAuth(){
       if(session&&session.user&&session.user.id) return !0;
       showLoginGate();
@@ -598,6 +630,25 @@
       }
     }
 
+    function buildSponsoredCard(idx){
+      const adId=`adSlot_${Date.now()}_${idx}_${Math.floor(1e6*Math.random())}`;
+      return `<div class="post-card" data-ad="1"><div class="post-header ad-header"><div class="post-user-info"><div class="p-avatar" style="display:grid;place-items:center;background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.12);cursor:default"><svg style="width:22px;height:22px;color:#fff;opacity:.9"><use href="#i-user-strong"></use></svg></div><div><div class="p-name" style="cursor:default">Social Bar</div><div class="sponsored-sub">Social bar</div></div></div><div class="sponsored-center"><span class="sponsored-pill">Sponsored</span></div></div><div class="ad-visual"><div class="ad-shell"><div id="${adId}" style="width:100%"></div></div></div></div>`
+    }
+
+    function mountAds(){
+      const nodes=[...document.querySelectorAll('[data-ad="1"]')];
+      nodes.forEach(card=>{
+        if(card.getAttribute("data-mounted")==="1") return;
+        card.setAttribute("data-mounted","1");
+        const slot=card.querySelector("div[id^='adSlot_']");
+        if(!slot) return;
+        const s=document.createElement("script");
+        s.src="https://pl28697806.effectivegatecpm.com/c2/fe/b4/c2feb4a5d9e5375dcd9ab33d07d76511.js";
+        s.async=true;
+        slot.appendChild(s)
+      })
+    }
+
     async function init(){
       type();renderCities();renderGradients();renderSetupHoods();renderTopRight();loadFeed();
       const {data:e}=await sb.auth.getSession();
@@ -609,7 +660,8 @@
       sb.auth.onAuthStateChange(async e=>{
         if("SIGNED_OUT"===e){session=null;myProfile={};renderTopRight();loadFeed()}
         if("SIGNED_IN"===e){const {data:t}=await sb.auth.getSession();session=t.session;await checkProfile();renderTopRight();loadFeed()}
-      })
+      });
+      setTimeout(()=>{tryStartTour()},650)
     }
 
     function timeAgo(e){
@@ -636,25 +688,6 @@
       }
     }
 
-    function buildSponsoredCard(idx){
-      const adId=`adSlot_${Date.now()}_${idx}_${Math.floor(1e6*Math.random())}`;
-      return `<div class="post-card" data-ad="1"><div class="post-header"><div class="post-user-info"><div class="p-avatar" style="display:grid;place-items:center;background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.12)"><svg style="width:22px;height:22px;color:#fff;opacity:.9"><use href="#i-user-strong"></use></svg></div><div><div class="p-name" style="cursor:default">Social Bar <span class="sponsored-pill">Sponsored</span></div><div class="sponsored-sub">Social bar</div></div></div><span class="sponsored-pill">Sponsored</span></div><div class="ad-visual"><div class="ad-shell"><div id="${adId}" style="width:100%"></div></div></div></div>`
-    }
-
-    function mountAds(){
-      const nodes=[...document.querySelectorAll('[data-ad="1"]')];
-      nodes.forEach((card,idx)=>{
-        if(card.getAttribute("data-mounted")==="1") return;
-        card.setAttribute("data-mounted","1");
-        const slot=card.querySelector("div[id^='adSlot_']");
-        if(!slot) return;
-        const s=document.createElement("script");
-        s.src="https://pl28697806.effectivegatecpm.com/c2/fe/b4/c2feb4a5d9e5375dcd9ab33d07d76511.js";
-        s.async=true;
-        slot.appendChild(s)
-      })
-    }
-
     async function loadFeed(){
       const e=document.getElementById("feedList");
       e.innerHTML="<div style='text-align:center;color:#666'>Loading...</div>";
@@ -663,11 +696,12 @@
       const posts=(t||[]);
       let adEvery=4+Math.floor(Math.random()*3);
       let rendered=0;
-      posts.forEach((t,idx)=>{
+      posts.forEach(t=>{
         const n=t.profiles,o=getRank(n.vibe_score||0),r=session&&session.user&&session.user.id===n.id,
         i=t.background_style?`<div class="post-visual" style="background:${t.background_style}"><div class="bg-text">${escapeHtml(t.caption)}</div></div>`:
         `<div class="post-visual"><img src="${t.image_url}"><div class="img-caption">${escapeHtml(t.caption)}</div></div>`,
         p=profileLoc(n),a=p.cityName+" in "+p.hood;
+
         e.innerHTML+=`<div class="post-card"><div class="post-header"><div class="post-user-info"><img class="p-avatar" src="${n.avatar_url}" onclick="openProfile('${n.id}')"><div onclick="openProfile('${n.id}')"><div class="p-name">${n.username} <span class="rank-tag ${o.cls}">${o.name}</span></div><div class="p-loc">${a} • ${timeAgo(t.created_at)}</div></div></div>${r?`<button class="delete-btn" onclick="deletePost('${t.id}')"><svg><use href="#i-trash"></use></svg></button>`:""}</div>${i}<div class="post-actions"><div class="vote-box"><button class="vote-btn up" onclick="vote('${t.id}', 1)"><svg><use href="#i-up"></use></svg></button><span class="vote-val">${n.vibe_score||0}</span><button class="vote-btn down" onclick="vote('${t.id}', -1)"><svg><use href="#i-down"></use></svg></button></div><button class="action-btn" onclick="openComments('${t.id}')"><svg style="width:16px"><use href="#i-chat"></use></svg> Comments</button></div></div>`;
         rendered++;
         if(rendered%adEvery===0){
@@ -675,9 +709,7 @@
           adEvery=4+Math.floor(Math.random()*3)
         }
       });
-      if(rendered<3){
-        e.innerHTML+=buildSponsoredCard(0)
-      }
+      if(rendered<3){e.innerHTML+=buildSponsoredCard(0)}
       mountAds()
     }
 
@@ -994,14 +1026,117 @@
 
     function escapeHtml(e){return e?e.replace(/&/g,"&amp;").replace(/</g,"&lt;"):""}
 
-    document.getElementById("googleBtn").onclick=async()=>await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo:window.location.href}}),
-    document.getElementById("gateGoogleBtn").onclick=async()=>await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo:window.location.href}}),
+    const tourOverlay=document.getElementById("tourOverlay");
+    const tourTitle=document.getElementById("tourTitle");
+    const tourDesc=document.getElementById("tourDesc");
+    const tourOk=document.getElementById("tourOk");
+    const tourSkip=document.getElementById("tourSkip");
+    const tourProg=document.getElementById("tourProg");
+    const tourArrow=document.getElementById("tourArrow");
+    let tourStep=0;
+    let tourSteps=[];
+
+    function tryStartTour(){
+      if(localStorage.getItem("hz_tour_v1")==="1") return;
+      buildTourSteps();
+      if(!tourSteps.length) return;
+      startTour()
+    }
+
+    function buildTourSteps(){
+      const firstHood=document.querySelector("#citiesWrap .hood-item");
+      tourSteps=[
+        {sel:"#topRightBadge",title:"Profile / Login",desc:"Tap here to open your profile. If you are not logged in, you will see a fast Google login popup.",arrow:"down"},
+        {sel:"#dockHome",title:"Home Feed",desc:"This is the feed. Scroll to see vibes and sponsored posts.",arrow:"up"},
+        {sel:"#dockCreate",title:"Create Post",desc:"Tap + to create a new vibe. If you are not logged in, you will be asked to login.",arrow:"up"},
+        {sel:"#dockRooms",title:"Rooms",desc:"Tap Rooms to explore cities and neighborhoods. Join any room instantly.",arrow:"up",action:()=>{const b=document.getElementById("dockRooms");b&&b.click();}},
+        {sel:"#citiesWrap",title:"Browse Rooms",desc:"Scroll cities, then tap any neighborhood to enter the room chat.",arrow:"left"},
+        {sel:firstHood?null:"#citiesWrap",title:"Join a Room",desc:"Tap a neighborhood card to open its live room. You can read without login, but sending requires login.",arrow:"left",element:firstHood||null},
+        {sel:"#dockHome",title:"Back to Feed",desc:"Go back to Home anytime from the dock.",arrow:"up",action:()=>{const b=document.getElementById("dockHome");b&&b.click();}}
+      ]
+    }
+
+    function startTour(){
+      tourStep=0;
+      tourOverlay.style.display="flex";
+      renderTourStep();
+      window.addEventListener("resize",renderTourStep,{passive:true});
+      document.getElementById("mainScroll").addEventListener("scroll",renderTourStep,{passive:true})
+    }
+
+    function endTour(){
+      tourOverlay.style.display="none";
+      localStorage.setItem("hz_tour_v1","1");
+      window.removeEventListener("resize",renderTourStep);
+      document.getElementById("mainScroll").removeEventListener("scroll",renderTourStep)
+    }
+
+    function resolveTourTarget(step){
+      if(step.element) return step.element;
+      if(step.sel) return document.querySelector(step.sel);
+      return null
+    }
+
+    function placeArrow(x,y,r,dir){
+      let ax=x,ay=y;
+      if(dir==="up"){ay=y+r+68}
+      if(dir==="down"){ay=y-r-68}
+      if(dir==="left"){ax=x+r+78}
+      if(dir==="right"){ax=x-r-78}
+      tourOverlay.style.setProperty("--ax",ax+"px");
+      tourOverlay.style.setProperty("--ay",ay+"px");
+      let rot=0;
+      if(dir==="up") rot=180;
+      if(dir==="left") rot=90;
+      if(dir==="right") rot=-90;
+      tourArrow.style.transform=`translate(-50%,-50%) rotate(${rot}deg)`
+    }
+
+    function renderTourStep(){
+      if(tourOverlay.style.display!=="flex") return;
+      const step=tourSteps[tourStep];
+      if(!step) return;
+      if(step.action && !step._done){
+        step._done=!0;
+        try{step.action()}catch(e){}
+        setTimeout(renderTourStep,220);
+        return
+      }
+      const el=resolveTourTarget(step);
+      let rect=null;
+      if(el && el.getBoundingClientRect) rect=el.getBoundingClientRect();
+      if(!rect){
+        rect={left:window.innerWidth*0.5-60,top:window.innerHeight*0.3-60,width:120,height:120}
+      }
+      const cx=rect.left+rect.width/2;
+      const cy=rect.top+rect.height/2;
+      const r=Math.max(70,Math.min(160,Math.max(rect.width,rect.height)*0.72));
+      tourOverlay.style.setProperty("--tx",cx+"px");
+      tourOverlay.style.setProperty("--ty",cy+"px");
+      tourOverlay.style.setProperty("--tr",r+"px");
+      const by=Math.min(window.innerHeight-240,Math.max(24,cy+r+26));
+      tourOverlay.style.setProperty("--tby",by+"px");
+      tourTitle.textContent=step.title||"Guide";
+      tourDesc.textContent=step.desc||"";
+      tourProg.textContent=`${tourStep+1}/${tourSteps.length}`;
+      placeArrow(cx,cy,r,step.arrow||"down")
+    }
+
+    tourOk.onclick=()=>{
+      tourStep++;
+      if(tourStep>=tourSteps.length){endTour();return}
+      renderTourStep()
+    };
+    tourSkip.onclick=()=>endTour();
+
+    document.getElementById("googleBtn").onclick=async()=>await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo:window.location.href}});
+    document.getElementById("gateGoogleBtn").onclick=async()=>await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo:window.location.href}});
     document.getElementById("commentMicBtn").onclick=function(){
       if(!requireAuth()) return;
       startRecording(this,async e=>{
         await sb.from("comments").insert({post_id:currentPostId,user_id:session.user.id,audio_url:e}),loadPostComments()
       })
-    },
+    };
     document.getElementById("roomMic").onclick=function(){
       if(!requireAuth()) return;
       startRecording(this,async e=>{
@@ -1009,7 +1144,7 @@
         const {data:t}=await sb.from("room_chats").insert({room_name:currentRoomKey,user_id:session.user.id,audio_url:e}).select("*").single();
         t&&(t.id&&seenRoomMsgIds.add(t.id),lastRoomCreatedAt=t.created_at||lastRoomCreatedAt,renderOneMessage(t,myProfile))
       })
-    },
+    };
     init();
   </script>
 </body>
