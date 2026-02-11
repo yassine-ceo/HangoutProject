@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://hypezone-rabat.vercel.app/sitemap.xml
