@@ -1,0 +1,11 @@
+{
+  "name": "HypeZone",
+  "short_name": "HypeZone",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#00d2ff",
+  "description": "Morocco’s hype rooms — chat by city and neighborhood.",
+  "icons": []
+}
