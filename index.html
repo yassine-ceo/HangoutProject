@@ -465,7 +465,7 @@
   </div>
 
   <script>
-    const sb=supabase.createClient("https://tujdnvnrizgqroaozsqp.supabase.co","sb_publishable_WyigevxmzR2gLtbog2Ztfg_8pdmSwop");
+    const sb=supabase.createClient("https://tujdnvnrizgqroaozsqp.supabase.co","sb_publishable_WyigevxmzR2gLtbog2Ztfg_8pdmSwop",{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:"pkce"}});
     let session,currentBg,currentPostId,currentRoomKey=null,currentRoomLabel=null,recorder,chunks=[],roomSub,currentPlayingBtn=null,myProfile={},isEditing=!1,currentEditingUser=null,roomPollTimer=null,lastRoomCreatedAt=null,seenRoomMsgIds=new Set,roomProfileCache={};
     const globalAudio=document.getElementById("globalAudio");
     const cities={
@@ -585,14 +585,32 @@
       },1500)
     }
 
+    async function handleOAuthRedirect(){
+      const url=new URL(window.location.href);
+      const hasCode=url.searchParams.get("code");
+      const hasError=url.searchParams.get("error")||url.searchParams.get("error_description");
+      if(hasError){return}
+      if(hasCode){
+        try{
+          await sb.auth.exchangeCodeForSession(window.location.href);
+        }catch(e){}
+        url.searchParams.delete("code");
+        url.searchParams.delete("state");
+        url.searchParams.delete("error");
+        url.searchParams.delete("error_description");
+        window.history.replaceState({},document.title,url.toString());
+      }
+    }
+
     async function init(){
+      await handleOAuthRedirect();
       renderCities();renderGradients();renderSetupHoods();renderTopRight();loadFeed();
       const {data:e}=await sb.auth.getSession();
       if(e.session){session=e.session;await checkProfile()}
       renderTopRight();
-      sb.auth.onAuthStateChange(async e=>{
-        if("SIGNED_OUT"===e){session=null;myProfile={};renderTopRight();loadFeed()}
-        if("SIGNED_IN"===e){const {data:t}=await sb.auth.getSession();session=t.session;await checkProfile();renderTopRight();loadFeed()}
+      sb.auth.onAuthStateChange(async (evt)=>{
+        if(evt==="SIGNED_OUT"){session=null;myProfile={};renderTopRight();loadFeed()}
+        if(evt==="SIGNED_IN"){const {data:t}=await sb.auth.getSession();session=t.session;await checkProfile();renderTopRight();loadFeed();closeModal("loginGate")}
       });
       showSplashThenStart();
     }
@@ -1019,7 +1037,10 @@
     };
     tourSkip.onclick=()=>endTour();
 
-    document.getElementById("gateGoogleBtn").onclick=async()=>await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo:window.location.href}});
+    document.getElementById("gateGoogleBtn").onclick=async()=>{
+      const redirectTo=window.location.origin+window.location.pathname;
+      await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo,queryParams:{access_type:"offline",prompt:"consent"}}});
+    };
 
     init();
   </script>
