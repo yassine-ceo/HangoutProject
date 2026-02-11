@@ -293,7 +293,7 @@
 
       <div id="feedView">
         <div class="event-banner">
-          <img src="https://i.postimg.cc/jqm5N5y2/360-F-267512924-Gj-Sh-Um-X2d-Ne-Eq2v-RJI59ae4vc-Am-LJ8j-P.jpg" alt="Event banner">
+          <img src="https://i.postimg.cc/Jzk5f5fw/Hype-Zone.png" alt="Event banner">
         </div>
         <div class="feed" id="feedList"></div>
       </div>
@@ -437,7 +437,7 @@
         <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
         Continue with Google
       </button>
-      <a class="gate-tiktok" href="https://www.tiktok.com/@rabathangout?_r=1&_t=ZS-93oNd7MTmxo" rel="nofollow">
+      <a class="gate-tiktok" href="https://www.tiktok.com/@hypezone.ma" rel="nofollow">
         <svg viewBox="0 0 448 512"><path d="M448 209.91a210.06 210.06 0 0 1-122.77-39.25v178.72A162.55 162.55 0 1 1 185 188.31v89.89a74.62 74.62 0 1 0 52.23 71.18V0h88a121.18 121.18 0 0 0 1.86 22.17A122.18 122.18 0 0 0 381 102.39a121.43 121.43 0 0 0 67 20.14z"/></svg>
         TikTok
       </a>
@@ -545,12 +545,6 @@
       nodes.forEach(card=>{
         if(card.getAttribute("data-mounted")==="1") return;
         card.setAttribute("data-mounted","1");
-        const slot=card.querySelector("div[id^='adSlot_']");
-        if(!slot) return;
-        const s=document.createElement("script");
-        s.src="https://pl28697806.effectivegatecpm.com/c2/fe/b4/c2feb4a5d9e5375dcd9ab33d07d76511.js";
-        s.async=true;
-        slot.appendChild(s)
       })
     }
 
