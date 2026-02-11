@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -98,7 +99,7 @@
     .event-banner img{width:100%;height:90px;object-fit:cover;border-radius:20px;border:1px solid var(--border);box-shadow:0 5px 20px rgba(0,0,0,.5);display:block}
     .feed{padding:0 15px 15px 15px;display:flex;flex-direction:column;gap:25px}
     .post-card{background:var(--card);border-radius:24px;border:1px solid var(--border);overflow:hidden;position:relative}
-    .post-header{padding:12px 15px;display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,.2)}
+    .post-header{padding:12px 15px;display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,.2);min-height:64px}
     .post-user-info{display:flex;align-items:center;gap:10px}
     .p-avatar{width:42px;height:42px;border-radius:50%;border:2px solid #333;object-fit:cover;cursor:pointer}
     .p-name{font-size:14px;font-weight:700;color:#fff;cursor:pointer;display:flex;align-items:center;gap:8px}
@@ -173,7 +174,7 @@
     .msg-row{display:flex;gap:10px;max-width:85%;align-items:flex-end}
     .msg-row.me{align-self:flex-end;flex-direction:row-reverse}
     .msg-img{width:32px;height:32px;border-radius:50%;border:1px solid #333;object-fit:cover}
-    .msg-box{padding:8px 12px;border-radius:12px;background:#1a1a1a;border:1px solid var(--border);min-widthei€w:100px;position:relative}
+    .msg-box{padding:8px 12px;border-radius:12px;background:#1a1a1a;border:1px solid var(--border);position:relative}
     .msg-row.me .msg-box{background:rgba(0,210,255,.15);border-color:var(--primary)}
     .msg-user{font-size:11px;font-weight:700;color:var(--primary);margin-bottom:4px;display:block}
     .msg-time{font-size:9px;color:rgba(255,255,255,.5);text-align:right;margin-top:4px;display:block}
@@ -205,8 +206,7 @@
     .post-visual{min-height:260px;height:clamp(260px,55vw,420px)}
     .post-visual img{width:100%;height:100%;object-fit:cover}
     .sponsored-pill{font-size:10px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;padding:4px 12px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.88)}
-    .sponsored-sub{font-size:11px;color:rgba(255,255,255,.60);margin-top:2px}
-    .ad-header{position:relative}
+    .ad-header{position:relative;justify-content:center}
     .sponsored-center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none}
     .ad-visual{background:linear-gradient(180deg,rgba(0,210,255,.10),rgba(0,0,0,0));padding:14px}
     .ad-shell{background:#0b0f14;border:1px solid rgba(255,255,255,.10);border-radius:18px;overflow:hidden;min-height:180px;display:flex;align-items:center;justify-content:center;padding:8px}
@@ -219,7 +219,8 @@
     .gate-google img{width:20px;height:20px;background:#fff;border-radius:50%;padding:2px}
     .gate-tiktok{margin:12px auto 0;display:flex;align-items:center;justify-content:center;gap:10px;color:#fff;text-decoration:none;font-weight:900;font-size:12px;width:fit-content;padding:10px 14px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12)}
     .gate-tiktok svg{width:16px;height:16px;fill:#fff;stroke:none}
-    .tour-overlay{position:fixed;inset:0;z-index:4200;display:none;align-items:flex-start;justify-content:center;padding:18px;background:radial-gradient(circle at var(--tx,50%) var(--ty,30%), rgba(0,0,0,0) 0, rgba(0,0,0,0) var(--tr,110px), rgba(0,0,0,.86) calc(var(--tr,110px) + 2px));backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+
+    .tour-overlay{position:fixed;inset:0;z-index:4200;display:none;align-items:flex-start;justify-content:center;padding:18px;background:rgba(0,0,0,.86);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);-webkit-mask-image:radial-gradient(circle at var(--tx,50%) var(--ty,30%), transparent 0, transparent calc(var(--tr,110px) - 2px), #000 calc(var(--tr,110px) + 2px));mask-image:radial-gradient(circle at var(--tx,50%) var(--ty,30%), transparent 0, transparent calc(var(--tr,110px) - 2px), #000 calc(var(--tr,110px) + 2px))}
     .tour-box{margin-top:calc(var(--tby, 120px));width:min(520px,92vw);background:radial-gradient(120% 120% at 0% 0%, rgba(0,210,255,.22), rgba(0,0,0,0)), rgba(12,14,18,.92);border:1px solid rgba(255,255,255,.14);border-radius:22px;padding:16px 16px 14px;box-shadow:0 35px 90px rgba(0,0,0,.9);animation:tourPop .38s ease both}
     @keyframes tourPop{0%{transform:translateY(12px) scale(.96);opacity:0}100%{transform:translateY(0) scale(1);opacity:1}}
     .tour-title{font-size:15px;font-weight:1000;letter-spacing:.2px}
@@ -233,6 +234,7 @@
     .tour-arrow svg{width:78px;height:78px;fill:none;stroke:rgba(0,210,255,.95);stroke-width:8;stroke-linecap:round;stroke-linejoin:round}
     .tour-ring{position:fixed;left:var(--tx,50%);top:var(--ty,30%);transform:translate(-50%,-50%);width:calc(var(--tr,110px)*2);height:calc(var(--tr,110px)*2);border-radius:999px;border:2px solid rgba(0,210,255,.45);box-shadow:0 0 0 6px rgba(0,210,255,.08), 0 35px 120px rgba(0,210,255,.22);pointer-events:none;z-index:4205;animation:ringGlow 1.2s ease-in-out infinite}
     @keyframes ringGlow{0%,100%{opacity:.9;transform:translate(-50%,-50%) scale(1)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.03)}}
+
     @media (min-width:768px){
       #mainScroll{padding-bottom:150px}
       .topbar,.event-banner,.rooms-layout{max-width:var(--maxW);margin-left:auto;margin-right:auto}
@@ -277,49 +279,6 @@
   <main class="visually-hidden-seo" aria-hidden="false">
     <h1>HypeZone Elite — Morocco rooms by city and neighborhood</h1>
     <p>HypeZone is a Morocco-based social zone where you can join rooms by city and neighborhood, chat locally, and post vibes. Explore Rabat, Sale, Casablanca, Marrakech, Fes, Tangier, Agadir, Meknes, Oujda, Kenitra, Tetouan, El Jadida, Safi, Mohammedia, Nador, Beni Mellal, Khouribga, Taza, Essaouira, Laayoune and Dakhla.</p>
-    <h2>Morocco cities and neighborhoods on HypeZone</h2>
-    <h3>Rabat</h3>
-    <ul><li>Agdal</li><li>Hassan</li><li>Hay Riad</li><li>Ocean</li><li>Medina</li><li>Souissi</li><li>Yacoub Al Mansour</li><li>Akkari</li><li>Kammra</li><li>Temara</li><li>Skhirat</li></ul>
-    <h3>Sale</h3>
-    <ul><li>Diar</li><li>Hay Chmaaou</li><li>Opera</li><li>Wad Adahab</li><li>Bab Lmrissa</li><li>Tabriquet</li><li>Sala Al Jadida</li><li>Hay Salam</li><li>Bettana</li><li>Sidi Moussa</li></ul>
-    <h3>Casablanca</h3>
-    <ul><li>Maarif</li><li>Anfa</li><li>Ain Diab</li><li>Gauthier</li><li>Bourgogne</li><li>Racine</li><li>Sidi Maarouf</li><li>Hay Hassani</li><li>Ain Sebaa</li><li>Sidi Bernoussi</li><li>Oulfa</li><li>California</li><li>Beausejour</li><li>Derb Sultan</li><li>Mers Sultan</li><li>Belvedere</li><li>Hay Mohammadi</li><li>Sbata</li><li>Ben M'Sick</li><li>Lissasfa</li><li>Zenata</li></ul>
-    <h3>Marrakech</h3>
-    <ul><li>Gueliz</li><li>Hivernage</li><li>Medina</li><li>Sidi Ghanem</li><li>Agdal</li><li>Targa</li><li>Daoudiate</li><li>Semlalia</li><li>Bab Doukkala</li><li>Bab Aylan</li><li>Mellah</li><li>Palmeraie</li></ul>
-    <h3>Fes</h3>
-    <ul><li>Fes El Bali</li><li>Fes El Jdid</li><li>Ville Nouvelle</li><li>Narjiss</li><li>Agdal</li><li>Zouagha</li><li>Sidi Boujida</li><li>Bensouda</li><li>Saiss</li></ul>
-    <h3>Tangier</h3>
-    <ul><li>Malabata</li><li>Iberia</li><li>Marshan</li><li>Medina</li><li>California</li><li>Boukhalef</li><li>Mghogha</li><li>Bni Makada</li><li>Achakar</li></ul>
-    <h3>Agadir</h3>
-    <ul><li>Talborjt</li><li>Founty</li><li>Agadir Bay</li><li>Anza</li><li>Dakhla</li><li>Bensergao</li><li>Tilila</li><li>Hay Mohammadi</li><li>Ait Melloul</li><li>Inezgane</li></ul>
-    <h3>Meknes</h3>
-    <ul><li>Hamria</li><li>Medina</li><li>Borj Moulay Omar</li><li>Marjane</li><li>Wislane</li><li>Sidi Bouzekri</li><li>Toulal</li><li>Zitoune</li></ul>
-    <h3>Oujda</h3>
-    <ul><li>Hay Al Qods</li><li>Hay Salam</li><li>Sidi Yahya</li><li>Centre Ville</li><li>Lazaret</li><li>Al Andalous</li><li>Hay Najd</li></ul>
-    <h3>Kenitra</h3>
-    <ul><li>Maamora</li><li>Bir Rami</li><li>Saknia</li><li>Centre Ville</li><li>Val Fleuri</li><li>Oulad Oujih</li><li>Mimosas</li></ul>
-    <h3>Tetouan</h3>
-    <ul><li>Medina</li><li>Ensanche</li><li>Sania Rmel</li><li>Bouanan</li><li>Touilaa</li><li>Martil</li></ul>
-    <h3>El Jadida</h3>
-    <ul><li>Centre Ville</li><li>Sidi Bouzid</li><li>Hay Salam</li><li>Cite Portugaise</li><li>Najd</li><li>Azemmour</li></ul>
-    <h3>Safi</h3>
-    <ul><li>Ville Nouvelle</li><li>Medina</li><li>Sidi Bouzid</li><li>Jorf</li><li>Errahma</li><li>Hay Salam</li></ul>
-    <h3>Mohammedia</h3>
-    <ul><li>Centre Ville</li><li>Mansouria</li><li>Fadila</li><li>Hay Salam</li><li>Al Wafa</li><li>Kasbah</li></ul>
-    <h3>Nador</h3>
-    <ul><li>Centre Ville</li><li>Selouane</li><li>Beni Ensar</li><li>Al Aaroui</li><li>Bouarg</li></ul>
-    <h3>Beni Mellal</h3>
-    <ul><li>Centre Ville</li><li>Hay Salam</li><li>Aghbala Road</li><li>Kasbah Ras El Ain</li><li>Ouled Yaich</li></ul>
-    <h3>Khouribga</h3>
-    <ul><li>Centre Ville</li><li>Hay Salam</li><li>OCP</li><li>Fqih Ben Salah Road</li></ul>
-    <h3>Taza</h3>
-    <ul><li>Ville Nouvelle</li><li>Medina</li><li>Bab El Qarmoud</li><li>Bab El Gharbi</li></ul>
-    <h3>Essaouira</h3>
-    <ul><li>Medina</li><li>New Town</li><li>Diabat</li><li>Borj</li><li>Mellah</li></ul>
-    <h3>Laayoune</h3>
-    <ul><li>Centre Ville</li><li>Maatallah</li><li>Al Massira</li><li>Hay Salam</li><li>El Wifaq</li></ul>
-    <h3>Dakhla</h3>
-    <ul><li>City Center</li><li>Al Wahda</li><li>Al Matar</li><li>Al Qassam</li></ul>
     <p>Indexing: <a href="/sitemap.xml">sitemap.xml</a> and <a href="/robots.txt">robots.txt</a>.</p>
   </main>
 
@@ -632,7 +591,7 @@
 
     function buildSponsoredCard(idx){
       const adId=`adSlot_${Date.now()}_${idx}_${Math.floor(1e6*Math.random())}`;
-      return `<div class="post-card" data-ad="1"><div class="post-header ad-header"><div class="post-user-info"><div class="p-avatar" style="display:grid;place-items:center;background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.12);cursor:default"><svg style="width:22px;height:22px;color:#fff;opacity:.9"><use href="#i-user-strong"></use></svg></div><div><div class="p-name" style="cursor:default">Social Bar</div><div class="sponsored-sub">Social bar</div></div></div><div class="sponsored-center"><span class="sponsored-pill">Sponsored</span></div></div><div class="ad-visual"><div class="ad-shell"><div id="${adId}" style="width:100%"></div></div></div></div>`
+      return `<div class="post-card" data-ad="1"><div class="post-header ad-header"><div class="sponsored-center"><span class="sponsored-pill">Sponsored</span></div></div><div class="ad-visual"><div class="ad-shell"><div id="${adId}" style="width:100%"></div></div></div></div>`
     }
 
     function mountAds(){
