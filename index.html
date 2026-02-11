@@ -32,21 +32,22 @@
     .hidden{display:none!important}
     svg{display:block;width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
     .visually-hidden-seo{position:absolute !important;width:1px !important;height:1px !important;padding:0 !important;margin:-1px !important;overflow:hidden !important;clip:rect(0,0,0,0) !important;white-space:nowrap !important;border:0 !important}
-    .authPage{height:100svh;min-height:100svh;display:none;flex-direction:column;background:#f5e6d3;z-index:4000;position:fixed;inset:0;overflow:hidden;color:#1a1a1a;padding-bottom:calc(env(safe-area-inset-bottom,0px) + 70px)}
-    .hero{width:100%;height:clamp(240px,46svh,420px);padding:10px 14px 0}
-    .hero img{width:100%;height:100%;object-fit:cover;border-radius:0 0 50px 50px}
-    .content{padding:18px 22px 0;text-align:left;display:flex;flex-direction:column;gap:12px;flex:1;justify-content:flex-start}
-    .typing-container{min-height:64px}
-    h1.dynamic-title{font-size:32px;font-weight:800;color:#050505;line-height:1.1;margin-bottom:5px}
-    .cursor{display:inline-block;width:3px;background-color:var(--orange);margin-left:2px;animation:blink .7s infinite}
-    .sub-text{font-size:15px;color:#666;font-weight:400;line-height:1.5;max-width:100%}
-    .google-btn{background:var(--orange);color:#fff;border:none;padding:18px;border-radius:40px;font-weight:700;font-size:16px;display:flex;align-items:center;justify-content:center;gap:12px;cursor:pointer;margin-top:14px;box-shadow:0 10px 20px rgba(255,122,33,.3)}
-    .google-btn img{width:22px;height:22px;background:#fff;border-radius:50%;padding:2px}
-    .tiktok-link{position:fixed;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);margin:0 auto;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;color:#1a1a1a;font-weight:700;font-size:14px;width:fit-content;padding:10px 14px;border-radius:999px;background:rgba(255,255,255,.75);backdrop-filter:blur(10px);border:1px solid rgba(0,0,0,.08)}
+
+    #splash{position:fixed;inset:0;z-index:5000;display:none;align-items:center;justify-content:center;background:linear-gradient(180deg,#000 0%, #000 68%, #111 100%)}
+    .splash-wrap{width:min(520px,92vw);padding:22px 18px;display:flex;flex-direction:column;align-items:center;gap:14px}
+    .splash-title{font-size:44px;font-weight:900;letter-spacing:.6px;color:var(--primary);text-shadow:0 0 22px rgba(0,210,255,.35);line-height:1}
+    .splash-sub{font-size:13px;color:rgba(255,255,255,.66);text-align:center;max-width:520px}
+    .splash-typing{min-height:54px;display:flex;align-items:center;justify-content:center}
+    .cursor{display:inline-block;width:3px;height:34px;background:rgba(0,210,255,.85);margin-left:6px;animation:blink .7s infinite}
     @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+    .splash-bar{width:min(420px,86vw);height:10px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);overflow:hidden;box-shadow:0 20px 70px rgba(0,0,0,.75)}
+    .splash-fill{height:100%;width:0;border-radius:999px;background:linear-gradient(135deg,#00d2ff,#007aff);animation:splashLoad 1.5s cubic-bezier(.2,.9,.2,1) forwards}
+    @keyframes splashLoad{0%{width:0}70%{width:88%}100%{width:100%}}
+
     #mainScroll{height:100vh;overflow-y:auto;padding-bottom:110px;position:relative}
     #mainScroll.tour-lock{overflow:hidden!important;touch-action:none!important}
     body.tour-lock{overflow:hidden!important}
+
     .topbar{padding:15px 20px;display:flex;justify-content:space-between;align-items:center;background:0 0;z-index:50}
     .brand{font-family:'Courgette',cursive;font-size:26px;color:var(--primary);text-shadow:0 0 15px rgba(0,210,255,.4)}
     .user-badge{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.08);padding:7px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.12);cursor:pointer;backdrop-filter:blur(12px)}
@@ -58,6 +59,7 @@
     .badge-sub{font-size:10px;color:rgba(255,255,255,.55);margin-top:2px}
     .event-banner{padding:0 15px;margin-bottom:20px}
     .event-banner img{width:100%;height:90px;object-fit:cover;border-radius:20px;border:1px solid var(--border);box-shadow:0 5px 20px rgba(0,0,0,.5);display:block}
+
     .feed{padding:0 15px 15px 15px;display:flex;flex-direction:column;gap:25px}
     .post-card{background:var(--card);border-radius:24px;border:1px solid var(--border);overflow:hidden;position:relative}
     .post-header{padding:12px 15px;display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,.2);min-height:64px}
@@ -81,6 +83,7 @@
     .vote-btn.down.active{color:var(--danger)}
     .vote-val{font-size:14px;font-weight:800;min-width:20px;text-align:center;color:#fff}
     .action-btn{background:rgba(255,255,255,.05);border:1px solid var(--border);color:#fff;padding:8px 16px;border-radius:20px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px;cursor:pointer}
+
     .rooms-layout{padding:0 20px 20px 20px}
     .city-header{display:flex;align-items:center;gap:10px;margin:25px 0 15px;border-bottom:1px solid var(--border);padding-bottom:10px}
     .city-icon{color:var(--primary);width:24px;height:24px}
@@ -90,6 +93,7 @@
     .hood-item:active{transform:scale(.96);border-color:var(--primary)}
     .hood-name{font-size:14px;font-weight:700;z-index:2;position:relative}
     .online-dot{width:8px;height:8px;background:#00ff9d;border-radius:50%;position:absolute;top:10px;right:10px;box-shadow:0 0 8px #00ff9d}
+
     .dock-wrapper{position:fixed;bottom:22px;left:0;right:0;display:flex;justify-content:center;pointer-events:none;z-index:100}
     .dock{pointer-events:auto;background:rgba(18,18,18,.92);backdrop-filter:blur(22px);border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:12px 18px;display:flex;align-items:center;gap:14px;box-shadow:0 20px 70px rgba(0,0,0,.75)}
     .dock-btn{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.10);color:rgba(255,255,255,.70);display:flex;align-items:center;gap:10px;font-size:12px;font-weight:900;cursor:pointer;border-radius:999px;padding:10px 14px;transition:.2s}
@@ -98,11 +102,13 @@
     .fab-main{pointer-events:auto;width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,#00d2ff,#007aff);box-shadow:0 14px 40px rgba(0,210,255,.32);display:grid;place-items:center;color:#fff;border:none;cursor:pointer;margin:0 6px;transform:translateY(-22px);border:5px solid var(--bg);transition:transform .2s}
     .fab-main svg{width:26px;height:26px}
     .fab-main:active{transform:translateY(-22px) scale(.95)}
+
     .modal{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:3500;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(10px)}
     .modal-card{background:#161b22;width:100%;max-width:400px;border-radius:24px;padding:20px;border:1px solid var(--border);display:flex;flex-direction:column;max-height:85vh;box-shadow:0 20px 60px rgba(0,0,0,.8)}
     .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;padding-bottom:10px;border-bottom:1px solid var(--border)}
     .close-btn{background:0 0;border:none;color:#fff;font-size:24px;cursor:pointer}
     .scroll-content{flex:1;overflow-y:auto;margin-bottom:15px}
+
     .audio-player{display:flex;align-items:center;gap:10px;background:linear-gradient(145deg,#1e1e1e,#161616);border:1px solid rgba(255,255,255,.1);padding:8px 12px;border-radius:25px;width:fit-content;margin-top:5px;cursor:pointer;transition:all .2s ease;box-shadow:0 2px 5px rgba(0,0,0,.2)}
     .audio-player.playing{border-color:var(--primary);background:rgba(0,210,255,.1)}
     .audio-btn{width:28px;height:28px;border-radius:50%;background:var(--primary);display:grid;place-items:center;color:#000;flex-shrink:0;transition:.2s}
@@ -117,6 +123,7 @@
     .audio-text{font-size:11px;font-weight:700;color:#aaa;margin-left:5px}
     .audio-player.playing .audio-text{color:var(--primary)}
     @keyframes soundWave{0%{height:4px}100%{height:16px}}
+
     .comment-item{display:flex;gap:10px;margin-bottom:15px;align-items:flex-start}
     .c-avatar{width:34px;height:34px;border-radius:50%;object-fit:cover;cursor:pointer;border:1px solid var(--border)}
     .c-content{flex:1}
@@ -125,9 +132,7 @@
     .c-user{font-weight:700;color:var(--primary);font-size:12px;cursor:pointer}
     .c-time{font-size:10px;color:var(--muted)}
     .c-text{font-size:14px;color:#eee;line-height:1.4}
-    .c-actions{display:flex;align-items:center;gap:10px;margin-top:5px;margin-left:5px}
-    .c-like-btn{background:0 0;border:none;color:#666;font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px}
-    .c-like-btn.active{color:var(--danger)}
+
     .chat-interface{position:fixed;inset:0;background:#000;z-index:3000;display:flex;flex-direction:column}
     .chat-top{padding:15px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:15px;background:#111}
     .chat-exit{background:0 0;border:none;color:var(--danger);display:flex;align-items:center;cursor:pointer}
@@ -146,6 +151,7 @@
     .circle-btn.recording{background:var(--danger);border-color:var(--danger);box-shadow:0 0 15px var(--danger);animation:pulse 1s infinite}
     .send-btn{width:42px;height:42px;border-radius:50%;background:var(--primary);border:none;display:grid;place-items:center;cursor:pointer;color:#000}
     @keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.1)}100%{transform:scale(1)}}
+
     .prof-view{text-align:center}
     .prof-lg{width:100px;height:100px;border-radius:50%;border:3px solid var(--primary);object-fit:cover;margin-bottom:10px}
     .prof-rank-badge{display:inline-block;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:900;text-transform:uppercase;margin-bottom:10px;color:#000;letter-spacing:1px}
@@ -162,15 +168,18 @@
     .bg-circle.selected{border-color:#fff;transform:scale(1.1)}
     .upload-tools{display:flex;gap:10px;align-items:center}
     .tool-btn{width:45px;height:45px;border-radius:50%;background:#222;border:1px solid var(--border);display:grid;place-items:center;color:#fff;cursor:pointer;flex-shrink:0}
+
     :root{--maxW:1100px}
     #mainScroll{scrollbar-gutter:stable}
     .post-visual{min-height:260px;height:clamp(260px,55vw,420px)}
     .post-visual img{width:100%;height:100%;object-fit:cover}
+
     .sponsored-pill{font-size:10px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;padding:4px 12px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.88)}
     .ad-header{position:relative;justify-content:center}
     .sponsored-center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none}
     .ad-visual{background:linear-gradient(180deg,rgba(0,210,255,.10),rgba(0,0,0,0));padding:14px}
     .ad-shell{background:#0b0f14;border:1px solid rgba(255,255,255,.10);border-radius:18px;overflow:hidden;min-height:180px;display:flex;align-items:center;justify-content:center;padding:8px}
+
     .gate-card{background:radial-gradient(120% 120% at 10% 0%, rgba(0,210,255,.18), rgba(0,0,0,0)), #0b0f14;border:1px solid rgba(255,255,255,.14);border-radius:26px;max-width:420px;width:100%;padding:18px;box-shadow:0 30px 90px rgba(0,0,0,.85)}
     .gate-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
     .gate-title{font-size:16px;font-weight:900;color:#fff}
@@ -181,38 +190,29 @@
     .gate-tiktok{margin:12px auto 0;display:flex;align-items:center;justify-content:center;gap:10px;color:#fff;text-decoration:none;font-weight:900;font-size:12px;width:fit-content;padding:10px 14px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12)}
     .gate-tiktok svg{width:16px;height:16px;fill:#fff;stroke:none}
 
-    .tour-overlay{position:fixed;inset:0;z-index:4200;display:none;align-items:flex-start;justify-content:center;padding:18px;background:rgba(0,0,0,.86);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);-webkit-mask-image:radial-gradient(circle at var(--tx,50%) var(--ty,30%), transparent 0, transparent calc(var(--tr,110px) - 2px), #000 calc(var(--tr,110px) + 2px));mask-image:radial-gradient(circle at var(--tx,50%) var(--ty,30%), transparent 0, transparent calc(var(--tr,110px) - 2px), #000 calc(var(--tr,110px) + 2px))}
-    .tour-box{width:min(520px,92vw);background:radial-gradient(120% 120% at 0% 0%, rgba(0,210,255,.22), rgba(0,0,0,0)), rgba(12,14,18,.92);border:1px solid rgba(255,255,255,.14);border-radius:22px;padding:16px 16px 14px;box-shadow:0 35px 90px rgba(0,0,0,.9);animation:tourPop .38s ease both;position:fixed;left:50%;transform:translateX(-50%);top:var(--tby, 120px);z-index:4212}
-    @keyframes tourPop{0%{transform:translateX(-50%) translateY(12px) scale(.96);opacity:0}100%{transform:translateX(-50%) translateY(0) scale(1);opacity:1}}
+    .tour-overlay{position:fixed;inset:0;z-index:4200;display:none}
+    .tour-dim{position:absolute;inset:0;pointer-events:none;opacity:1;transition:opacity .45s ease}
+    .tour-dim::before{content:"";position:absolute;inset:0;background:rgba(0,0,0,.55);-webkit-mask-image:radial-gradient(circle at var(--tx,50%) var(--ty,30%), transparent 0, transparent calc(var(--tr,110px) - 2px), #000 calc(var(--tr,110px) + 2px));mask-image:radial-gradient(circle at var(--tx,50%) var(--ty,30%), transparent 0, transparent calc(var(--tr,110px) - 2px), #000 calc(var(--tr,110px) + 2px));transition:all .65s cubic-bezier(.2,.9,.2,1)}
+    .tour-dim::after{content:"";position:absolute;left:0;right:0;bottom:0;height:38vh;background:linear-gradient(0deg, rgba(0,0,0,.78) 0%, rgba(0,0,0,.35) 55%, rgba(0,0,0,0) 100%);filter:blur(14px);opacity:.85}
+
+    .tour-ring{position:fixed;left:var(--tx,50%);top:var(--ty,30%);transform:translate(-50%,-50%);width:calc(var(--tr,110px)*2);height:calc(var(--tr,110px)*2);border-radius:999px;border:2px solid rgba(0,210,255,.55);box-shadow:0 0 0 6px rgba(0,210,255,.10), 0 35px 120px rgba(0,210,255,.22);pointer-events:none;z-index:4205;transition:left .75s cubic-bezier(.18,.88,.22,1), top .75s cubic-bezier(.18,.88,.22,1), width .75s cubic-bezier(.18,.88,.22,1), height .75s cubic-bezier(.18,.88,.22,1);animation:ringGlow 1.25s ease-in-out infinite}
+    @keyframes ringGlow{0%,100%{opacity:.92;transform:translate(-50%,-50%) scale(1)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.03)}}
+
+    .tour-arrow{position:fixed;left:var(--ax,50%);top:var(--ay,50%);transform:translate(-50%,-50%) rotate(var(--ar,0deg));z-index:4210;pointer-events:none;transition:left .78s cubic-bezier(.16,.9,.22,1), top .78s cubic-bezier(.16,.9,.22,1), transform .78s cubic-bezier(.16,.9,.22,1);animation:arrowPulse 1.05s ease-in-out infinite}
+    @keyframes arrowPulse{0%,100%{filter:drop-shadow(0 10px 30px rgba(0,210,255,.22))}50%{filter:drop-shadow(0 14px 40px rgba(0,210,255,.35))}}
+    .tour-arrow svg{width:78px;height:78px;fill:none;stroke:rgba(0,210,255,.95);stroke-width:8;stroke-linecap:round;stroke-linejoin:round}
+
+    .tour-box{width:min(520px,92vw);background:radial-gradient(120% 120% at 0% 0%, rgba(0,210,255,.22), rgba(0,0,0,0)), rgba(12,14,18,.92);border:1px solid rgba(255,255,255,.14);border-radius:22px;padding:16px 16px 14px;box-shadow:0 35px 90px rgba(0,0,0,.9);position:fixed;left:50%;transform:translateX(-50%);top:var(--tby, 120px);z-index:4212;transition:top .78s cubic-bezier(.16,.9,.22,1), transform .78s cubic-bezier(.16,.9,.22,1), opacity .45s ease}
     .tour-title{font-size:15px;font-weight:1000;letter-spacing:.2px}
     .tour-desc{margin-top:8px;font-size:13px;color:rgba(255,255,255,.72);line-height:1.55}
     .tour-actions{display:flex;justify-content:space-between;align-items:center;margin-top:14px;gap:10px}
     .tour-progress{font-size:11px;color:rgba(255,255,255,.5);font-weight:800}
     .tour-ok{border:none;cursor:pointer;border-radius:14px;padding:12px 14px;font-weight:1000;font-size:12px;background:linear-gradient(135deg,#00d2ff,#007aff);color:#000;min-width:120px;box-shadow:0 14px 40px rgba(0,210,255,.22)}
     .tour-skip{border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:#fff;border-radius:14px;padding:12px 14px;font-weight:900;font-size:12px;cursor:pointer}
-    .tour-arrow{position:fixed;left:var(--ax,50%);top:var(--ay,50%);transform:translate(-50%,-50%);z-index:4210;pointer-events:none;animation:arrowPulse 1.05s ease-in-out infinite}
-    @keyframes arrowPulse{0%,100%{transform:translate(-50%,-50%) scale(1);filter:drop-shadow(0 10px 30px rgba(0,210,255,.22))}50%{transform:translate(-50%,-52%) scale(1.06);filter:drop-shadow(0 14px 40px rgba(0,210,255,.35))}}
-    .tour-arrow svg{width:78px;height:78px;fill:none;stroke:rgba(0,210,255,.95);stroke-width:8;stroke-linecap:round;stroke-linejoin:round}
-    .tour-ring{position:fixed;left:var(--tx,50%);top:var(--ty,30%);transform:translate(-50%,-50%);width:calc(var(--tr,110px)*2);height:calc(var(--tr,110px)*2);border-radius:999px;border:2px solid rgba(0,210,255,.45);box-shadow:0 0 0 6px rgba(0,210,255,.08), 0 35px 120px rgba(0,210,255,.22);pointer-events:none;z-index:4205;animation:ringGlow 1.2s ease-in-out infinite}
-    @keyframes ringGlow{0%,100%{opacity:.9;transform:translate(-50%,-50%) scale(1)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.03)}}
 
-    .welcome-overlay{position:fixed;inset:0;z-index:4300;display:none;align-items:center;justify-content:center;padding:18px;background:radial-gradient(120% 120% at 10% 0%, rgba(0,210,255,.25), rgba(0,0,0,0)), rgba(0,0,0,.92);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
-    .welcome-card{width:min(560px,92vw);border-radius:26px;border:1px solid rgba(255,255,255,.14);background:radial-gradient(140% 140% at 0% 0%, rgba(0,210,255,.26), rgba(0,0,0,0)), rgba(12,14,18,.92);box-shadow:0 40px 120px rgba(0,0,0,.9);padding:22px 18px 18px;position:relative;overflow:hidden}
-    .welcome-glow{position:absolute;inset:-40% -20%;background:conic-gradient(from 180deg, rgba(0,210,255,.0), rgba(0,210,255,.22), rgba(0,122,255,.0), rgba(0,210,255,.18), rgba(0,210,255,.0));filter:blur(24px);animation:spin 6s linear infinite;opacity:.75}
-    @keyframes spin{to{transform:rotate(360deg)}}
-    .welcome-inner{position:relative;z-index:2}
-    .welcome-brand{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px}
-    .welcome-logo{width:52px;height:52px;border-radius:18px;background:linear-gradient(135deg,#00d2ff,#007aff);display:grid;place-items:center;color:#000;box-shadow:0 18px 60px rgba(0,210,255,.25);border:1px solid rgba(255,255,255,.14)}
-    .welcome-logo svg{width:26px;height:26px;stroke:#000}
-    .welcome-title{font-family:'Courgette',cursive;font-size:34px;color:var(--primary);text-shadow:0 0 22px rgba(0,210,255,.35)}
-    .welcome-sub{margin-top:10px;text-align:center;color:rgba(255,255,255,.72);font-size:13px;line-height:1.55}
-    .welcome-points{margin-top:14px;display:grid;gap:10px}
-    .wp{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10)}
-    .wp b{color:#fff}
-    .wp svg{width:18px;height:18px;color:rgba(0,210,255,.95);margin-top:1px}
-    .welcome-actions{display:flex;gap:10px;justify-content:space-between;align-items:center;margin-top:16px}
-    .welcome-go{border:none;cursor:pointer;border-radius:16px;padding:14px 16px;font-weight:1000;font-size:13px;background:linear-gradient(135deg,#00d2ff,#007aff);color:#000;min-width:160px;box-shadow:0 18px 60px rgba(0,210,255,.22)}
-    .welcome-later{border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:#fff;border-radius:16px;padding:14px 16px;font-weight:900;font-size:13px;cursor:pointer;min-width:140px}
+    .tour-style-0 .tour-ring,.tour-style-0 .tour-box,.tour-style-0 .tour-arrow{transition-timing-function:cubic-bezier(.16,.9,.22,1)}
+    .tour-style-1 .tour-ring,.tour-style-1 .tour-box,.tour-style-1 .tour-arrow{transition-timing-function:cubic-bezier(.15,1.05,.2,1)}
+    .tour-style-2 .tour-ring,.tour-style-2 .tour-box,.tour-style-2 .tour-arrow{transition-timing-function:cubic-bezier(.12,.88,.28,1)}
 
     @media (min-width:768px){
       #mainScroll{padding-bottom:150px}
@@ -237,14 +237,6 @@
       .post-visual{height:clamp(220px,28vh,380px)}
       .event-banner img{height:130px}
     }
-    @media (min-width:900px){
-      .authPage{flex-direction:row;overflow:hidden;padding-bottom:0}
-      .hero{width:55%;height:100vh;padding:18px}
-      .hero img{border-radius:32px;height:100%}
-      .content{width:45%;padding:60px;justify-content:center}
-      .sub-text{max-width:420px}
-      .tiktok-link{position:static;margin-top:18px;bottom:auto;left:auto;right:auto;width:fit-content;padding:0;background:transparent;border:none;backdrop-filter:none}
-    }
   </style>
   <script>
     document.addEventListener("contextmenu",e=>e.preventDefault()),
@@ -259,6 +251,16 @@
     <h1>HypeZone Elite — Morocco rooms by city and neighborhood</h1>
     <p>HypeZone is a Morocco-based social zone where you can join rooms by city and neighborhood, chat locally, and post vibes. Explore Rabat, Sale, Casablanca, Marrakech, Fes, Tangier, Agadir, Meknes, Oujda, Kenitra, Tetouan, El Jadida, Safi, Mohammedia, Nador, Beni Mellal, Khouribga, Taza, Essaouira, Laayoune and Dakhla.</p>
   </main>
+
+  <div id="splash">
+    <div class="splash-wrap">
+      <div class="splash-typing">
+        <div class="splash-title" id="splashTyped"></div><span class="cursor"></span>
+      </div>
+      <div class="splash-sub">Morocco’s Social Zone by City & Neighborhood</div>
+      <div class="splash-bar"><div class="splash-fill"></div></div>
+    </div>
+  </div>
 
   <svg style="display:none">
     <symbol id="i-home-strong" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V21a1.5 1.5 0 0 1-1.5 1.5H15v-6a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v6H4.5A1.5 1.5 0 0 1 3 21z"></path></symbol>
@@ -275,7 +277,6 @@
     <symbol id="i-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
     <symbol id="i-camera" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></symbol>
     <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></symbol>
-    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></symbol>
     <symbol id="i-bolt-filled" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="currentColor" stroke="none"/></symbol>
     <symbol id="i-gps" viewBox="0 0 24 24"><path d="M12 2a8 8 0 0 1 8 8c0 5.4-8 14-8 14S4 15.4 4 10a8 8 0 0 1 8-8z"/><circle cx="12" cy="10" r="3"/></symbol>
     <symbol id="i-exit" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol>
@@ -443,31 +444,8 @@
     </div>
   </div>
 
-  <div id="welcomeOverlay" class="welcome-overlay">
-    <div class="welcome-card">
-      <div class="welcome-glow"></div>
-      <div class="welcome-inner">
-        <div class="welcome-brand">
-          <div class="welcome-logo"><svg><use href="#i-bolt-filled"></use></svg></div>
-          <div class="welcome-title">HypeZone</div>
-        </div>
-        <div class="welcome-sub">
-          Welcome to Morocco’s local zone — rooms by <b>city</b> and <b>neighborhood</b>, real vibes, real people.
-        </div>
-        <div class="welcome-points">
-          <div class="wp"><svg><use href="#i-rooms-strong"></use></svg><div><b>Rooms</b> by city & neighborhood. Join instantly.</div></div>
-          <div class="wp"><svg><use href="#i-plus-strong"></use></svg><div><b>Post</b> your vibe in seconds. Image or background.</div></div>
-          <div class="wp"><svg><use href="#i-chat"></use></svg><div><b>Chat</b> live in rooms. Read free, send with login.</div></div>
-        </div>
-        <div class="welcome-actions">
-          <button class="welcome-later" id="welcomeLater">Skip</button>
-          <button class="welcome-go" id="welcomeGo">Let’s go</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <div id="tourOverlay" class="tour-overlay">
+    <div class="tour-dim"></div>
     <div class="tour-ring"></div>
     <div class="tour-arrow" id="tourArrow">
       <svg viewBox="0 0 100 100">
@@ -489,8 +467,8 @@
   <script>
     const sb=supabase.createClient("https://tujdnvnrizgqroaozsqp.supabase.co","sb_publishable_WyigevxmzR2gLtbog2Ztfg_8pdmSwop");
     let session,currentBg,currentPostId,currentRoomKey=null,currentRoomLabel=null,recorder,chunks=[],roomSub,currentPlayingBtn=null,myProfile={},isEditing=!1,currentEditingUser=null,roomPollTimer=null,lastRoomCreatedAt=null,seenRoomMsgIds=new Set,roomProfileCache={};
-    const globalAudio=document.getElementById("globalAudio"),
-    cities={
+    const globalAudio=document.getElementById("globalAudio");
+    const cities={
       rabat:{name:"Rabat",hoods:["Agdal","Hassan","Hay Riad","Ocean","Medina","Souissi","Yacoub Al Mansour","Akkari","Kammra","Temara","Skhirat"]},
       sale:{name:"Sale",hoods:["Diar","Hay Chmaaou","Opera","Wad Adahab","Bab Lmrissa","Tabriquet","Sala Al Jadida","Hay Salam","Bettana","Sidi Moussa"]},
       casablanca:{name:"Casablanca",hoods:["Maarif","Anfa","Ain Diab","Gauthier","Bourgogne","Racine","Sidi Maarouf","Hay Hassani","Ain Sebaa","Sidi Bernoussi","Oulfa","California","Beausejour","Derb Sultan","Mers Sultan","Belvedere","Hay Mohammadi","Sbata","Ben M'Sick","Lissasfa","Zenata"]},
@@ -513,18 +491,13 @@
       laayoune:{name:"Laayoune",hoods:["Centre Ville","Maatallah","Al Massira","Hay Salam","El Wifaq"]},
       dakhla:{name:"Dakhla",hoods:["City Center","Al Wahda","Al Matar","Al Qassam"]}
     };
-    const cityOrder=["rabat","sale","casablanca","marrakech","fes","tangier","agadir","meknes","oujda","kenitra","tetouan","eljadida","safi","mohammedia","nador","benimellal","khouribga","taza","essaouira","laayoune","dakhla"],
-    gradients=["linear-gradient(45deg,#ff9a9e,#fecfef)","linear-gradient(120deg,#84fab0,#8fd3f4)","linear-gradient(to top,#30cfd0,#330867)","linear-gradient(to right,#434343,black)","linear-gradient(to top,#fcc5e4,#020f75)"];
+    const cityOrder=["rabat","sale","casablanca","marrakech","fes","tangier","agadir","meknes","oujda","kenitra","tetouan","eljadida","safi","mohammedia","nador","benimellal","khouribga","taza","essaouira","laayoune","dakhla"];
+    const gradients=["linear-gradient(45deg,#ff9a9e,#fecfef)","linear-gradient(120deg,#84fab0,#8fd3f4)","linear-gradient(to top,#30cfd0,#330867)","linear-gradient(to right,#434343,black)","linear-gradient(to top,#fcc5e4,#020f75)"];
 
     function lockTourScroll(on){
       const ms=document.getElementById("mainScroll");
-      if(on){
-        document.body.classList.add("tour-lock");
-        ms.classList.add("tour-lock")
-      }else{
-        document.body.classList.remove("tour-lock");
-        ms.classList.remove("tour-lock")
-      }
+      if(on){document.body.classList.add("tour-lock");ms.classList.add("tour-lock")}
+      else{document.body.classList.remove("tour-lock");ms.classList.remove("tour-lock")}
     }
 
     function roomKey(e,t){return e+"|"+t}
@@ -581,19 +554,47 @@
       })
     }
 
+    function typeSplash(){
+      const el=document.getElementById("splashTyped");
+      const txt="HypeZone";
+      el.textContent="";
+      let i=0;
+      const total=1200;
+      const step=Math.max(20,Math.floor(total/txt.length));
+      const timer=setInterval(()=>{
+        i++;
+        el.textContent=txt.slice(0,i);
+        if(i>=txt.length) clearInterval(timer);
+      },step);
+    }
+
+    function showSplashThenStart(){
+      const splash=document.getElementById("splash");
+      splash.style.display="flex";
+      lockTourScroll(true);
+      typeSplash();
+      setTimeout(()=>{
+        splash.style.display="none";
+        const first=localStorage.getItem("hz_tour_v2")!=="1";
+        if(first){
+          buildTourSteps();
+          startTour();
+        }else{
+          lockTourScroll(false);
+        }
+      },1500)
+    }
+
     async function init(){
       renderCities();renderGradients();renderSetupHoods();renderTopRight();loadFeed();
       const {data:e}=await sb.auth.getSession();
-      if(e.session){
-        session=e.session;
-        await checkProfile()
-      }
+      if(e.session){session=e.session;await checkProfile()}
       renderTopRight();
       sb.auth.onAuthStateChange(async e=>{
         if("SIGNED_OUT"===e){session=null;myProfile={};renderTopRight();loadFeed()}
         if("SIGNED_IN"===e){const {data:t}=await sb.auth.getSession();session=t.session;await checkProfile();renderTopRight();loadFeed()}
       });
-      setTimeout(()=>{firstRunFlow()},700)
+      showSplashThenStart();
     }
 
     async function checkProfile(){
@@ -891,25 +892,9 @@
     const tourOk=document.getElementById("tourOk");
     const tourSkip=document.getElementById("tourSkip");
     const tourProg=document.getElementById("tourProg");
-    const tourArrow=document.getElementById("tourArrow");
-    const welcomeOverlay=document.getElementById("welcomeOverlay");
-    const welcomeGo=document.getElementById("welcomeGo");
-    const welcomeLater=document.getElementById("welcomeLater");
     let tourStep=0;
     let tourSteps=[];
-
-    function firstRunFlow(){
-      if(localStorage.getItem("hz_tour_v2")==="1") return;
-      lockTourScroll(true);
-      welcomeOverlay.style.display="flex"
-    }
-
-    function startTourAfterWelcome(){
-      welcomeOverlay.style.display="none";
-      buildTourSteps();
-      if(!tourSteps.length){endTour();return}
-      startTour()
-    }
+    let styleIdx=0;
 
     function buildTourSteps(){
       const firstHood=document.querySelector("#citiesWrap .hood-item");
@@ -926,19 +911,19 @@
 
     function startTour(){
       tourStep=0;
-      tourOverlay.style.display="flex";
-      renderTourStep();
-      window.addEventListener("resize",renderTourStep,{passive:true});
-      document.getElementById("mainScroll").addEventListener("scroll",renderTourStep,{passive:true})
+      styleIdx=0;
+      tourOverlay.style.display="block";
+      tourOverlay.classList.remove("tour-style-0","tour-style-1","tour-style-2");
+      tourOverlay.classList.add("tour-style-0");
+      renderTourStep(true);
+      window.addEventListener("resize",()=>renderTourStep(false),{passive:true});
+      document.getElementById("mainScroll").addEventListener("scroll",()=>renderTourStep(false),{passive:true});
     }
 
     function endTour(){
       tourOverlay.style.display="none";
-      welcomeOverlay.style.display="none";
       localStorage.setItem("hz_tour_v2","1");
       lockTourScroll(false);
-      window.removeEventListener("resize",renderTourStep);
-      document.getElementById("mainScroll").removeEventListener("scroll",renderTourStep)
     }
 
     function resolveTourTarget(step){
@@ -947,19 +932,19 @@
       return null
     }
 
-    function placeArrow(x,y,r,dir){
-      let ax=x,ay=y;
-      if(dir==="up"){ay=y+r+68}
-      if(dir==="down"){ay=y-r-68}
-      if(dir==="left"){ax=x+r+78}
-      if(dir==="right"){ax=x-r-78}
+    function placeArrow(cx,cy,r,dir){
+      let ax=cx,ay=cy;
+      if(dir==="up"){ay=cy+r+70}
+      if(dir==="down"){ay=cy-r-70}
+      if(dir==="left"){ax=cx+r+80}
+      if(dir==="right"){ax=cx-r-80}
       tourOverlay.style.setProperty("--ax",ax+"px");
       tourOverlay.style.setProperty("--ay",ay+"px");
       let rot=0;
       if(dir==="up") rot=180;
       if(dir==="left") rot=90;
       if(dir==="right") rot=-90;
-      tourArrow.style.transform=`translate(-50%,-50%) rotate(${rot}deg)`
+      tourOverlay.style.setProperty("--ar",rot+"deg");
     }
 
     function computeBoxTop(cx,cy,r,rect){
@@ -985,45 +970,54 @@
       return top
     }
 
-    function renderTourStep(){
-      if(tourOverlay.style.display!=="flex") return;
+    function renderTourStep(initial){
+      if(tourOverlay.style.display!=="block") return;
       const step=tourSteps[tourStep];
       if(!step) return;
+
       if(step.action && !step._done){
         step._done=!0;
         try{step.action()}catch(e){}
-        setTimeout(renderTourStep,220);
+        setTimeout(()=>renderTourStep(false),240);
         return
       }
+
       const el=resolveTourTarget(step);
       let rect=null;
       if(el && el.getBoundingClientRect) rect=el.getBoundingClientRect();
       if(!rect){
         rect={left:window.innerWidth*0.5-60,top:window.innerHeight*0.3-60,width:120,height:120}
       }
+
       const cx=rect.left+rect.width/2;
       const cy=rect.top+rect.height/2;
-      const r=Math.max(70,Math.min(160,Math.max(rect.width,rect.height)*0.72));
+      const r=Math.max(72,Math.min(170,Math.max(rect.width,rect.height)*0.72));
       tourOverlay.style.setProperty("--tx",cx+"px");
       tourOverlay.style.setProperty("--ty",cy+"px");
       tourOverlay.style.setProperty("--tr",r+"px");
+
       const top=computeBoxTop(cx,cy,r,rect);
       tourOverlay.style.setProperty("--tby",top+"px");
+
       tourTitle.textContent=step.title||"Guide";
       tourDesc.textContent=step.desc||"";
       tourProg.textContent=`${tourStep+1}/${tourSteps.length}`;
-      placeArrow(cx,cy,r,step.arrow||"down")
+
+      placeArrow(cx,cy,r,step.arrow||"down");
+
+      if(!initial){
+        styleIdx=(styleIdx+1)%3;
+        tourOverlay.classList.remove("tour-style-0","tour-style-1","tour-style-2");
+        tourOverlay.classList.add("tour-style-"+styleIdx);
+      }
     }
 
     tourOk.onclick=()=>{
       tourStep++;
       if(tourStep>=tourSteps.length){endTour();return}
-      renderTourStep()
+      renderTourStep(false)
     };
     tourSkip.onclick=()=>endTour();
-
-    welcomeGo.onclick=()=>startTourAfterWelcome();
-    welcomeLater.onclick=()=>endTour();
 
     document.getElementById("gateGoogleBtn").onclick=async()=>await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo:window.location.href}});
 
