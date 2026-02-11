@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -24,46 +23,6 @@
   <meta name="twitter:image" content="https://up6.cc/2026/02/177066115684561.jpg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "Organization",
-        "@id": "https://hypezone-maroc.vercel.app/#organization",
-        "name": "HypeZone",
-        "url": "https://hypezone-maroc.vercel.app/",
-        "logo": "https://up6.cc/2026/02/177066115684561.jpg",
-        "sameAs": [
-          "https://www.tiktok.com/@rabathangout?_r=1&_t=ZS-93oNd7MTmxo"
-        ]
-      },
-      {
-        "@type": "WebSite",
-        "@id": "https://hypezone-maroc.vercel.app/#website",
-        "url": "https://hypezone-maroc.vercel.app/",
-        "name": "HypeZone",
-        "publisher": { "@id": "https://hypezone-maroc.vercel.app/#organization" },
-        "inLanguage": "en",
-        "potentialAction": {
-          "@type": "SearchAction",
-          "target": "https://hypezone-maroc.vercel.app/?q={search_term_string}",
-          "query-input": "required name=search_term_string"
-        }
-      },
-      {
-        "@type": "WebApplication",
-        "@id": "https://hypezone-maroc.vercel.app/#app",
-        "name": "HypeZone Elite",
-        "applicationCategory": "SocialNetworkingApplication",
-        "operatingSystem": "Web",
-        "url": "https://hypezone-maroc.vercel.app/"
-      }
-    ]
-  }
-  </script>
-  <meta name="application-name" content="HypeZone Elite" />
-  <meta name="referrer" content="strict-origin-when-cross-origin" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Courgette&display=swap" rel="stylesheet" />
   <style>
@@ -86,6 +45,8 @@
     .tiktok-link{position:fixed;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);margin:0 auto;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;color:#1a1a1a;font-weight:700;font-size:14px;width:fit-content;padding:10px 14px;border-radius:999px;background:rgba(255,255,255,.75);backdrop-filter:blur(10px);border:1px solid rgba(0,0,0,.08)}
     @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
     #mainScroll{height:100vh;overflow-y:auto;padding-bottom:110px;position:relative}
+    #mainScroll.tour-lock{overflow:hidden!important;touch-action:none!important}
+    body.tour-lock{overflow:hidden!important}
     .topbar{padding:15px 20px;display:flex;justify-content:space-between;align-items:center;background:0 0;z-index:50}
     .brand{font-family:'Courgette',cursive;font-size:26px;color:var(--primary);text-shadow:0 0 15px rgba(0,210,255,.4)}
     .user-badge{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.08);padding:7px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.12);cursor:pointer;backdrop-filter:blur(12px)}
@@ -221,8 +182,8 @@
     .gate-tiktok svg{width:16px;height:16px;fill:#fff;stroke:none}
 
     .tour-overlay{position:fixed;inset:0;z-index:4200;display:none;align-items:flex-start;justify-content:center;padding:18px;background:rgba(0,0,0,.86);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);-webkit-mask-image:radial-gradient(circle at var(--tx,50%) var(--ty,30%), transparent 0, transparent calc(var(--tr,110px) - 2px), #000 calc(var(--tr,110px) + 2px));mask-image:radial-gradient(circle at var(--tx,50%) var(--ty,30%), transparent 0, transparent calc(var(--tr,110px) - 2px), #000 calc(var(--tr,110px) + 2px))}
-    .tour-box{margin-top:calc(var(--tby, 120px));width:min(520px,92vw);background:radial-gradient(120% 120% at 0% 0%, rgba(0,210,255,.22), rgba(0,0,0,0)), rgba(12,14,18,.92);border:1px solid rgba(255,255,255,.14);border-radius:22px;padding:16px 16px 14px;box-shadow:0 35px 90px rgba(0,0,0,.9);animation:tourPop .38s ease both}
-    @keyframes tourPop{0%{transform:translateY(12px) scale(.96);opacity:0}100%{transform:translateY(0) scale(1);opacity:1}}
+    .tour-box{width:min(520px,92vw);background:radial-gradient(120% 120% at 0% 0%, rgba(0,210,255,.22), rgba(0,0,0,0)), rgba(12,14,18,.92);border:1px solid rgba(255,255,255,.14);border-radius:22px;padding:16px 16px 14px;box-shadow:0 35px 90px rgba(0,0,0,.9);animation:tourPop .38s ease both;position:fixed;left:50%;transform:translateX(-50%);top:var(--tby, 120px);z-index:4212}
+    @keyframes tourPop{0%{transform:translateX(-50%) translateY(12px) scale(.96);opacity:0}100%{transform:translateX(-50%) translateY(0) scale(1);opacity:1}}
     .tour-title{font-size:15px;font-weight:1000;letter-spacing:.2px}
     .tour-desc{margin-top:8px;font-size:13px;color:rgba(255,255,255,.72);line-height:1.55}
     .tour-actions{display:flex;justify-content:space-between;align-items:center;margin-top:14px;gap:10px}
@@ -234,6 +195,24 @@
     .tour-arrow svg{width:78px;height:78px;fill:none;stroke:rgba(0,210,255,.95);stroke-width:8;stroke-linecap:round;stroke-linejoin:round}
     .tour-ring{position:fixed;left:var(--tx,50%);top:var(--ty,30%);transform:translate(-50%,-50%);width:calc(var(--tr,110px)*2);height:calc(var(--tr,110px)*2);border-radius:999px;border:2px solid rgba(0,210,255,.45);box-shadow:0 0 0 6px rgba(0,210,255,.08), 0 35px 120px rgba(0,210,255,.22);pointer-events:none;z-index:4205;animation:ringGlow 1.2s ease-in-out infinite}
     @keyframes ringGlow{0%,100%{opacity:.9;transform:translate(-50%,-50%) scale(1)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.03)}}
+
+    .welcome-overlay{position:fixed;inset:0;z-index:4300;display:none;align-items:center;justify-content:center;padding:18px;background:radial-gradient(120% 120% at 10% 0%, rgba(0,210,255,.25), rgba(0,0,0,0)), rgba(0,0,0,.92);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+    .welcome-card{width:min(560px,92vw);border-radius:26px;border:1px solid rgba(255,255,255,.14);background:radial-gradient(140% 140% at 0% 0%, rgba(0,210,255,.26), rgba(0,0,0,0)), rgba(12,14,18,.92);box-shadow:0 40px 120px rgba(0,0,0,.9);padding:22px 18px 18px;position:relative;overflow:hidden}
+    .welcome-glow{position:absolute;inset:-40% -20%;background:conic-gradient(from 180deg, rgba(0,210,255,.0), rgba(0,210,255,.22), rgba(0,122,255,.0), rgba(0,210,255,.18), rgba(0,210,255,.0));filter:blur(24px);animation:spin 6s linear infinite;opacity:.75}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .welcome-inner{position:relative;z-index:2}
+    .welcome-brand{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px}
+    .welcome-logo{width:52px;height:52px;border-radius:18px;background:linear-gradient(135deg,#00d2ff,#007aff);display:grid;place-items:center;color:#000;box-shadow:0 18px 60px rgba(0,210,255,.25);border:1px solid rgba(255,255,255,.14)}
+    .welcome-logo svg{width:26px;height:26px;stroke:#000}
+    .welcome-title{font-family:'Courgette',cursive;font-size:34px;color:var(--primary);text-shadow:0 0 22px rgba(0,210,255,.35)}
+    .welcome-sub{margin-top:10px;text-align:center;color:rgba(255,255,255,.72);font-size:13px;line-height:1.55}
+    .welcome-points{margin-top:14px;display:grid;gap:10px}
+    .wp{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10)}
+    .wp b{color:#fff}
+    .wp svg{width:18px;height:18px;color:rgba(0,210,255,.95);margin-top:1px}
+    .welcome-actions{display:flex;gap:10px;justify-content:space-between;align-items:center;margin-top:16px}
+    .welcome-go{border:none;cursor:pointer;border-radius:16px;padding:14px 16px;font-weight:1000;font-size:13px;background:linear-gradient(135deg,#00d2ff,#007aff);color:#000;min-width:160px;box-shadow:0 18px 60px rgba(0,210,255,.22)}
+    .welcome-later{border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:#fff;border-radius:16px;padding:14px 16px;font-weight:900;font-size:13px;cursor:pointer;min-width:140px}
 
     @media (min-width:768px){
       #mainScroll{padding-bottom:150px}
@@ -279,15 +258,7 @@
   <main class="visually-hidden-seo" aria-hidden="false">
     <h1>HypeZone Elite — Morocco rooms by city and neighborhood</h1>
     <p>HypeZone is a Morocco-based social zone where you can join rooms by city and neighborhood, chat locally, and post vibes. Explore Rabat, Sale, Casablanca, Marrakech, Fes, Tangier, Agadir, Meknes, Oujda, Kenitra, Tetouan, El Jadida, Safi, Mohammedia, Nador, Beni Mellal, Khouribga, Taza, Essaouira, Laayoune and Dakhla.</p>
-    <p>Indexing: <a href="/sitemap.xml">sitemap.xml</a> and <a href="/robots.txt">robots.txt</a>.</p>
   </main>
-
-  <noscript>
-    <div style="padding:16px;max-width:980px;margin:0 auto;color:#fff;font-family:Outfit,sans-serif">
-      <h1>HypeZone Elite</h1>
-      <p>This app requires JavaScript to run. You can still view site information and indexing resources at /sitemap.xml and /robots.txt.</p>
-    </div>
-  </noscript>
 
   <svg style="display:none">
     <symbol id="i-home-strong" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V21a1.5 1.5 0 0 1-1.5 1.5H15v-6a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v6H4.5A1.5 1.5 0 0 1 3 21z"></path></symbol>
@@ -311,28 +282,6 @@
   </svg>
 
   <audio id="globalAudio"></audio>
-
-  <div id="authView" class="authPage">
-    <div class="hero">
-      <img src="https://up6.cc/2026/02/177066115684561.jpg" alt="HypeZone cover">
-    </div>
-    <div class="content">
-      <div class="typing-container">
-        <h1 class="dynamic-title" id="typewriter"></h1><span class="cursor"></span>
-      </div>
-      <p class="sub-text">Discover trusted zones, real hype, and people who actually show up.</p>
-      <button class="google-btn" id="googleBtn">
-        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
-        Login with Google
-      </button>
-    </div>
-    <a href="https://www.tiktok.com/@rabathangout?_r=1&_t=ZS-93oNd7MTmxo" class="tiktok-link" rel="nofollow">
-      <svg style="width:18px;height:18px" fill="currentColor" viewBox="0 0 448 512">
-        <path d="M448 209.91a210.06 210.06 0 0 1-122.77-39.25v178.72A162.55 162.55 0 1 1 185 188.31v89.89a74.62 74.62 0 1 0 52.23 71.18V0h88a121.18 121.18 0 0 0 1.86 22.17A122.18 122.18 0 0 0 381 102.39a121.43 121.43 0 0 0 67 20.14z"/>
-      </svg>
-      TikTok
-    </a>
-  </div>
 
   <div id="mainScroll">
     <div id="app">
@@ -494,6 +443,30 @@
     </div>
   </div>
 
+  <div id="welcomeOverlay" class="welcome-overlay">
+    <div class="welcome-card">
+      <div class="welcome-glow"></div>
+      <div class="welcome-inner">
+        <div class="welcome-brand">
+          <div class="welcome-logo"><svg><use href="#i-bolt-filled"></use></svg></div>
+          <div class="welcome-title">HypeZone</div>
+        </div>
+        <div class="welcome-sub">
+          Welcome to Morocco’s local zone — rooms by <b>city</b> and <b>neighborhood</b>, real vibes, real people.
+        </div>
+        <div class="welcome-points">
+          <div class="wp"><svg><use href="#i-rooms-strong"></use></svg><div><b>Rooms</b> by city & neighborhood. Join instantly.</div></div>
+          <div class="wp"><svg><use href="#i-plus-strong"></use></svg><div><b>Post</b> your vibe in seconds. Image or background.</div></div>
+          <div class="wp"><svg><use href="#i-chat"></use></svg><div><b>Chat</b> live in rooms. Read free, send with login.</div></div>
+        </div>
+        <div class="welcome-actions">
+          <button class="welcome-later" id="welcomeLater">Skip</button>
+          <button class="welcome-go" id="welcomeGo">Let’s go</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div id="tourOverlay" class="tour-overlay">
     <div class="tour-ring"></div>
     <div class="tour-arrow" id="tourArrow">
@@ -541,17 +514,17 @@
       dakhla:{name:"Dakhla",hoods:["City Center","Al Wahda","Al Matar","Al Qassam"]}
     };
     const cityOrder=["rabat","sale","casablanca","marrakech","fes","tangier","agadir","meknes","oujda","kenitra","tetouan","eljadida","safi","mohammedia","nador","benimellal","khouribga","taza","essaouira","laayoune","dakhla"],
-    gradients=["linear-gradient(45deg,#ff9a9e,#fecfef)","linear-gradient(120deg,#84fab0,#8fd3f4)","linear-gradient(to top,#30cfd0,#330867)","linear-gradient(to right,#434343,black)","linear-gradient(to top,#fcc5e4,#020f75)"],
-    phrases=["This isn't an app. It's a zone.","Find hype where people show up.","Discover Morocco's hottest rooms.","Real hype, real people.","Join the HypeZone crew."];
-    let phraseIdx=0,charIdx=0,isDeleting=!1;
+    gradients=["linear-gradient(45deg,#ff9a9e,#fecfef)","linear-gradient(120deg,#84fab0,#8fd3f4)","linear-gradient(to top,#30cfd0,#330867)","linear-gradient(to right,#434343,black)","linear-gradient(to top,#fcc5e4,#020f75)"];
 
-    function type(){
-      const e=phrases[phraseIdx],t=document.getElementById("typewriter");
-      if(!t) return;
-      isDeleting?(t.textContent=e.substring(0,charIdx-1),charIdx--):(t.textContent=e.substring(0,charIdx+1),charIdx++);
-      let n=isDeleting?50:100;
-      isDeleting||charIdx!==e.length?isDeleting&&0===charIdx&&(isDeleting=!1,phraseIdx=(phraseIdx+1)%phrases.length,n=500):(n=2e3,isDeleting=!0),
-      setTimeout(type,n)
+    function lockTourScroll(on){
+      const ms=document.getElementById("mainScroll");
+      if(on){
+        document.body.classList.add("tour-lock");
+        ms.classList.add("tour-lock")
+      }else{
+        document.body.classList.remove("tour-lock");
+        ms.classList.remove("tour-lock")
+      }
     }
 
     function roomKey(e,t){return e+"|"+t}
@@ -585,7 +558,7 @@
         e.innerHTML=`<img id="myAvatar" alt="My avatar" src="${myProfile.avatar_url||""}"><span class="vibe-score"><svg style="width:14px;height:14px;color:var(--viby)"><use href="#i-bolt-filled"></use></svg><span id="myScore">${myProfile.vibe_score||0}</span></span>`
       }else{
         e.onclick=()=>showLoginGate();
-        e.innerHTML=`<span class="badge-icon"><svg style="width:18px;height:18px"><use href="#i-user-strong"></use></svg></span><span class="badge-text"><span class="badge-title">Login</span><span class="badge-sub">Sponsored-free access</span></span>`
+        e.innerHTML=`<span class="badge-icon"><svg style="width:18px;height:18px"><use href="#i-user-strong"></use></svg></span><span class="badge-text"><span class="badge-title">Guest</span><span class="badge-sub">guest</span></span>`
       }
     }
 
@@ -609,7 +582,7 @@
     }
 
     async function init(){
-      type();renderCities();renderGradients();renderSetupHoods();renderTopRight();loadFeed();
+      renderCities();renderGradients();renderSetupHoods();renderTopRight();loadFeed();
       const {data:e}=await sb.auth.getSession();
       if(e.session){
         session=e.session;
@@ -620,7 +593,13 @@
         if("SIGNED_OUT"===e){session=null;myProfile={};renderTopRight();loadFeed()}
         if("SIGNED_IN"===e){const {data:t}=await sb.auth.getSession();session=t.session;await checkProfile();renderTopRight();loadFeed()}
       });
-      setTimeout(()=>{tryStartTour()},650)
+      setTimeout(()=>{firstRunFlow()},700)
+    }
+
+    async function checkProfile(){
+      if(!session||!session.user) return;
+      const {data:e}=await sb.from("profiles").select("*").eq("id",session.user.id).single();
+      if(e&&e.username){myProfile=e;renderTopRight()}else{myProfile={};renderTopRight()}
     }
 
     function timeAgo(e){
@@ -631,21 +610,9 @@
       const o=Math.floor(n/60);
       return o<24?o+"h":Math.floor(o/24)+"d"
     }
-    function formatChatTime(e){return new Date(e).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}
     function getRank(e){return e<50?{name:"ROOKIE",cls:"rank-rookie"}:e<1e3?{name:"GOLD",cls:"rank-gold"}:{name:"LEGEND",cls:"rank-legend"}}
-
-    async function checkProfile(){
-      if(!session||!session.user) return;
-      const {data:e}=await sb.from("profiles").select("*").eq("id",session.user.id).single();
-      if(e&&e.username){
-        myProfile=e;
-        document.getElementById("setupModal").style.display="none";
-        renderTopRight();
-      }else{
-        myProfile={};
-        renderTopRight()
-      }
-    }
+    function formatChatTime(e){return new Date(e).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}
+    function escapeHtml(e){return e?e.replace(/&/g,"&amp;").replace(/</g,"&lt;"):""}
 
     async function loadFeed(){
       const e=document.getElementById("feedList");
@@ -672,6 +639,68 @@
       mountAds()
     }
 
+    function closeModal(e){document.getElementById(e).style.display="none"}
+
+    function switchView(e,t){
+      document.querySelectorAll(".dock-btn").forEach(e=>e.classList.remove("active")),
+      t.classList.add("active"),
+      document.getElementById("feedView").classList.add("hidden"),
+      document.getElementById("roomsView").classList.add("hidden"),
+      document.getElementById(e+"View").classList.remove("hidden")
+    }
+
+    function renderCities(){
+      const e=document.getElementById("citiesWrap"); if(!e) return;
+      e.innerHTML="";
+      cityOrder.forEach(t=>{
+        const n=cities[t]; if(!n) return;
+        const o=document.createElement("div");
+        o.className="city-header",
+        o.innerHTML=`<svg class="city-icon"><use href="#i-gps"></use></svg><span class="city-title">${n.name.toUpperCase()}</span>`;
+        const r=document.createElement("div");
+        r.className="hood-grid",r.id=t+"Grid",
+        n.hoods.forEach(e=>{
+          r.innerHTML+=`<div class="hood-item" onclick="openRoom('${t}','${e}')"><div class="online-dot"></div><div class="hood-name">${e}</div></div>`
+        }),
+        e.appendChild(o),e.appendChild(r)
+      })
+    }
+
+    function renderGradients(){
+      const e=document.getElementById("bgOptions");
+      gradients.forEach(t=>e.innerHTML+=`<div class="bg-circle" style="background:${t}" onclick="setBg('${t}', this)"></div>`)
+    }
+    function setBg(e,t){
+      currentBg=e,document.querySelectorAll(".bg-circle").forEach(e=>e.classList.remove("selected")),t&&t.classList.add("selected")
+    }
+    function renderSetupHoods(){
+      const e=document.getElementById("setupHood"); if(!e) return;
+      e.innerHTML="";
+      cityOrder.forEach(t=>{
+        const n=cities[t]; if(!n) return;
+        const o=document.createElement("optgroup");
+        o.label=n.name;
+        n.hoods.forEach(n=>{
+          const r=document.createElement("option");
+          r.value=roomKey(t,n),r.textContent=n,o.appendChild(r)
+        }),
+        e.appendChild(o)
+      });
+      e.value=roomKey("rabat","Agdal")
+    }
+
+    async function openComments(e){currentPostId=e,document.getElementById("commentsModal").style.display="flex",loadPostComments()}
+    async function loadPostComments(){
+      const e=document.getElementById("postCommentsList");
+      e.innerHTML="Loading...";
+      const {data:t}=await sb.from("comments").select("*, profiles(*)").eq("post_id",currentPostId).order("created_at");
+      e.innerHTML="",t&&t.forEach(t=>{
+        const r=t.audio_url?`<div class="audio-player" onclick="playAudio('${t.audio_url}', this)"><div class="audio-btn"><svg style="width:14px;height:14px;fill:#000;stroke:none"><use href="#i-play"></use></svg></div><div class="audio-wave"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div><span class="audio-text">Voice</span></div>`:
+        `<div class="c-text">${escapeHtml(t.text_content)}</div>`;
+        e.innerHTML+=`<div class="comment-item"><img class="c-avatar" src="${t.profiles.avatar_url}" onclick="openProfile('${t.profiles.id}')"><div class="c-content"><div class="c-bubble"><div class="c-header"><span class="c-user" onclick="openProfile('${t.profiles.id}')">${t.profiles.username}</span><span class="c-time">${timeAgo(t.created_at)}</span></div>${r}</div></div></div>`
+      })
+    }
+
     function playAudio(e,t){
       if(currentPlayingBtn===t&&!globalAudio.paused) return globalAudio.pause(),void resetPlayerUI(t);
       currentPlayingBtn&&currentPlayingBtn!==t&&resetPlayerUI(currentPlayingBtn),
@@ -686,52 +715,42 @@
       e.querySelector(".audio-text").innerText="Play Voice")
     }
 
-    async function openComments(e){currentPostId=e,document.getElementById("commentsModal").style.display="flex",loadPostComments()}
-    async function loadPostComments(){
-      const e=document.getElementById("postCommentsList");
-      e.innerHTML="Loading...";
-      const {data:t}=await sb.from("comments").select("*, profiles(*)").eq("post_id",currentPostId).order("created_at"),
-      n=(session&&session.user&&session.user.id)?(await sb.from("comment_votes").select("comment_id").eq("user_id",session.user.id)).data:null,
-      o=new Set(n?n.map(e=>e.comment_id):[]);
-      e.innerHTML="",t&&t.forEach(t=>{
-        const n=o.has(t.id),
-        r=t.audio_url?`<div class="audio-player" onclick="playAudio('${t.audio_url}', this)"><div class="audio-btn"><svg style="width:14px;height:14px;fill:#000;stroke:none"><use href="#i-play"></use></svg></div><div class="audio-wave"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div><span class="audio-text">Voice</span></div>`:
-        `<div class="c-text">${escapeHtml(t.text_content)}</div>`;
-        e.innerHTML+=`<div class="comment-item"><img class="c-avatar" src="${t.profiles.avatar_url}" onclick="openProfile('${t.profiles.id}')"><div class="c-content"><div class="c-bubble"><div class="c-header"><span class="c-user" onclick="openProfile('${t.profiles.id}')">${t.profiles.username}</span><span class="c-time">${timeAgo(t.created_at)}</span></div>${r}</div><div class="c-actions"><button class="c-like-btn ${n?"active":""}" onclick="voteComment('${t.id}', this)"><svg style="width:14px"><use href="#i-heart"></use></svg> Like</button></div></div></div>`
-      })
+    function previewFile(){
+      document.getElementById("imgPreview").src=URL.createObjectURL(document.getElementById("postFile").files[0]),
+      document.getElementById("imgPreview").style.display="block"
     }
 
-    async function voteComment(e,t){
+    function openCreate(){
       if(!requireAuth()) return;
-      const n=t.classList.contains("active");
-      t.classList.toggle("active"),
-      n?await sb.from("comment_votes").delete().eq("user_id",session.user.id).eq("comment_id",e):
-      await sb.from("comment_votes").insert({user_id:session.user.id,comment_id:e,vote_type:1})
+      document.getElementById("createModal").style.display="flex"
     }
 
-    async function startRecording(e,t){
+    async function submitPost(){
       if(!requireAuth()) return;
-      if(!recorder||"inactive"===recorder.state)
-        try{
-          const n=await navigator.mediaDevices.getUserMedia({audio:!0});
-          recorder=new MediaRecorder(n),chunks=[],
-          recorder.ondataavailable=e=>chunks.push(e.data),
-          recorder.onstop=async()=>{
-            const e=new Blob(chunks,{type:"audio/webm"}),n=`aud-${Date.now()}.webm`;
-            await sb.storage.from("audio_comments").upload(n,e);
-            const {data:o}=sb.storage.from("audio_comments").getPublicUrl(n);
-            t(o.publicUrl)
-          },
-          recorder.start(),e.classList.add("recording")
-        }catch(e){alert("Mic Error: Use HTTPS")}
-      else recorder.stop(),e.classList.remove("recording")
+      const e=document.getElementById("postCap").value,t=document.getElementById("postFile").files[0];
+      let n=null;
+      if(!currentBg&&!t)return alert("Select background or image");
+      if(t&&!currentBg){
+        const e=`${Date.now()}`;
+        await sb.storage.from("post_images").upload(e,t),
+        n=sb.storage.from("post_images").getPublicUrl(e).data.publicUrl
+      }
+      await sb.from("posts").insert({user_id:session.user.id,caption:e,image_url:n,background_style:currentBg}),
+      document.getElementById("createModal").style.display="none",
+      loadFeed()
     }
 
-    async function sendPostComment(){
+    async function deletePost(e){
       if(!requireAuth()) return;
-      const e=document.getElementById("commentInput").value;
-      e&&(await sb.from("comments").insert({post_id:currentPostId,user_id:session.user.id,text_content:e}),
-      document.getElementById("commentInput").value="",loadPostComments())
+      confirm("Delete this vibe?")&&(await sb.from("posts").delete().eq("id",e),loadFeed())
+    }
+
+    async function vote(e,t){
+      if(!requireAuth()) return;
+      const {data:n}=await sb.from("post_votes").select("*").eq("user_id",session.user.id).eq("post_id",e).maybeSingle();
+      n?n.vote_type===t?await sb.from("post_votes").delete().eq("id",n.id):await sb.from("post_votes").update({vote_type:t}).eq("id",n.id):
+      await sb.from("post_votes").insert({user_id:session.user.id,post_id:e,vote_type:t}),
+      loadFeed()
     }
 
     async function openProfile(e){
@@ -771,7 +790,6 @@
       document.getElementById("setupFull").value=e.full_name||"",
       document.getElementById("setupAge").value=e.age||"",
       document.getElementById("setupGender").value=e.gender||"Male";
-
       const t=(e.neighborhood||"");
       if(t.includes("|")) document.getElementById("setupHood").value=t;
       else{
@@ -785,22 +803,6 @@
     function previewSetupImg(e){
       e.files&&e.files[0]&&(document.getElementById("setupAvatarImg").src=URL.createObjectURL(e.files[0]),
       document.getElementById("setupAvatarImg").style.display="block")
-    }
-
-    function renderSetupHoods(){
-      const e=document.getElementById("setupHood"); if(!e) return;
-      e.innerHTML="";
-      cityOrder.forEach(t=>{
-        const n=cities[t]; if(!n) return;
-        const o=document.createElement("optgroup");
-        o.label=n.name;
-        n.hoods.forEach(n=>{
-          const r=document.createElement("option");
-          r.value=roomKey(t,n),r.textContent=n,o.appendChild(r)
-        }),
-        e.appendChild(o)
-      });
-      e.value=roomKey("rabat","Agdal")
     }
 
     async function saveProfileChanges(){
@@ -836,33 +838,6 @@
       location.reload()
     }
 
-    function closeModal(e){document.getElementById(e).style.display="none"}
-
-    function switchView(e,t){
-      document.querySelectorAll(".dock-btn").forEach(e=>e.classList.remove("active")),
-      t.classList.add("active"),
-      document.getElementById("feedView").classList.add("hidden"),
-      document.getElementById("roomsView").classList.add("hidden"),
-      document.getElementById(e+"View").classList.remove("hidden")
-    }
-
-    function renderCities(){
-      const e=document.getElementById("citiesWrap"); if(!e) return;
-      e.innerHTML="";
-      cityOrder.forEach(t=>{
-        const n=cities[t]; if(!n) return;
-        const o=document.createElement("div");
-        o.className="city-header",
-        o.innerHTML=`<svg class="city-icon"><use href="#i-gps"></use></svg><span class="city-title">${n.name.toUpperCase()}</span>`;
-        const r=document.createElement("div");
-        r.className="hood-grid",r.id=t+"Grid",
-        n.hoods.forEach(e=>{
-          r.innerHTML+=`<div class="hood-item" onclick="openRoom('${t}','${e}')"><div class="online-dot"></div><div class="hood-name">${e}</div></div>`
-        }),
-        e.appendChild(o),e.appendChild(r)
-      })
-    }
-
     function stopRoomLive(){
       roomSub&&sb.removeChannel(roomSub),roomSub=null,
       roomPollTimer&&(clearInterval(roomPollTimer),roomPollTimer=null)
@@ -875,48 +850,20 @@
       document.getElementById("roomNameDisplay").innerText=currentRoomLabel,
       stopRoomLive(),seenRoomMsgIds=new Set,lastRoomCreatedAt=null,roomProfileCache={},
       await loadRoomMsgs();
-
-      const o=`room_name=eq.${encodeURIComponent(currentRoomKey)}`;
-      roomSub=sb.channel("room-"+currentRoomKey).on("postgres_changes",{event:"INSERT",schema:"public",table:"room_chats",filter:o},async e=>{
-        const t=e.new;
-        if(!t||seenRoomMsgIds.has(t.id))return;
-        seenRoomMsgIds.add(t.id),lastRoomCreatedAt=t.created_at||lastRoomCreatedAt;
-        let n=roomProfileCache[t.user_id];
-        n||(n=(await sb.from("profiles").select("id,username,avatar_url").eq("id",t.user_id).single()).data||{username:"User",avatar_url:""},roomProfileCache[t.user_id]=n),
-        renderOneMessage(t,n)
-      }).subscribe();
-
-      roomPollTimer=setInterval(async()=>{
-        if(!currentRoomKey)return;
-        const e=lastRoomCreatedAt||new Date(0).toISOString();
-        const {data:t}=await sb.from("room_chats").select("*").eq("room_name",currentRoomKey).gt("created_at",e).order("created_at",{ascending:!0});
-        if(!t||!t.length)return;
-        const n=t.filter(e=>!seenRoomMsgIds.has(e.id));
-        if(!n.length)return;
-        const o=[...new Set(n.map(e=>e.user_id).filter(Boolean))],
-        {data:r}=o.length?await sb.from("profiles").select("id,username,avatar_url").in("id",o):{data:[]},
-        i={};
-        r&&r.forEach(e=>i[e.id]=e),
-        n.forEach(e=>{
-          seenRoomMsgIds.add(e.id),
-          roomProfileCache[e.user_id]=roomProfileCache[e.user_id]||i[e.user_id]||{username:"User",avatar_url:""};
-          const t=roomProfileCache[e.user_id];
-          renderOneMessage(e,t),lastRoomCreatedAt=e.created_at||lastRoomCreatedAt
-        })
-      },900)
     }
 
     async function loadRoomMsgs(){
       const e=document.getElementById("chatMsgs");
       e.innerHTML="Loading...";
-      const {data:t,error:n}=await sb.from("room_chats").select("*").eq("room_name",currentRoomKey).order("created_at",{ascending:!0});
-      if(e.innerHTML="",n||!t)return;
+      const {data:t}=await sb.from("room_chats").select("*").eq("room_name",currentRoomKey).order("created_at",{ascending:!0});
+      e.innerHTML="";
+      if(!t) return;
       const o=[...new Set(t.map(e=>e.user_id))],
       {data:r}=await sb.from("profiles").select("id, username, avatar_url").in("id",o),
       i={};
       r&&r.forEach(e=>{i[e.id]=e,roomProfileCache[e.id]=e}),
-      t.forEach(e=>{e.id&&seenRoomMsgIds.add(e.id),renderOneMessage(e,i[e.user_id])});
-      const a=t[t.length-1];a&&(lastRoomCreatedAt=a.created_at),e.scrollTop=e.scrollHeight
+      t.forEach(e=>renderOneMessage(e,i[e.user_id]));
+      e.scrollTop=e.scrollHeight
     }
 
     function renderOneMessage(e,t){
@@ -934,56 +881,9 @@
       const e=document.getElementById("roomInput").value.trim();
       if(!e||!currentRoomKey)return;
       document.getElementById("roomInput").value="";
-      const {data:t}=await sb.from("room_chats").insert({room_name:currentRoomKey,user_id:session.user.id,content:e}).select("*").single();
-      t&&(t.id&&seenRoomMsgIds.add(t.id),lastRoomCreatedAt=t.created_at||lastRoomCreatedAt,renderOneMessage(t,myProfile))
+      await sb.from("room_chats").insert({room_name:currentRoomKey,user_id:session.user.id,content:e});
+      await loadRoomMsgs()
     }
-
-    function renderGradients(){
-      const e=document.getElementById("bgOptions");
-      gradients.forEach(t=>e.innerHTML+=`<div class="bg-circle" style="background:${t}" onclick="setBg('${t}', this)"></div>`)
-    }
-    function setBg(e,t){
-      currentBg=e,document.querySelectorAll(".bg-circle").forEach(e=>e.classList.remove("selected")),t&&t.classList.add("selected")
-    }
-    function previewFile(){
-      document.getElementById("imgPreview").src=URL.createObjectURL(document.getElementById("postFile").files[0]),
-      document.getElementById("imgPreview").style.display="block"
-    }
-
-    function openCreate(){
-      if(!requireAuth()) return;
-      document.getElementById("createModal").style.display="flex"
-    }
-
-    async function submitPost(){
-      if(!requireAuth()) return;
-      const e=document.getElementById("postCap").value,t=document.getElementById("postFile").files[0];
-      let n=null;
-      if(!currentBg&&!t)return alert("Select background or image");
-      if(t&&!currentBg){
-        const e=`${Date.now()}`;
-        await sb.storage.from("post_images").upload(e,t),
-        n=sb.storage.from("post_images").getPublicUrl(e).data.publicUrl
-      }
-      await sb.from("posts").insert({user_id:session.user.id,caption:e,image_url:n,background_style:currentBg}),
-      document.getElementById("createModal").style.display="none",
-      loadFeed()
-    }
-
-    async function deletePost(e){
-      if(!requireAuth()) return;
-      confirm("Delete this vibe?")&&(await sb.from("posts").delete().eq("id",e),loadFeed())
-    }
-
-    async function vote(e,t){
-      if(!requireAuth()) return;
-      const {data:n}=await sb.from("post_votes").select("*").eq("user_id",session.user.id).eq("post_id",e).maybeSingle();
-      n?n.vote_type===t?await sb.from("post_votes").delete().eq("id",n.id):await sb.from("post_votes").update({vote_type:t}).eq("id",n.id):
-      await sb.from("post_votes").insert({user_id:session.user.id,post_id:e,vote_type:t}),
-      loadFeed()
-    }
-
-    function escapeHtml(e){return e?e.replace(/&/g,"&amp;").replace(/</g,"&lt;"):""}
 
     const tourOverlay=document.getElementById("tourOverlay");
     const tourTitle=document.getElementById("tourTitle");
@@ -992,13 +892,22 @@
     const tourSkip=document.getElementById("tourSkip");
     const tourProg=document.getElementById("tourProg");
     const tourArrow=document.getElementById("tourArrow");
+    const welcomeOverlay=document.getElementById("welcomeOverlay");
+    const welcomeGo=document.getElementById("welcomeGo");
+    const welcomeLater=document.getElementById("welcomeLater");
     let tourStep=0;
     let tourSteps=[];
 
-    function tryStartTour(){
-      if(localStorage.getItem("hz_tour_v1")==="1") return;
+    function firstRunFlow(){
+      if(localStorage.getItem("hz_tour_v2")==="1") return;
+      lockTourScroll(true);
+      welcomeOverlay.style.display="flex"
+    }
+
+    function startTourAfterWelcome(){
+      welcomeOverlay.style.display="none";
       buildTourSteps();
-      if(!tourSteps.length) return;
+      if(!tourSteps.length){endTour();return}
       startTour()
     }
 
@@ -1025,7 +934,9 @@
 
     function endTour(){
       tourOverlay.style.display="none";
-      localStorage.setItem("hz_tour_v1","1");
+      welcomeOverlay.style.display="none";
+      localStorage.setItem("hz_tour_v2","1");
+      lockTourScroll(false);
       window.removeEventListener("resize",renderTourStep);
       document.getElementById("mainScroll").removeEventListener("scroll",renderTourStep)
     }
@@ -1051,6 +962,29 @@
       tourArrow.style.transform=`translate(-50%,-50%) rotate(${rot}deg)`
     }
 
+    function computeBoxTop(cx,cy,r,rect){
+      const margin=14;
+      const boxH=218;
+      const vpad=24;
+      const screenH=window.innerHeight;
+      const aboveMax=Math.max(vpad, cy-r-boxH-margin);
+      const belowMin=Math.min(screenH-boxH-vpad, cy+r+margin);
+      const preferBelow=cy<screenH*0.56;
+      let top=preferBelow?belowMin:aboveMax;
+      top=Math.min(screenH-boxH-vpad, Math.max(vpad, top));
+      if(rect){
+        const rectBottom=rect.top+rect.height;
+        const rectTop=rect.top;
+        const boxBottom=top+boxH;
+        const overlap=!(boxBottom<rectTop-10 || top>rectBottom+10);
+        if(overlap){
+          if(rectTop-boxH-margin>vpad) top=rectTop-boxH-margin;
+          else if(rectBottom+margin<screenH-boxH-vpad) top=rectBottom+margin
+        }
+      }
+      return top
+    }
+
     function renderTourStep(){
       if(tourOverlay.style.display!=="flex") return;
       const step=tourSteps[tourStep];
@@ -1073,8 +1007,8 @@
       tourOverlay.style.setProperty("--tx",cx+"px");
       tourOverlay.style.setProperty("--ty",cy+"px");
       tourOverlay.style.setProperty("--tr",r+"px");
-      const by=Math.min(window.innerHeight-240,Math.max(24,cy+r+26));
-      tourOverlay.style.setProperty("--tby",by+"px");
+      const top=computeBoxTop(cx,cy,r,rect);
+      tourOverlay.style.setProperty("--tby",top+"px");
       tourTitle.textContent=step.title||"Guide";
       tourDesc.textContent=step.desc||"";
       tourProg.textContent=`${tourStep+1}/${tourSteps.length}`;
@@ -1088,22 +1022,11 @@
     };
     tourSkip.onclick=()=>endTour();
 
-    document.getElementById("googleBtn").onclick=async()=>await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo:window.location.href}});
+    welcomeGo.onclick=()=>startTourAfterWelcome();
+    welcomeLater.onclick=()=>endTour();
+
     document.getElementById("gateGoogleBtn").onclick=async()=>await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo:window.location.href}});
-    document.getElementById("commentMicBtn").onclick=function(){
-      if(!requireAuth()) return;
-      startRecording(this,async e=>{
-        await sb.from("comments").insert({post_id:currentPostId,user_id:session.user.id,audio_url:e}),loadPostComments()
-      })
-    };
-    document.getElementById("roomMic").onclick=function(){
-      if(!requireAuth()) return;
-      startRecording(this,async e=>{
-        if(!currentRoomKey)return;
-        const {data:t}=await sb.from("room_chats").insert({room_name:currentRoomKey,user_id:session.user.id,audio_url:e}).select("*").single();
-        t&&(t.id&&seenRoomMsgIds.add(t.id),lastRoomCreatedAt=t.created_at||lastRoomCreatedAt,renderOneMessage(t,myProfile))
-      })
-    };
+
     init();
   </script>
 </body>
