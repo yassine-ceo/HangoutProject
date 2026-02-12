@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover,user-scalable=no" />
   <title>HypeZone Elite — Morocco’s Social Zone by City & Neighborhood</title>
-  <meta name="description" content="HypeZone is Morocco’s local social zone to discover rooms by city and neighborhood, post vibes, and meet real people who show up. Rabat, Salé, Casablanca, Marrakech, Fes, Tangier and more." />
+  <meta name="description" content="HypeZone is Morocco’s local social zone to discover rooms by city and neighborhood, post vibes, and meet real people who show up." />
   <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
   <meta name="theme-color" content="#000000" />
   <link rel="canonical" href="https://hypezone-maroc.vercel.app/" />
@@ -26,7 +26,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Courgette&display=swap" rel="stylesheet" />
   <style>
-    :root{--bg:#000;--card:#111;--primary:#00d2ff;--text:#fff;--muted:#888;--border:rgba(255,255,255,0.12);--viby:#ffd700;--danger:#ff4757;--success:#2ecc71;--orange:#ff7a21}
+    :root{--bg:#000;--card:#111;--primary:#00d2ff;--text:#fff;--muted:#888;--border:rgba(255,255,255,0.12);--viby:#ffd700;--danger:#ff4757;--success:#2ecc71}
     *{box-sizing:border-box;margin:0;padding:0;outline:0;-webkit-tap-highlight-color:transparent;font-family:'Outfit',sans-serif}
     body{background:var(--bg);color:var(--text);height:100vh;overflow:hidden;-webkit-user-select:none;user-select:none}
     input,textarea,select,button{user-select:auto;-webkit-user-select:auto}
@@ -105,7 +105,7 @@
     .fab-main:active{transform:translateY(-22px) scale(.95)}
 
     .modal{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:3500;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(10px)}
-    .modal-card{background:#161b22;width:100%;max-width:400px;border-radius:24px;padding:20px;border:1px solid var(--border);display:flex;flex-direction:column;max-height:85vh;box-shadow:0 20px 60px rgba(0,0,0,.8)}
+    .modal-card{background:#161b22;width:100%;max-width:420px;border-radius:24px;padding:20px;border:1px solid var(--border);display:flex;flex-direction:column;max-height:85vh;box-shadow:0 20px 60px rgba(0,0,0,.8)}
     .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;padding-bottom:10px;border-bottom:1px solid var(--border)}
     .close-btn{background:0 0;border:none;color:#fff;font-size:24px;cursor:pointer}
     .scroll-content{flex:1;overflow-y:auto;margin-bottom:15px}
@@ -180,6 +180,7 @@
     .sponsored-center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none}
     .ad-visual{background:linear-gradient(180deg,rgba(0,210,255,.10),rgba(0,0,0,0));padding:14px}
     .ad-shell{background:#0b0f14;border:1px solid rgba(255,255,255,.10);border-radius:18px;overflow:hidden;min-height:180px;display:flex;align-items:center;justify-content:center;padding:10px}
+    .ad-link{display:block;width:100%;height:100%;border-radius:14px;overflow:hidden}
     .ad-img{width:100%;height:auto;max-height:260px;object-fit:contain;display:block;border-radius:14px;opacity:0;transform:translateY(6px);transition:opacity .35s ease, transform .35s ease}
     .ad-img.in{opacity:1;transform:translateY(0)}
 
@@ -197,14 +198,11 @@
     .tour-dim{position:absolute;inset:0;pointer-events:none;opacity:1;transition:opacity .45s ease}
     .tour-dim::before{content:"";position:absolute;inset:0;background:rgba(0,0,0,.55);-webkit-mask-image:radial-gradient(circle at var(--tx,50%) var(--ty,30%), transparent 0, transparent calc(var(--tr,110px) - 2px), #000 calc(var(--tr,110px) + 2px));mask-image:radial-gradient(circle at var(--tx,50%) var(--ty,30%), transparent 0, transparent calc(var(--tr,110px) - 2px), #000 calc(var(--tr,110px) + 2px));transition:all .65s cubic-bezier(.2,.9,.2,1)}
     .tour-dim::after{content:"";position:absolute;left:0;right:0;bottom:0;height:38vh;background:linear-gradient(0deg, rgba(0,0,0,.78) 0%, rgba(0,0,0,.35) 55%, rgba(0,0,0,0) 100%);filter:blur(14px);opacity:.85}
-
     .tour-ring{position:fixed;left:var(--tx,50%);top:var(--ty,30%);transform:translate(-50%,-50%);width:calc(var(--tr,110px)*2);height:calc(var(--tr,110px)*2);border-radius:999px;border:2px solid rgba(0,210,255,.55);box-shadow:0 0 0 6px rgba(0,210,255,.10), 0 35px 120px rgba(0,210,255,.22);pointer-events:none;z-index:4205;transition:left .75s cubic-bezier(.18,.88,.22,1), top .75s cubic-bezier(.18,.88,.22,1), width .75s cubic-bezier(.18,.88,.22,1), height .75s cubic-bezier(.18,.88,.22,1);animation:ringGlow 1.25s ease-in-out infinite}
     @keyframes ringGlow{0%,100%{opacity:.92;transform:translate(-50%,-50%) scale(1)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.03)}}
-
     .tour-arrow{position:fixed;left:var(--ax,50%);top:var(--ay,50%);transform:translate(-50%,-50%) rotate(var(--ar,0deg));z-index:4210;pointer-events:none;transition:left .78s cubic-bezier(.16,.9,.22,1), top .78s cubic-bezier(.16,.9,.22,1), transform .78s cubic-bezier(.16,.9,.22,1);animation:arrowPulse 1.05s ease-in-out infinite}
     @keyframes arrowPulse{0%,100%{filter:drop-shadow(0 10px 30px rgba(0,210,255,.22))}50%{filter:drop-shadow(0 14px 40px rgba(0,210,255,.35))}}
     .tour-arrow svg{width:78px;height:78px;fill:none;stroke:rgba(0,210,255,.95);stroke-width:8;stroke-linecap:round;stroke-linejoin:round}
-
     .tour-box{width:min(520px,92vw);background:radial-gradient(120% 120% at 0% 0%, rgba(0,210,255,.22), rgba(0,0,0,0)), rgba(12,14,18,.92);border:1px solid rgba(255,255,255,.14);border-radius:22px;padding:16px 16px 14px;box-shadow:0 35px 90px rgba(0,0,0,.9);position:fixed;left:50%;transform:translateX(-50%);top:var(--tby, 120px);z-index:4212;transition:top .78s cubic-bezier(.16,.9,.22,1), transform .78s cubic-bezier(.16,.9,.22,1), opacity .45s ease}
     .tour-title{font-size:15px;font-weight:1000;letter-spacing:.2px}
     .tour-desc{margin-top:8px;font-size:13px;color:rgba(255,255,255,.72);line-height:1.55}
@@ -212,7 +210,6 @@
     .tour-progress{font-size:11px;color:rgba(255,255,255,.5);font-weight:800}
     .tour-ok{border:none;cursor:pointer;border-radius:14px;padding:12px 14px;font-weight:1000;font-size:12px;background:linear-gradient(135deg,#00d2ff,#007aff);color:#000;min-width:120px;box-shadow:0 14px 40px rgba(0,210,255,.22)}
     .tour-skip{border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:#fff;border-radius:14px;padding:12px 14px;font-weight:900;font-size:12px;cursor:pointer}
-
     .tour-style-0 .tour-ring,.tour-style-0 .tour-box,.tour-style-0 .tour-arrow{transition-timing-function:cubic-bezier(.16,.9,.22,1)}
     .tour-style-1 .tour-ring,.tour-style-1 .tour-box,.tour-style-1 .tour-arrow{transition-timing-function:cubic-bezier(.15,1.05,.2,1)}
     .tour-style-2 .tour-ring,.tour-style-2 .tour-box,.tour-style-2 .tour-arrow{transition-timing-function:cubic-bezier(.12,.88,.28,1)}
@@ -257,7 +254,7 @@
 <body>
   <main class="visually-hidden-seo" aria-hidden="false">
     <h1>HypeZone Elite — Morocco rooms by city and neighborhood</h1>
-    <p>HypeZone is a Morocco-based social zone where you can join rooms by city and neighborhood, chat locally, and post vibes. Explore Rabat, Sale, Casablanca, Marrakech, Fes, Tangier, Agadir, Meknes, Oujda, Kenitra, Tetouan, El Jadida, Safi, Mohammedia, Nador, Beni Mellal, Khouribga, Taza, Essaouira, Laayoune and Dakhla.</p>
+    <p>HypeZone is a Morocco-based social zone where you can join rooms by city and neighborhood, chat locally, and post vibes.</p>
   </main>
 
   <div id="splash">
@@ -385,29 +382,29 @@
     </div>
   </div>
 
-  <div id="setupModal" class="modal" style="z-index:3000">
+  <div id="setupModal" class="modal" style="z-index:3600">
     <div class="modal-card">
       <div class="modal-header">
-        <h2 style="color:#fff" id="setupTitle">Identify Yourself</h2>
-        <button class="close-btn" onclick="document.getElementById('setupModal').style.display='none'">✕</button>
+        <h2 style="color:#fff" id="setupTitle">Create Profile</h2>
+        <button class="close-btn" id="setupCloseBtn" onclick="document.getElementById('setupModal').style.display='none'">✕</button>
       </div>
       <div class="scroll-content">
         <div style="text-align:center;margin-bottom:15px">
           <label class="bg-circle" style="display:inline-block;width:80px;height:80px;background:#222;border:2px dashed #555;overflow:hidden">
             <img id="setupAvatarImg" style="width:100%;height:100%;object-fit:cover;display:none" alt="Avatar preview">
-            <input type="file" id="setupFile" hidden onchange="previewSetupImg(this)">
+            <input type="file" id="setupFile" hidden accept="image/*" onchange="previewSetupImg(this)">
           </label>
+          <div style="margin-top:10px;font-size:11px;color:rgba(255,255,255,.6);font-weight:800">Avatar is required</div>
         </div>
-        <input class="form-input" id="setupUser" placeholder="Username (Fixed)" disabled style="color:#888">
+        <input class="form-input" id="setupUser" placeholder="Username (unique)">
         <input class="form-input" id="setupFull" placeholder="Display Name">
         <div style="display:flex;gap:10px">
-          <input class="form-input" type="number" id="setupAge" placeholder="Age">
-          <select class="form-input" id="setupGender"><option>Male</option><option>Female</option></select>
+          <select class="form-input" id="setupGender"><option value="Male">Male</option><option value="Female">Female</option></select>
+          <input class="form-input" id="setupInterests" placeholder="Interests">
         </div>
         <select class="form-input" id="setupHood"></select>
-        <input class="form-input" id="setupInterests" placeholder="Interests">
-        <textarea class="form-input" id="setupBio" placeholder="Bio..."></textarea>
-        <button class="btn-primary" onclick="saveProfileChanges()">Save Changes</button>
+        <textarea class="form-input" id="setupBio" placeholder="Bio (optional)"></textarea>
+        <button class="btn-primary" id="setupSaveBtn" onclick="saveProfileChanges()">Save Profile</button>
       </div>
     </div>
   </div>
@@ -424,7 +421,7 @@
           <label class="tool-btn" onclick="document.getElementById('postFile').click()"><svg><use href="#i-camera"></use></svg></label>
         </div>
       </div>
-      <input type="file" id="postFile" hidden onchange="previewFile()">
+      <input type="file" id="postFile" hidden accept="image/*" onchange="previewFile()">
       <img id="imgPreview" style="width:100%;display:none;margin-bottom:10px;border-radius:10px" alt="Preview">
       <textarea class="form-input" id="postCap" placeholder="Caption..."></textarea>
       <button class="btn-primary" onclick="submitPost()">Post</button>
@@ -474,8 +471,11 @@
 
   <script>
     const sb=supabase.createClient("https://tujdnvnrizgqroaozsqp.supabase.co","sb_publishable_WyigevxmzR2gLtbog2Ztfg_8pdmSwop",{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:"pkce"}});
-    let session,currentBg,currentPostId,currentRoomKey=null,currentRoomLabel=null,recorder,chunks=[],roomSub,currentPlayingBtn=null,myProfile={},isEditing=!1,currentEditingUser=null,roomPollTimer=null,lastRoomCreatedAt=null,seenRoomMsgIds=new Set,roomProfileCache={};
+    let session,currentBg,currentPostId,currentRoomKey=null,currentRoomLabel=null,roomSub=null,currentPlayingBtn=null,myProfile={},isEditing=!1,currentEditingUser=null,seenRoomMsgIds=new Set,roomProfileCache={},profileRequired=!1;
     const globalAudio=document.getElementById("globalAudio");
+    const TIKTOK_URL="https://www.tiktok.com/@hypezone.ma";
+    const AD_IMAGE="https://i.postimg.cc/rwTFC8C7/Tik-Tok.png";
+
     const cities={
       rabat:{name:"Rabat",hoods:["Agdal","Hassan","Hay Riad","Ocean","Medina","Souissi","Yacoub Al Mansour","Akkari","Kammra","Temara","Skhirat"]},
       sale:{name:"Sale",hoods:["Diar","Hay Chmaaou","Opera","Wad Adahab","Bab Lmrissa","Tabriquet","Sala Al Jadida","Hay Salam","Bettana","Sidi Moussa"]},
@@ -501,7 +501,6 @@
     };
     const cityOrder=["rabat","sale","casablanca","marrakech","fes","tangier","agadir","meknes","oujda","kenitra","tetouan","eljadida","safi","mohammedia","nador","benimellal","khouribga","taza","essaouira","laayoune","dakhla"];
     const gradients=["linear-gradient(45deg,#ff9a9e,#fecfef)","linear-gradient(120deg,#84fab0,#8fd3f4)","linear-gradient(to top,#30cfd0,#330867)","linear-gradient(to right,#434343,black)","linear-gradient(to top,#fcc5e4,#020f75)"];
-    const AD_IMAGE="https://i.postimg.cc/rwTFC8C7/Tik-Tok.png";
 
     function lockTourScroll(on){
       const ms=document.getElementById("mainScroll");
@@ -509,53 +508,50 @@
       else{document.body.classList.remove("tour-lock");ms.classList.remove("tour-lock")}
     }
 
-    function roomKey(e,t){return e+"|"+t}
-    function parseHoodValue(e){
-      const t=(e||"").split("|");
-      return t.length>=2?{cityKey:t[0]||"rabat",hood:t[1]||"Agdal"}:{cityKey:"rabat",hood:(e||"Agdal")}
-    }
-    function cityInHoodLabel(e,t){const n=cities[e]?cities[e].name:"Rabat";return n+" in "+t}
-    function profileLoc(e){
-      if(!e) return {cityName:"Rabat",hood:"Agdal"};
-      const t=(e.neighborhood||"");
+    function roomKey(cityKey,hood){return cityKey+"|"+hood}
+    function parseHoodValue(v){const t=(v||"").split("|");return t.length>=2?{cityKey:t[0]||"rabat",hood:t[1]||"Agdal"}:{cityKey:"rabat",hood:(v||"Agdal")}}
+    function cityInHoodLabel(cityKey,hood){const n=cities[cityKey]?cities[cityKey].name:"Rabat";return n+" in "+hood}
+    function profileLoc(p){
+      if(!p) return {cityName:"Rabat",hood:"Agdal"};
+      const t=(p.neighborhood||"");
       if(t.includes("|")){
         const n=parseHoodValue(t);
         return {cityName:(cities[n.cityKey]?cities[n.cityKey].name:"Rabat"),hood:n.hood}
       }
-      return {cityName:(e.city||"Rabat"),hood:(t||"Agdal")}
+      return {cityName:(p.city||"Rabat"),hood:(t||"Agdal")}
     }
 
     function showLoginGate(){document.getElementById("loginGate").style.display="flex"}
-    function requireAuth(){
-      if(session&&session.user&&session.user.id) return !0;
-      showLoginGate();
-      return !1
+    function requireAuth(){if(session&&session.user&&session.user.id) return true; showLoginGate(); return false}
+    function requireProfile(){
+      if(!session||!session.user) return false;
+      if(profileRequired){openMandatorySetup(); return false}
+      if(!myProfile||!myProfile.id){openMandatorySetup(); return false}
+      return true
     }
 
     function renderTopRight(){
       const e=document.getElementById("topRightBadge");
       if(!e) return;
-      if(session&&myProfile&&myProfile.id){
+      if(session&&session.user&&session.user.id && myProfile && myProfile.id && !profileRequired){
         e.onclick=()=>openProfile(session.user.id);
         e.innerHTML=`<img id="myAvatar" alt="My avatar" src="${myProfile.avatar_url||""}"><span class="vibe-score"><svg style="width:14px;height:14px;color:var(--viby)"><use href="#i-bolt-filled"></use></svg><span id="myScore">${myProfile.vibe_score||0}</span></span>`
       }else{
-        e.onclick=()=>showLoginGate();
+        e.onclick=()=>{session&&session.user?openMandatorySetup():showLoginGate()};
         e.innerHTML=`<span class="badge-icon"><svg style="width:18px;height:18px"><use href="#i-user-strong"></use></svg></span><span class="badge-text"><span class="badge-title">Guest</span><span class="badge-sub">guest</span></span>`
       }
     }
 
     function buildSponsoredCard(idx){
       const adId=`adSlot_${Date.now()}_${idx}_${Math.floor(1e6*Math.random())}`;
-      return `<div class="post-card" data-ad="1"><div class="post-header ad-header"><div class="sponsored-center"><span class="sponsored-pill">Sponsored</span></div></div><div class="ad-visual"><div class="ad-shell"><img class="ad-img" data-adimg="1" data-adid="${adId}" src="${AD_IMAGE}" alt="Sponsored"></div></div></div>`
+      return `<div class="post-card" data-ad="1"><div class="post-header ad-header"><div class="sponsored-center"><span class="sponsored-pill">Sponsored</span></div></div><div class="ad-visual"><div class="ad-shell"><a class="ad-link" href="${TIKTOK_URL}" rel="nofollow"><img class="ad-img" data-adimg="1" data-adid="${adId}" src="${AD_IMAGE}" alt="Sponsored"></a></div></div></div>`
     }
 
     let adObserver=null;
     function mountAds(){
       const imgs=[...document.querySelectorAll('img[data-adimg="1"]')];
       if(!imgs.length) return;
-
       const show=(img)=>{if(!img.classList.contains("in")) img.classList.add("in")};
-
       if("IntersectionObserver" in window){
         if(!adObserver){
           adObserver=new IntersectionObserver(entries=>{
@@ -573,9 +569,7 @@
           if(r.bottom>0 && r.top<window.innerHeight) show(img);
           else adObserver.observe(img);
         });
-      }else{
-        imgs.forEach(show);
-      }
+      }else imgs.forEach(show);
     }
 
     function typeSplash(){
@@ -603,9 +597,7 @@
         if(first){
           buildTourSteps();
           startTour();
-        }else{
-          lockTourScroll(false);
-        }
+        }else lockTourScroll(false);
       },1500)
     }
 
@@ -613,11 +605,9 @@
       const url=new URL(window.location.href);
       const hasCode=url.searchParams.get("code");
       const hasError=url.searchParams.get("error")||url.searchParams.get("error_description");
-      if(hasError){return}
+      if(hasError) return;
       if(hasCode){
-        try{
-          await sb.auth.exchangeCodeForSession(window.location.href);
-        }catch(e){}
+        try{await sb.auth.exchangeCodeForSession(window.location.href)}catch(e){}
         url.searchParams.delete("code");
         url.searchParams.delete("state");
         url.searchParams.delete("error");
@@ -626,307 +616,412 @@
       }
     }
 
-    async function init(){
-      await handleOAuthRedirect();
-      renderCities();renderGradients();renderSetupHoods();renderTopRight();loadFeed();
-      const {data:e}=await sb.auth.getSession();
-      if(e.session){session=e.session;await checkProfile()}
-      renderTopRight();
-      sb.auth.onAuthStateChange(async (evt)=>{
-        if(evt==="SIGNED_OUT"){session=null;myProfile={};renderTopRight();loadFeed()}
-        if(evt==="SIGNED_IN"){const {data:t}=await sb.auth.getSession();session=t.session;await checkProfile();renderTopRight();loadFeed();closeModal("loginGate")}
-      });
-      showSplashThenStart();
-    }
+    function getRank(score){return score<50?{name:"ROOKIE",cls:"rank-rookie"}:score<1000?{name:"GOLD",cls:"rank-gold"}:{name:"LEGEND",cls:"rank-legend"}}
+    function timeAgo(d){const t=Math.floor((new Date-new Date(d))/1000);if(t<60)return"Just now";const m=Math.floor(t/60);if(m<60)return m+"m";const h=Math.floor(m/60);return h<24?h+"h":Math.floor(h/24)+"d"}
+    function formatChatTime(d){return new Date(d).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}
+    function escapeHtml(s){return s?s.replace(/&/g,"&amp;").replace(/</g,"&lt;"):""}
 
-    async function checkProfile(){
-      if(!session||!session.user) return;
-      const {data:e}=await sb.from("profiles").select("*").eq("id",session.user.id).single();
-      if(e&&e.username){myProfile=e;renderTopRight()}else{myProfile={};renderTopRight()}
-    }
+    function closeModal(id){if(profileRequired && id==="setupModal") return; document.getElementById(id).style.display="none"}
 
-    function timeAgo(e){
-      const t=Math.floor((new Date-new Date(e))/1e3);
-      if(t<60)return"Just now";
-      const n=Math.floor(t/60);
-      if(n<60)return n+"m";
-      const o=Math.floor(n/60);
-      return o<24?o+"h":Math.floor(o/24)+"d"
-    }
-    function getRank(e){return e<50?{name:"ROOKIE",cls:"rank-rookie"}:e<1e3?{name:"GOLD",cls:"rank-gold"}:{name:"LEGEND",cls:"rank-legend"}}
-    function formatChatTime(e){return new Date(e).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}
-    function escapeHtml(e){return e?e.replace(/&/g,"&amp;").replace(/</g,"&lt;"):""}
-
-    async function loadFeed(){
-      const e=document.getElementById("feedList");
-      e.innerHTML="<div style='text-align:center;color:#666'>Loading...</div>";
-      const {data:t}=await sb.from("posts").select("*, profiles(*)").order("created_at",{ascending:!1});
-      e.innerHTML="";
-      const posts=(t||[]);
-      let adEvery=4+Math.floor(Math.random()*3);
-      let rendered=0;
-      posts.forEach(t=>{
-        const n=t.profiles,o=getRank(n.vibe_score||0),r=session&&session.user&&session.user.id===n.id,
-        i=t.background_style?`<div class="post-visual" style="background:${t.background_style}"><div class="bg-text">${escapeHtml(t.caption)}</div></div>`:
-        `<div class="post-visual"><img src="${t.image_url}"><div class="img-caption">${escapeHtml(t.caption)}</div></div>`,
-        p=profileLoc(n),a=p.cityName+" in "+p.hood;
-
-        e.innerHTML+=`<div class="post-card"><div class="post-header"><div class="post-user-info"><img class="p-avatar" src="${n.avatar_url}" onclick="openProfile('${n.id}')"><div onclick="openProfile('${n.id}')"><div class="p-name">${n.username} <span class="rank-tag ${o.cls}">${o.name}</span></div><div class="p-loc">${a} • ${timeAgo(t.created_at)}</div></div></div>${r?`<button class="delete-btn" onclick="deletePost('${t.id}')"><svg><use href="#i-trash"></use></svg></button>`:""}</div>${i}<div class="post-actions"><div class="vote-box"><button class="vote-btn up" onclick="vote('${t.id}', 1)"><svg><use href="#i-up"></use></svg></button><span class="vote-val">${n.vibe_score||0}</span><button class="vote-btn down" onclick="vote('${t.id}', -1)"><svg><use href="#i-down"></use></svg></button></div><button class="action-btn" onclick="openComments('${t.id}')"><svg style="width:16px"><use href="#i-chat"></use></svg> Comments</button></div></div>`;
-        rendered++;
-        if(rendered%adEvery===0){
-          e.innerHTML+=buildSponsoredCard(rendered);
-          adEvery=4+Math.floor(Math.random()*3)
-        }
-      });
-      if(rendered<3){e.innerHTML+=buildSponsoredCard(0)}
-      mountAds()
-    }
-
-    function closeModal(e){document.getElementById(e).style.display="none"}
-
-    function switchView(e,t){
-      document.querySelectorAll(".dock-btn").forEach(e=>e.classList.remove("active")),
-      t.classList.add("active"),
-      document.getElementById("feedView").classList.add("hidden"),
-      document.getElementById("roomsView").classList.add("hidden"),
-      document.getElementById(e+"View").classList.remove("hidden")
+    function switchView(view,btn){
+      document.querySelectorAll(".dock-btn").forEach(e=>e.classList.remove("active"));
+      btn.classList.add("active");
+      document.getElementById("feedView").classList.add("hidden");
+      document.getElementById("roomsView").classList.add("hidden");
+      document.getElementById(view+"View").classList.remove("hidden");
     }
 
     function renderCities(){
       const e=document.getElementById("citiesWrap"); if(!e) return;
       e.innerHTML="";
-      cityOrder.forEach(t=>{
-        const n=cities[t]; if(!n) return;
-        const o=document.createElement("div");
-        o.className="city-header",
-        o.innerHTML=`<svg class="city-icon"><use href="#i-gps"></use></svg><span class="city-title">${n.name.toUpperCase()}</span>`;
-        const r=document.createElement("div");
-        r.className="hood-grid",r.id=t+"Grid",
-        n.hoods.forEach(e=>{
-          r.innerHTML+=`<div class="hood-item" onclick="openRoom('${t}','${e}')"><div class="online-dot"></div><div class="hood-name">${e}</div></div>`
-        }),
-        e.appendChild(o),e.appendChild(r)
-      })
+      cityOrder.forEach(k=>{
+        const n=cities[k]; if(!n) return;
+        const header=document.createElement("div");
+        header.className="city-header";
+        header.innerHTML=`<svg class="city-icon"><use href="#i-gps"></use></svg><span class="city-title">${n.name.toUpperCase()}</span>`;
+        const grid=document.createElement("div");
+        grid.className="hood-grid"; grid.id=k+"Grid";
+        n.hoods.forEach(h=>{
+          grid.innerHTML+=`<div class="hood-item" onclick="openRoom('${k}','${h}')"><div class="online-dot"></div><div class="hood-name">${h}</div></div>`;
+        });
+        e.appendChild(header); e.appendChild(grid);
+      });
     }
 
     function renderGradients(){
       const e=document.getElementById("bgOptions");
-      gradients.forEach(t=>e.innerHTML+=`<div class="bg-circle" style="background:${t}" onclick="setBg('${t}', this)"></div>`)
+      gradients.forEach(t=>e.innerHTML+=`<div class="bg-circle" style="background:${t}" onclick="setBg('${t}', this)"></div>`);
     }
-    function setBg(e,t){
-      currentBg=e,document.querySelectorAll(".bg-circle").forEach(e=>e.classList.remove("selected")),t&&t.classList.add("selected")
+    function setBg(v,el){
+      currentBg=v;
+      document.querySelectorAll(".bg-circle").forEach(e=>e.classList.remove("selected"));
+      el&&el.classList.add("selected");
     }
+
     function renderSetupHoods(){
       const e=document.getElementById("setupHood"); if(!e) return;
       e.innerHTML="";
-      cityOrder.forEach(t=>{
-        const n=cities[t]; if(!n) return;
-        const o=document.createElement("optgroup");
-        o.label=n.name;
-        n.hoods.forEach(n=>{
-          const r=document.createElement("option");
-          r.value=roomKey(t,n),r.textContent=n,o.appendChild(r)
-        }),
-        e.appendChild(o)
+      cityOrder.forEach(k=>{
+        const n=cities[k]; if(!n) return;
+        const g=document.createElement("optgroup"); g.label=n.name;
+        n.hoods.forEach(h=>{
+          const o=document.createElement("option");
+          o.value=roomKey(k,h); o.textContent=h;
+          g.appendChild(o);
+        });
+        e.appendChild(g);
       });
-      e.value=roomKey("rabat","Agdal")
+      e.value=roomKey("rabat","Agdal");
     }
 
-    async function openComments(e){currentPostId=e,document.getElementById("commentsModal").style.display="flex",loadPostComments()}
-    async function loadPostComments(){
-      const e=document.getElementById("postCommentsList");
-      e.innerHTML="Loading...";
-      const {data:t}=await sb.from("comments").select("*, profiles(*)").eq("post_id",currentPostId).order("created_at");
-      e.innerHTML="",t&&t.forEach(t=>{
-        const r=t.audio_url?`<div class="audio-player" onclick="playAudio('${t.audio_url}', this)"><div class="audio-btn"><svg style="width:14px;height:14px;fill:#000;stroke:none"><use href="#i-play"></use></svg></div><div class="audio-wave"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div><span class="audio-text">Voice</span></div>`:
-        `<div class="c-text">${escapeHtml(t.text_content)}</div>`;
-        e.innerHTML+=`<div class="comment-item"><img class="c-avatar" src="${t.profiles.avatar_url}" onclick="openProfile('${t.profiles.id}')"><div class="c-content"><div class="c-bubble"><div class="c-header"><span class="c-user" onclick="openProfile('${t.profiles.id}')">${t.profiles.username}</span><span class="c-time">${timeAgo(t.created_at)}</span></div>${r}</div></div></div>`
-      })
-    }
-
-    function playAudio(e,t){
-      if(currentPlayingBtn===t&&!globalAudio.paused) return globalAudio.pause(),void resetPlayerUI(t);
-      currentPlayingBtn&&currentPlayingBtn!==t&&resetPlayerUI(currentPlayingBtn),
-      currentPlayingBtn=t,globalAudio.src=e,globalAudio.play(),
-      t.classList.add("playing"),
-      t.querySelector(".audio-btn").innerHTML='<svg style="width:14px;height:14px;fill:#000;stroke:none"><use href="#i-pause"></use></svg>',
-      t.querySelector(".audio-text").innerText="Playing..."
-    }
-    function resetPlayerUI(e){
-      e&&(e.classList.remove("playing"),
-      e.querySelector(".audio-btn").innerHTML='<svg style="width:14px;height:14px;fill:#000;stroke:none"><use href="#i-play"></use></svg>',
-      e.querySelector(".audio-text").innerText="Play Voice")
-    }
-
-    function previewFile(){
-      document.getElementById("imgPreview").src=URL.createObjectURL(document.getElementById("postFile").files[0]),
-      document.getElementById("imgPreview").style.display="block"
-    }
-
-    function openCreate(){
-      if(!requireAuth()) return;
-      document.getElementById("createModal").style.display="flex"
-    }
-
-    async function submitPost(){
-      if(!requireAuth()) return;
-      const e=document.getElementById("postCap").value,t=document.getElementById("postFile").files[0];
-      let n=null;
-      if(!currentBg&&!t)return alert("Select background or image");
-      if(t&&!currentBg){
-        const e=`${Date.now()}`;
-        await sb.storage.from("post_images").upload(e,t),
-        n=sb.storage.from("post_images").getPublicUrl(e).data.publicUrl
-      }
-      await sb.from("posts").insert({user_id:session.user.id,caption:e,image_url:n,background_style:currentBg}),
-      document.getElementById("createModal").style.display="none",
-      loadFeed()
-    }
-
-    async function deletePost(e){
-      if(!requireAuth()) return;
-      confirm("Delete this vibe?")&&(await sb.from("posts").delete().eq("id",e),loadFeed())
-    }
-
-    async function vote(e,t){
-      if(!requireAuth()) return;
-      const {data:n}=await sb.from("post_votes").select("*").eq("user_id",session.user.id).eq("post_id",e).maybeSingle();
-      n?n.vote_type===t?await sb.from("post_votes").delete().eq("id",n.id):await sb.from("post_votes").update({vote_type:t}).eq("id",n.id):
-      await sb.from("post_votes").insert({user_id:session.user.id,post_id:e,vote_type:t}),
-      loadFeed()
-    }
-
-    async function openProfile(e){
-      if(!session||!session.user) return showLoginGate();
-      const t=document.getElementById("profileModal");t.style.display="flex";
-      const {data:n}=await sb.from("profiles").select("*").eq("id",e).single();
-      currentEditingUser=n;
-      const {count:o}=await sb.from("posts").select("*",{count:"exact",head:!0}).eq("user_id",e),
-      r=getRank(n.vibe_score||0),p=profileLoc(n);
-
-      document.getElementById("vpImg").src=n.avatar_url,
-      document.getElementById("vpName").innerText=n.username,
-      document.getElementById("vpRankBadge").innerText=r.name,
-      document.getElementById("vpRankBadge").className=`prof-rank-badge ${r.cls}`,
-      document.getElementById("vpBio").innerText=n.bio||"No bio yet.",
-      document.getElementById("vpScore").innerText=n.vibe_score||0,
-      document.getElementById("vpPosts").innerText=o||0,
-      document.getElementById("vpCity").innerText=p.cityName||"-",
-      document.getElementById("vpHood").innerText=p.hood||"-",
-      document.getElementById("vpAge").innerText=n.age||"-",
-      document.getElementById("vpGender").innerText=n.gender||"-",
-      document.getElementById("vpInterests").innerText=n.interests||"-",
-      document.getElementById("editProfileBtn").style.display=session.user.id===e?"block":"none"
+    function openMandatorySetup(){
+      if(!session||!session.user) return;
+      profileRequired=true;
+      document.getElementById("setupTitle").innerText="Create Profile";
+      document.getElementById("setupCloseBtn").style.display="none";
+      document.getElementById("setupModal").style.display="flex";
+      document.getElementById("setupUser").disabled=false;
+      document.getElementById("setupUser").value="";
+      document.getElementById("setupFull").value="";
+      document.getElementById("setupGender").value="Male";
+      document.getElementById("setupInterests").value="";
+      document.getElementById("setupBio").value="";
+      document.getElementById("setupHood").value=roomKey("rabat","Agdal");
+      document.getElementById("setupAvatarImg").style.display="none";
+      document.getElementById("setupFile").value="";
+      lockTourScroll(true);
     }
 
     function openEditProfile(){
       if(!requireAuth()) return;
-      isEditing=!0;
-      const e=currentEditingUser;
-      document.getElementById("profileModal").style.display="none",
-      document.getElementById("setupModal").style.display="flex",
-      document.getElementById("setupTitle").innerText="Edit Profile",
-      document.getElementById("setupAvatarImg").src=e.avatar_url,
-      document.getElementById("setupAvatarImg").style.display="block",
-      document.getElementById("setupUser").value=e.username,
-      document.getElementById("setupUser").disabled=!0,
-      document.getElementById("setupFull").value=e.full_name||"",
-      document.getElementById("setupAge").value=e.age||"",
+      if(profileRequired) return openMandatorySetup();
+      isEditing=true;
+      const e=currentEditingUser||myProfile;
+      document.getElementById("profileModal").style.display="none";
+      document.getElementById("setupModal").style.display="flex";
+      document.getElementById("setupTitle").innerText="Edit Profile";
+      document.getElementById("setupCloseBtn").style.display="block";
+      document.getElementById("setupUser").value=e.username||"";
+      document.getElementById("setupUser").disabled=true;
+      document.getElementById("setupFull").value=e.full_name||"";
       document.getElementById("setupGender").value=e.gender||"Male";
+      document.getElementById("setupInterests").value=e.interests||"";
+      document.getElementById("setupBio").value=e.bio||"";
       const t=(e.neighborhood||"");
       if(t.includes("|")) document.getElementById("setupHood").value=t;
-      else{
-        const n=(e.city||"Rabat").toLowerCase(),o=t||"Agdal";
-        document.getElementById("setupHood").value=roomKey(n,o)
-      }
-      document.getElementById("setupInterests").value=e.interests||"",
-      document.getElementById("setupBio").value=e.bio||""
+      else document.getElementById("setupHood").value=roomKey((e.city||"Rabat").toLowerCase(),(t||"Agdal"));
+      document.getElementById("setupAvatarImg").src=e.avatar_url||"";
+      document.getElementById("setupAvatarImg").style.display=e.avatar_url?"block":"none";
+      document.getElementById("setupFile").value="";
     }
 
-    function previewSetupImg(e){
-      e.files&&e.files[0]&&(document.getElementById("setupAvatarImg").src=URL.createObjectURL(e.files[0]),
-      document.getElementById("setupAvatarImg").style.display="block")
+    function previewSetupImg(inp){
+      if(inp.files&&inp.files[0]){
+        document.getElementById("setupAvatarImg").src=URL.createObjectURL(inp.files[0]);
+        document.getElementById("setupAvatarImg").style.display="block";
+      }
+    }
+
+    async function ensureUsernameUnique(u){
+      const username=(u||"").trim();
+      if(!username) return false;
+      const {data}=await sb.from("profiles").select("id").eq("username",username).limit(1);
+      if(data && data.length){
+        if(isEditing && myProfile && myProfile.username===username) return true;
+        return false;
+      }
+      return true;
     }
 
     async function saveProfileChanges(){
       if(!requireAuth()) return;
-      const e=document.querySelector("#setupModal .btn-primary");
-      e.textContent="Saving...",e.disabled=!0;
-      const t=document.getElementById("setupFile").files[0];
-      let n=myProfile.avatar_url;
-      if(t){
-        if(n&&!n.includes("default")){
-          const e=n.split("/").pop();
-          await sb.storage.from("avatars").remove([e])
+      const btn=document.getElementById("setupSaveBtn");
+      btn.disabled=true; btn.textContent="Saving...";
+      const username=(document.getElementById("setupUser").value||"").trim();
+      const displayName=(document.getElementById("setupFull").value||"").trim();
+      const gender=document.getElementById("setupGender").value;
+      const interests=(document.getElementById("setupInterests").value||"").trim();
+      const hoodVal=document.getElementById("setupHood").value;
+      const bio=(document.getElementById("setupBio").value||"").trim();
+      const file=document.getElementById("setupFile").files[0] || null;
+
+      if(!username || username.length<3){btn.disabled=false;btn.textContent="Save Profile";return alert("Username required (min 3 chars)");}
+      if(!displayName){btn.disabled=false;btn.textContent="Save Profile";return alert("Display Name required");}
+      if(!interests){btn.disabled=false;btn.textContent="Save Profile";return alert("Interests required");}
+      if(!hoodVal){btn.disabled=false;btn.textContent="Save Profile";return alert("City & neighborhood required");}
+
+      const unique=await ensureUsernameUnique(username);
+      if(!unique){btn.disabled=false;btn.textContent="Save Profile";return alert("Username already taken");}
+
+      let avatarUrl=(myProfile&&myProfile.avatar_url)||"";
+      if(profileRequired && !file && !avatarUrl){btn.disabled=false;btn.textContent="Save Profile";return alert("Avatar required");}
+
+      if(file){
+        if(avatarUrl && avatarUrl.includes("/storage/") && avatarUrl.includes("/avatars/")){
+          const old=avatarUrl.split("/").pop();
+          if(old) await sb.storage.from("avatars").remove([old]);
         }
-        const e=`${session.user.id}-${Date.now()}`;
-        await sb.storage.from("avatars").upload(e,t);
-        const {data:o}=sb.storage.from("avatars").getPublicUrl(e);
-        n=o.publicUrl
+        const key=`${session.user.id}-${Date.now()}`;
+        await sb.storage.from("avatars").upload(key,file,{upsert:true});
+        const {data:o}=sb.storage.from("avatars").getPublicUrl(key);
+        avatarUrl=o.publicUrl;
       }
-      const o=parseHoodValue(document.getElementById("setupHood").value),
-      i={
+
+      const parsed=parseHoodValue(hoodVal);
+      const payload={
         id:session.user.id,
-        username:document.getElementById("setupUser").value,
-        full_name:document.getElementById("setupFull").value,
-        age:document.getElementById("setupAge").value,
-        gender:document.getElementById("setupGender").value,
-        neighborhood:roomKey(o.cityKey,o.hood),
-        interests:document.getElementById("setupInterests").value,
-        bio:document.getElementById("setupBio").value,
-        avatar_url:n
+        username,
+        full_name:displayName,
+        gender,
+        interests,
+        bio,
+        neighborhood:roomKey(parsed.cityKey,parsed.hood),
+        avatar_url:avatarUrl
       };
-      const {error:r}=await sb.from("profiles").upsert(i);
-      if(r){alert(r.message);e.textContent="Save Changes";e.disabled=!1;return}
-      location.reload()
+
+      const {error}=await sb.from("profiles").upsert(payload);
+      if(error){btn.disabled=false;btn.textContent="Save Profile";return alert(error.message);}
+
+      profileRequired=false;
+      isEditing=false;
+      document.getElementById("setupModal").style.display="none";
+      lockTourScroll(false);
+      await checkProfile();
+      renderTopRight();
+      loadFeed();
+    }
+
+    async function checkProfile(){
+      if(!session||!session.user) return;
+      const {data}=await sb.from("profiles").select("*").eq("id",session.user.id).maybeSingle();
+      if(data && data.id && data.username && data.avatar_url && data.full_name && data.gender && data.interests && data.neighborhood){
+        myProfile=data;
+        profileRequired=false;
+      }else{
+        myProfile=data||{};
+        profileRequired=true;
+        openMandatorySetup();
+      }
+      renderTopRight();
+    }
+
+    async function loadFeed(){
+      const e=document.getElementById("feedList");
+      e.innerHTML="<div style='text-align:center;color:#666'>Loading...</div>";
+      const {data}=await sb.from("posts").select("*, profiles(*)").order("created_at",{ascending:false});
+      e.innerHTML="";
+      const posts=(data||[]);
+      let adEvery=4+Math.floor(Math.random()*3);
+      let rendered=0;
+      posts.forEach(p=>{
+        const u=p.profiles, r=getRank(u.vibe_score||0), isMine=session&&session.user&&session.user.id===u.id;
+        const loc=profileLoc(u);
+        const locLabel=loc.cityName+" in "+loc.hood;
+        const visual=p.background_style
+          ?`<div class="post-visual" style="background:${p.background_style}"><div class="bg-text">${escapeHtml(p.caption)}</div></div>`
+          :`<div class="post-visual"><img src="${p.image_url}"><div class="img-caption">${escapeHtml(p.caption)}</div></div>`;
+        e.innerHTML+=`<div class="post-card"><div class="post-header"><div class="post-user-info"><img class="p-avatar" src="${u.avatar_url}" onclick="openProfile('${u.id}')"><div onclick="openProfile('${u.id}')"><div class="p-name">${u.username} <span class="rank-tag ${r.cls}">${r.name}</span></div><div class="p-loc">${locLabel} • ${timeAgo(p.created_at)}</div></div></div>${isMine?`<button class="delete-btn" onclick="deletePost('${p.id}')"><svg><use href="#i-trash"></use></svg></button>`:""}</div>${visual}<div class="post-actions"><div class="vote-box"><button class="vote-btn up" onclick="vote('${p.id}', 1)"><svg><use href="#i-up"></use></svg></button><span class="vote-val">${u.vibe_score||0}</span><button class="vote-btn down" onclick="vote('${p.id}', -1)"><svg><use href="#i-down"></use></svg></button></div><button class="action-btn" onclick="openComments('${p.id}')"><svg style="width:16px"><use href="#i-chat"></use></svg> Comments</button></div></div>`;
+        rendered++;
+        if(rendered%adEvery===0){
+          e.innerHTML+=buildSponsoredCard(rendered);
+          adEvery=4+Math.floor(Math.random()*3);
+        }
+      });
+      if(rendered<3) e.innerHTML+=buildSponsoredCard(0);
+      mountAds();
+    }
+
+    async function openComments(id){
+      if(!requireAuth()) return;
+      if(!requireProfile()) return;
+      currentPostId=id;
+      document.getElementById("commentsModal").style.display="flex";
+      loadPostComments();
+    }
+
+    async function loadPostComments(){
+      const e=document.getElementById("postCommentsList");
+      e.innerHTML="Loading...";
+      const {data}=await sb.from("comments").select("*, profiles(*)").eq("post_id",currentPostId).order("created_at");
+      e.innerHTML="";
+      (data||[]).forEach(c=>{
+        const visual=c.audio_url
+          ?`<div class="audio-player" onclick="playAudio('${c.audio_url}', this)"><div class="audio-btn"><svg style="width:14px;height:14px;fill:#000;stroke:none"><use href="#i-play"></use></svg></div><div class="audio-wave"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div><span class="audio-text">Voice</span></div>`
+          :`<div class="c-text">${escapeHtml(c.text_content)}</div>`;
+        e.innerHTML+=`<div class="comment-item"><img class="c-avatar" src="${c.profiles.avatar_url}" onclick="openProfile('${c.profiles.id}')"><div class="c-content"><div class="c-bubble"><div class="c-header"><span class="c-user" onclick="openProfile('${c.profiles.id}')">${c.profiles.username}</span><span class="c-time">${timeAgo(c.created_at)}</span></div>${visual}</div></div></div>`;
+      });
+    }
+
+    function playAudio(url,el){
+      if(currentPlayingBtn===el && !globalAudio.paused){globalAudio.pause();resetPlayerUI(el);return}
+      if(currentPlayingBtn && currentPlayingBtn!==el) resetPlayerUI(currentPlayingBtn);
+      currentPlayingBtn=el;
+      globalAudio.src=url;
+      globalAudio.play();
+      el.classList.add("playing");
+      el.querySelector(".audio-btn").innerHTML='<svg style="width:14px;height:14px;fill:#000;stroke:none"><use href="#i-pause"></use></svg>';
+      el.querySelector(".audio-text").innerText="Playing...";
+    }
+    function resetPlayerUI(el){
+      if(!el) return;
+      el.classList.remove("playing");
+      el.querySelector(".audio-btn").innerHTML='<svg style="width:14px;height:14px;fill:#000;stroke:none"><use href="#i-play"></use></svg>';
+      el.querySelector(".audio-text").innerText="Play Voice";
+    }
+
+    function previewFile(){
+      const f=document.getElementById("postFile").files[0];
+      if(!f) return;
+      document.getElementById("imgPreview").src=URL.createObjectURL(f);
+      document.getElementById("imgPreview").style.display="block";
+    }
+
+    function openCreate(){
+      if(!requireAuth()) return;
+      if(!requireProfile()) return;
+      document.getElementById("createModal").style.display="flex";
+    }
+
+    async function submitPost(){
+      if(!requireAuth()) return;
+      if(!requireProfile()) return;
+      const cap=document.getElementById("postCap").value;
+      const f=document.getElementById("postFile").files[0];
+      let url=null;
+      if(!currentBg && !f) return alert("Select background or image");
+      if(f && !currentBg){
+        const key=`${Date.now()}-${Math.floor(Math.random()*1e6)}`;
+        await sb.storage.from("post_images").upload(key,f,{upsert:true});
+        url=sb.storage.from("post_images").getPublicUrl(key).data.publicUrl;
+      }
+      await sb.from("posts").insert({user_id:session.user.id,caption:cap,image_url:url,background_style:currentBg});
+      document.getElementById("createModal").style.display="none";
+      loadFeed();
+    }
+
+    async function deletePost(id){
+      if(!requireAuth()) return;
+      if(!requireProfile()) return;
+      if(!confirm("Delete this vibe?")) return;
+      await sb.from("posts").delete().eq("id",id);
+      loadFeed();
+    }
+
+    async function vote(postId,type){
+      if(!requireAuth()) return;
+      if(!requireProfile()) return;
+      const {data:existing}=await sb.from("post_votes").select("*").eq("user_id",session.user.id).eq("post_id",postId).maybeSingle();
+      if(existing){
+        if(existing.vote_type===type) await sb.from("post_votes").delete().eq("id",existing.id);
+        else await sb.from("post_votes").update({vote_type:type}).eq("id",existing.id);
+      }else{
+        await sb.from("post_votes").insert({user_id:session.user.id,post_id:postId,vote_type:type});
+      }
+      loadFeed();
+    }
+
+    async function openProfile(id){
+      if(!requireAuth()) return;
+      if(!requireProfile()) return;
+      const modal=document.getElementById("profileModal");
+      modal.style.display="flex";
+      const {data:p}=await sb.from("profiles").select("*").eq("id",id).single();
+      currentEditingUser=p;
+      const {count:postsCount}=await sb.from("posts").select("*",{count:"exact",head:true}).eq("user_id",id);
+      const r=getRank(p.vibe_score||0);
+      const loc=profileLoc(p);
+      document.getElementById("vpImg").src=p.avatar_url||"";
+      document.getElementById("vpName").innerText=p.username||"";
+      document.getElementById("vpRankBadge").innerText=r.name;
+      document.getElementById("vpRankBadge").className=`prof-rank-badge ${r.cls}`;
+      document.getElementById("vpBio").innerText=p.bio||"No bio yet.";
+      document.getElementById("vpScore").innerText=p.vibe_score||0;
+      document.getElementById("vpPosts").innerText=postsCount||0;
+      document.getElementById("vpCity").innerText=loc.cityName||"-";
+      document.getElementById("vpHood").innerText=loc.hood||"-";
+      document.getElementById("vpAge").innerText=p.age||"-";
+      document.getElementById("vpGender").innerText=p.gender||"-";
+      document.getElementById("vpInterests").innerText=p.interests||"-";
+      document.getElementById("editProfileBtn").style.display=session.user.id===id?"block":"none";
     }
 
     function stopRoomLive(){
-      roomSub&&sb.removeChannel(roomSub),roomSub=null,
-      roomPollTimer&&(clearInterval(roomPollTimer),roomPollTimer=null)
+      if(roomSub){sb.removeChannel(roomSub);roomSub=null}
     }
 
-    async function openRoom(e,t){
-      currentRoomKey=roomKey(e,t),
-      currentRoomLabel=cityInHoodLabel(e,t),
-      document.getElementById("chatRoom").classList.remove("hidden"),
-      document.getElementById("roomNameDisplay").innerText=currentRoomLabel,
-      stopRoomLive(),seenRoomMsgIds=new Set,lastRoomCreatedAt=null,roomProfileCache={},
+    async function fetchProfileMini(userId){
+      if(roomProfileCache[userId]) return roomProfileCache[userId];
+      const {data}=await sb.from("profiles").select("id, username, avatar_url").eq("id",userId).maybeSingle();
+      if(data){roomProfileCache[userId]=data; return data}
+      return {id:userId,username:"User",avatar_url:""}
+    }
+
+    function renderOneMessage(msg,prof){
+      const n=document.getElementById("chatMsgs");
+      const me=session&&session.user&&msg.user_id===session.user.id;
+      const u=prof||{username:"User",avatar_url:""};
+      const body=msg.audio_url
+        ?`<div class="audio-player" onclick="playAudio('${msg.audio_url}', this)"><div class="audio-btn"><svg style="width:14px;height:14px;fill:#000;stroke:none"><use href="#i-play"></use></svg></div><div class="audio-wave"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div><span class="audio-text">Voice</span></div>`
+        :`<div class="msg-content">${escapeHtml(msg.content||"")}</div>`;
+      n.insertAdjacentHTML("beforeend",`<div class="msg-row ${me?"me":""}">${me?"":`<img class="msg-img" src="${u.avatar_url||""}" onclick="openProfile('${msg.user_id}')">`}<div class="msg-box">${me?"":`<span class="msg-user">${u.username||"User"}</span>`}${body}<span class="msg-time">${formatChatTime(msg.created_at)}</span></div></div>`);
+      n.scrollTop=n.scrollHeight;
+    }
+
+    async function handleNewRoomMessage(row){
+      if(!row || !row.id) return;
+      if(seenRoomMsgIds.has(row.id)) return;
+      if(row.room_name!==currentRoomKey) return;
+      seenRoomMsgIds.add(row.id);
+      const prof=await fetchProfileMini(row.user_id);
+      renderOneMessage(row,prof);
+    }
+
+    async function subscribeRoom(roomName){
+      stopRoomLive();
+      roomSub=sb.channel("room:"+roomName)
+        .on("postgres_changes",{event:"INSERT",schema:"public",table:"room_chats",filter:`room_name=eq.${roomName}`},payload=>{handleNewRoomMessage(payload.new)})
+        .subscribe();
+    }
+
+    async function openRoom(cityKey,hood){
+      currentRoomKey=roomKey(cityKey,hood);
+      currentRoomLabel=cityInHoodLabel(cityKey,hood);
+      document.getElementById("chatRoom").classList.remove("hidden");
+      document.getElementById("roomNameDisplay").innerText=currentRoomLabel;
+      seenRoomMsgIds=new Set();
+      roomProfileCache={};
       await loadRoomMsgs();
+      await subscribeRoom(currentRoomKey);
     }
 
     async function loadRoomMsgs(){
-      const e=document.getElementById("chatMsgs");
-      e.innerHTML="Loading...";
-      const {data:t}=await sb.from("room_chats").select("*").eq("room_name",currentRoomKey).order("created_at",{ascending:!0});
-      e.innerHTML="";
-      if(!t) return;
-      const o=[...new Set(t.map(e=>e.user_id))],
-      {data:r}=await sb.from("profiles").select("id, username, avatar_url").in("id",o),
-      i={};
-      r&&r.forEach(e=>{i[e.id]=e,roomProfileCache[e.id]=e}),
-      t.forEach(e=>renderOneMessage(e,i[e.user_id]));
-      e.scrollTop=e.scrollHeight
-    }
-
-    function renderOneMessage(e,t){
-      const n=document.getElementById("chatMsgs"),
-      o=session&&session.user&&e.user_id===session.user.id,
-      r=t||{username:"User",avatar_url:""},
-      i=e.audio_url?`<div class="audio-player" onclick="playAudio('${e.audio_url}', this)"><div class="audio-btn"><svg style="width:14px;height:14px;fill:#000;stroke:none"><use href="#i-play"></use></svg></div><div class="audio-wave"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div><span class="audio-text">Voice</span></div>`:
-      `<div class="msg-content">${escapeHtml(e.content)}</div>`;
-      n.insertAdjacentHTML("beforeend",`<div class="msg-row ${o?"me":""}"> ${o?"":`<img class="msg-img" src="${r.avatar_url}" onclick="openProfile('${e.user_id}')">`} <div class="msg-box"> ${o?"":`<span class="msg-user">${r.username}</span>`} ${i} <span class="msg-time">${formatChatTime(e.created_at)}</span> </div> </div>`),
-      n.scrollTop=n.scrollHeight
+      const box=document.getElementById("chatMsgs");
+      box.innerHTML="Loading...";
+      const {data}=await sb.from("room_chats").select("*").eq("room_name",currentRoomKey).order("created_at",{ascending:true});
+      box.innerHTML="";
+      const rows=data||[];
+      const ids=[...new Set(rows.map(r=>r.user_id))];
+      if(ids.length){
+        const {data:plist}=await sb.from("profiles").select("id, username, avatar_url").in("id",ids);
+        (plist||[]).forEach(p=>{roomProfileCache[p.id]=p});
+      }
+      rows.forEach(r=>{
+        if(r.id) seenRoomMsgIds.add(r.id);
+        renderOneMessage(r,roomProfileCache[r.user_id]);
+      });
+      box.scrollTop=box.scrollHeight;
     }
 
     async function sendRoomMsg(){
+      const text=(document.getElementById("roomInput").value||"").trim();
+      if(!text || !currentRoomKey) return;
       if(!requireAuth()) return;
-      const e=document.getElementById("roomInput").value.trim();
-      if(!e||!currentRoomKey)return;
+      if(!requireProfile()) return;
       document.getElementById("roomInput").value="";
-      await sb.from("room_chats").insert({room_name:currentRoomKey,user_id:session.user.id,content:e});
-      await loadRoomMsgs()
+      await sb.from("room_chats").insert({room_name:currentRoomKey,user_id:session.user.id,content:text});
     }
+
+    async function openPostComment(){}
 
     const tourOverlay=document.getElementById("tourOverlay");
     const tourTitle=document.getElementById("tourTitle");
@@ -948,7 +1043,7 @@
         {sel:"#citiesWrap",title:"Browse Rooms",desc:"Scroll cities, then tap any neighborhood to enter the room chat.",arrow:"left"},
         {sel:firstHood?null:"#citiesWrap",title:"Join a Room",desc:"Tap a neighborhood card to open its live room. You can read without login, but sending requires login.",arrow:"left",element:firstHood||null},
         {sel:"#dockHome",title:"Back to Feed",desc:"Go back to Home anytime from the dock.",arrow:"up",action:()=>{const b=document.getElementById("dockHome");b&&b.click();}}
-      ]
+      ];
     }
 
     function startTour(){
@@ -968,11 +1063,7 @@
       lockTourScroll(false);
     }
 
-    function resolveTourTarget(step){
-      if(step.element) return step.element;
-      if(step.sel) return document.querySelector(step.sel);
-      return null
-    }
+    function resolveTourTarget(step){if(step.element) return step.element; if(step.sel) return document.querySelector(step.sel); return null}
 
     function placeArrow(cx,cy,r,dir){
       let ax=cx,ay=cy;
@@ -1006,10 +1097,10 @@
         const overlap=!(boxBottom<rectTop-10 || top>rectBottom+10);
         if(overlap){
           if(rectTop-boxH-margin>vpad) top=rectTop-boxH-margin;
-          else if(rectBottom+margin<screenH-boxH-vpad) top=rectBottom+margin
+          else if(rectBottom+margin<screenH-boxH-vpad) top=rectBottom+margin;
         }
       }
-      return top
+      return top;
     }
 
     function renderTourStep(initial){
@@ -1018,18 +1109,16 @@
       if(!step) return;
 
       if(step.action && !step._done){
-        step._done=!0;
+        step._done=true;
         try{step.action()}catch(e){}
         setTimeout(()=>renderTourStep(false),240);
-        return
+        return;
       }
 
       const el=resolveTourTarget(step);
       let rect=null;
       if(el && el.getBoundingClientRect) rect=el.getBoundingClientRect();
-      if(!rect){
-        rect={left:window.innerWidth*0.5-60,top:window.innerHeight*0.3-60,width:120,height:120}
-      }
+      if(!rect) rect={left:window.innerWidth*0.5-60,top:window.innerHeight*0.3-60,width:120,height:120};
 
       const cx=rect.left+rect.width/2;
       const cy=rect.top+rect.height/2;
@@ -1054,17 +1143,41 @@
       }
     }
 
-    tourOk.onclick=()=>{
-      tourStep++;
-      if(tourStep>=tourSteps.length){endTour();return}
-      renderTourStep(false)
-    };
+    tourOk.onclick=()=>{tourStep++; if(tourStep>=tourSteps.length){endTour();return} renderTourStep(false)};
     tourSkip.onclick=()=>endTour();
 
     document.getElementById("gateGoogleBtn").onclick=async()=>{
       const redirectTo=window.location.origin+window.location.pathname;
       await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo,queryParams:{access_type:"offline",prompt:"consent"}}});
     };
+
+    async function init(){
+      renderCities();
+      renderGradients();
+      renderSetupHoods();
+      renderTopRight();
+      loadFeed();
+      await handleOAuthRedirect();
+      const {data}=await sb.auth.getSession();
+      if(data.session){session=data.session; await checkProfile();}
+      renderTopRight();
+      sb.auth.onAuthStateChange(async (evt)=>{
+        if(evt==="SIGNED_OUT"){
+          session=null; myProfile={}; profileRequired=false; stopRoomLive(); renderTopRight(); loadFeed();
+        }
+        if(evt==="SIGNED_IN"){
+          const {data:sess}=await sb.auth.getSession();
+          session=sess.session;
+          closeModal("loginGate");
+          await checkProfile();
+          renderTopRight();
+          loadFeed();
+        }
+      });
+      showSplashThenStart();
+    }
+
+    function showLoginGate(){document.getElementById("loginGate").style.display="flex"}
 
     init();
   </script>
