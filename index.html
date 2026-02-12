@@ -28,7 +28,8 @@
   <style>
     :root{--bg:#000;--card:#111;--primary:#00d2ff;--text:#fff;--muted:#888;--border:rgba(255,255,255,0.12);--viby:#ffd700;--danger:#ff4757;--success:#2ecc71;--orange:#ff7a21}
     *{box-sizing:border-box;margin:0;padding:0;outline:0;-webkit-tap-highlight-color:transparent;font-family:'Outfit',sans-serif}
-    body{background:var(--bg);color:var(--text);height:100vh;overflow:hidden}
+    body{background:var(--bg);color:var(--text);height:100vh;overflow:hidden;-webkit-user-select:none;user-select:none}
+    input,textarea,select,button{user-select:auto;-webkit-user-select:auto}
     .hidden{display:none!important}
     svg{display:block;width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
     .visually-hidden-seo{position:absolute !important;width:1px !important;height:1px !important;padding:0 !important;margin:-1px !important;overflow:hidden !important;clip:rect(0,0,0,0) !important;white-space:nowrap !important;border:0 !important}
@@ -178,7 +179,9 @@
     .ad-header{position:relative;justify-content:center}
     .sponsored-center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none}
     .ad-visual{background:linear-gradient(180deg,rgba(0,210,255,.10),rgba(0,0,0,0));padding:14px}
-    .ad-shell{background:#0b0f14;border:1px solid rgba(255,255,255,.10);border-radius:18px;overflow:hidden;min-height:180px;display:flex;align-items:center;justify-content:center;padding:8px}
+    .ad-shell{background:#0b0f14;border:1px solid rgba(255,255,255,.10);border-radius:18px;overflow:hidden;min-height:180px;display:flex;align-items:center;justify-content:center;padding:10px}
+    .ad-img{width:100%;height:auto;max-height:260px;object-fit:contain;display:block;border-radius:14px;opacity:0;transform:translateY(6px);transition:opacity .35s ease, transform .35s ease}
+    .ad-img.in{opacity:1;transform:translateY(0)}
 
     .gate-card{background:radial-gradient(120% 120% at 10% 0%, rgba(0,210,255,.18), rgba(0,0,0,0)), #0b0f14;border:1px solid rgba(255,255,255,.14);border-radius:26px;max-width:420px;width:100%;padding:18px;box-shadow:0 30px 90px rgba(0,0,0,.85)}
     .gate-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
@@ -239,8 +242,13 @@
     }
   </style>
   <script>
-    document.addEventListener("contextmenu",e=>e.preventDefault()),
+    document.addEventListener("contextmenu",e=>e.preventDefault());
+    document.addEventListener("copy",e=>e.preventDefault());
+    document.addEventListener("cut",e=>e.preventDefault());
+    document.addEventListener("dragstart",e=>e.preventDefault());
     document.onkeydown=function(e){
+      const k=e.key||"";
+      if((e.ctrlKey||e.metaKey) && (k.toLowerCase()==="c" || k.toLowerCase()==="x")) return !1;
       if(123==e.keyCode||e.ctrlKey&&e.shiftKey&&"I"==e.key||e.ctrlKey&&e.shiftKey&&"C"==e.key||e.ctrlKey&&e.shiftKey&&"J"==e.key||e.ctrlKey&&"U"==e.key) return !1
     };
   </script>
@@ -493,6 +501,7 @@
     };
     const cityOrder=["rabat","sale","casablanca","marrakech","fes","tangier","agadir","meknes","oujda","kenitra","tetouan","eljadida","safi","mohammedia","nador","benimellal","khouribga","taza","essaouira","laayoune","dakhla"];
     const gradients=["linear-gradient(45deg,#ff9a9e,#fecfef)","linear-gradient(120deg,#84fab0,#8fd3f4)","linear-gradient(to top,#30cfd0,#330867)","linear-gradient(to right,#434343,black)","linear-gradient(to top,#fcc5e4,#020f75)"];
+    const AD_IMAGE="https://i.postimg.cc/rwTFC8C7/Tik-Tok.png";
 
     function lockTourScroll(on){
       const ms=document.getElementById("mainScroll");
@@ -537,15 +546,36 @@
 
     function buildSponsoredCard(idx){
       const adId=`adSlot_${Date.now()}_${idx}_${Math.floor(1e6*Math.random())}`;
-      return `<div class="post-card" data-ad="1"><div class="post-header ad-header"><div class="sponsored-center"><span class="sponsored-pill">Sponsored</span></div></div><div class="ad-visual"><div class="ad-shell"><div id="${adId}" style="width:100%"></div></div></div></div>`
+      return `<div class="post-card" data-ad="1"><div class="post-header ad-header"><div class="sponsored-center"><span class="sponsored-pill">Sponsored</span></div></div><div class="ad-visual"><div class="ad-shell"><img class="ad-img" data-adimg="1" data-adid="${adId}" src="${AD_IMAGE}" alt="Sponsored"></div></div></div>`
     }
 
+    let adObserver=null;
     function mountAds(){
-      const nodes=[...document.querySelectorAll('[data-ad="1"]')];
-      nodes.forEach(card=>{
-        if(card.getAttribute("data-mounted")==="1") return;
-        card.setAttribute("data-mounted","1");
-      })
+      const imgs=[...document.querySelectorAll('img[data-adimg="1"]')];
+      if(!imgs.length) return;
+
+      const show=(img)=>{if(!img.classList.contains("in")) img.classList.add("in")};
+
+      if("IntersectionObserver" in window){
+        if(!adObserver){
+          adObserver=new IntersectionObserver(entries=>{
+            entries.forEach(ent=>{
+              if(ent.isIntersecting){
+                show(ent.target);
+                adObserver.unobserve(ent.target);
+              }
+            })
+          },{root:null,threshold:0.15});
+        }
+        imgs.forEach(img=>{
+          if(img.classList.contains("in")) return;
+          const r=img.getBoundingClientRect();
+          if(r.bottom>0 && r.top<window.innerHeight) show(img);
+          else adObserver.observe(img);
+        });
+      }else{
+        imgs.forEach(show);
+      }
     }
 
     function typeSplash(){
