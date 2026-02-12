@@ -471,7 +471,7 @@
 
   <script>
     const sb=supabase.createClient("https://tujdnvnrizgqroaozsqp.supabase.co","sb_publishable_WyigevxmzR2gLtbog2Ztfg_8pdmSwop",{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:"pkce"}});
-    let session,currentBg,currentPostId,currentRoomKey=null,currentRoomLabel=null,roomSub=null,currentPlayingBtn=null,myProfile={},isEditing=!1,currentEditingUser=null,seenRoomMsgIds=new Set,roomProfileCache={},profileRequired=!1;
+    let session,currentBg,currentPostId,currentRoomKey=null,currentRoomLabel=null,roomSub=null,currentPlayingBtn=null,myProfile={},isEditing=!1,currentEditingUser=null,seenRoomMsgIds=new Set,roomProfileCache={},profileRequired=!1,roomPollTimer=null,lastRoomCreatedAt=null;
     const globalAudio=document.getElementById("globalAudio");
     const TIKTOK_URL="https://www.tiktok.com/@hypezone.ma";
     const AD_IMAGE="https://i.postimg.cc/rwTFC8C7/Tik-Tok.png";
@@ -947,6 +947,8 @@
 
     function stopRoomLive(){
       if(roomSub){sb.removeChannel(roomSub);roomSub=null}
+      if(roomPollTimer){clearInterval(roomPollTimer);roomPollTimer=null}
+      lastRoomCreatedAt=null;
     }
 
     async function fetchProfileMini(userId){
@@ -969,28 +971,38 @@
 
     async function handleNewRoomMessage(row){
       if(!row || !row.id) return;
-      if(seenRoomMsgIds.has(row.id)) return;
       if(row.room_name!==currentRoomKey) return;
+      if(seenRoomMsgIds.has(row.id)) return;
       seenRoomMsgIds.add(row.id);
+      lastRoomCreatedAt=row.created_at||lastRoomCreatedAt;
       const prof=await fetchProfileMini(row.user_id);
       renderOneMessage(row,prof);
     }
 
     async function subscribeRoom(roomName){
       stopRoomLive();
-      let resolveSub, rejectSub;
-      const subPromise = new Promise((resolve, reject) => { resolveSub = resolve; rejectSub = reject; });
-      roomSub = sb.channel("room:"+roomName)
+      roomSub=sb.channel("room:"+roomName)
         .on("postgres_changes",{event:"INSERT",schema:"public",table:"room_chats",filter:`room_name=eq.${roomName}`},payload=>{handleNewRoomMessage(payload.new)})
-        .subscribe((status,err)=>{
-          if(status==="SUBSCRIBED") resolveSub();
-          else rejectSub(err);
+        .subscribe();
+
+      roomPollTimer=setInterval(async ()=>{
+        if(!currentRoomKey) return;
+        const since=lastRoomCreatedAt||new Date(0).toISOString();
+        const {data:rows}=await sb.from("room_chats").select("*").eq("room_name",currentRoomKey).gt("created_at",since).order("created_at",{ascending:true});
+        if(!rows||!rows.length) return;
+        const fresh=rows.filter(r=>r.id && !seenRoomMsgIds.has(r.id));
+        if(!fresh.length) return;
+        const ids=[...new Set(fresh.map(r=>r.user_id).filter(Boolean))].filter(id=>!roomProfileCache[id]);
+        if(ids.length){
+          const {data:plist}=await sb.from("profiles").select("id, username, avatar_url").in("id",ids);
+          (plist||[]).forEach(p=>{roomProfileCache[p.id]=p});
+        }
+        fresh.forEach(r=>{
+          seenRoomMsgIds.add(r.id);
+          lastRoomCreatedAt=r.created_at||lastRoomCreatedAt;
+          renderOneMessage(r,roomProfileCache[r.user_id]||{username:"User",avatar_url:""});
         });
-      try {
-        await subPromise;
-      } catch(e){
-        setTimeout(()=>subscribeRoom(roomName),2000);
-      }
+      },900);
     }
 
     async function openRoom(cityKey,hood){
@@ -1000,6 +1012,7 @@
       document.getElementById("roomNameDisplay").innerText=currentRoomLabel;
       seenRoomMsgIds=new Set();
       roomProfileCache={};
+      lastRoomCreatedAt=null;
       await loadRoomMsgs();
       await subscribeRoom(currentRoomKey);
     }
@@ -1019,6 +1032,8 @@
         if(r.id) seenRoomMsgIds.add(r.id);
         renderOneMessage(r,roomProfileCache[r.user_id]);
       });
+      const last=rows[rows.length-1];
+      lastRoomCreatedAt=last?last.created_at:null;
       box.scrollTop=box.scrollHeight;
     }
 
@@ -1028,11 +1043,16 @@
       if(!requireAuth()) return;
       if(!requireProfile()) return;
       document.getElementById("roomInput").value="";
-      const { data: newMsg, error } = await sb.from("room_chats").insert({room_name:currentRoomKey,user_id:session.user.id,content:text}).select().single();
-      if (!error && newMsg) handleNewRoomMessage(newMsg);
+      const {data:row,error}=await sb.from("room_chats").insert({room_name:currentRoomKey,user_id:session.user.id,content:text}).select("*").single();
+      if(error) return;
+      if(row && row.id){
+        if(!seenRoomMsgIds.has(row.id)){
+          seenRoomMsgIds.add(row.id);
+          lastRoomCreatedAt=row.created_at||lastRoomCreatedAt;
+          renderOneMessage(row,myProfile&&myProfile.id?{id:myProfile.id,username:myProfile.username,avatar_url:myProfile.avatar_url}:{username:"Me",avatar_url:""});
+        }
+      }
     }
-
-    async function openPostComment(){}
 
     const tourOverlay=document.getElementById("tourOverlay");
     const tourTitle=document.getElementById("tourTitle");
