@@ -214,6 +214,15 @@
     .tour-style-1 .tour-ring,.tour-style-1 .tour-box,.tour-style-1 .tour-arrow{transition-timing-function:cubic-bezier(.15,1.05,.2,1)}
     .tour-style-2 .tour-ring,.tour-style-2 .tour-box,.tour-style-2 .tour-arrow{transition-timing-function:cubic-bezier(.12,.88,.28,1)}
 
+    .mic-help-title{font-size:16px;font-weight:1000;color:#fff}
+    .mic-help-sub{margin-top:10px;color:rgba(255,255,255,.72);font-size:13px;line-height:1.55}
+    .mic-steps{margin-top:12px;display:flex;flex-direction:column;gap:10px}
+    .mic-step{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:12px}
+    .mic-step b{color:var(--primary)}
+    .mic-actions{display:flex;gap:10px;margin-top:14px}
+    .mic-btn{flex:1;border:none;cursor:pointer;border-radius:14px;padding:12px 14px;font-weight:1000;font-size:12px;background:linear-gradient(135deg,#00d2ff,#007aff);color:#000;box-shadow:0 14px 40px rgba(0,210,255,.22)}
+    .mic-btn-ghost{flex:1;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:#fff;border-radius:14px;padding:12px 14px;font-weight:900;font-size:12px;cursor:pointer}
+
     @media (min-width:768px){
       #mainScroll{padding-bottom:150px}
       .topbar,.event-banner,.rooms-layout{max-width:var(--maxW);margin-left:auto;margin-right:auto}
@@ -446,6 +455,24 @@
         <svg viewBox="0 0 448 512"><path d="M448 209.91a210.06 210.06 0 0 1-122.77-39.25v178.72A162.55 162.55 0 1 1 185 188.31v89.89a74.62 74.62 0 1 0 52.23 71.18V0h88a121.18 121.18 0 0 0 1.86 22.17A122.18 122.18 0 0 0 381 102.39a121.43 121.43 0 0 0 67 20.14z"/></svg>
         TikTok
       </a>
+    </div>
+  </div>
+
+  <div id="micPermModal" class="modal" style="z-index:3605">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Microphone Access</h3>
+        <button class="close-btn" onclick="closeModal('micPermModal')">✕</button>
+      </div>
+      <div class="scroll-content">
+        <div class="mic-help-title" id="micHelpTitle">Microphone permission is not available</div>
+        <div class="mic-help-sub" id="micHelpSub">To send voice messages, HypeZone needs access to your microphone.</div>
+        <div class="mic-steps" id="micHelpSteps"></div>
+      </div>
+      <div class="mic-actions">
+        <button class="mic-btn" id="micTryBtn">Try Again</button>
+        <button class="mic-btn-ghost" onclick="closeModal('micPermModal')">Close</button>
+      </div>
     </div>
   </div>
 
@@ -949,6 +976,7 @@
       if(roomSub){sb.removeChannel(roomSub);roomSub=null}
       if(roomPollTimer){clearInterval(roomPollTimer);roomPollTimer=null}
       lastRoomCreatedAt=null;
+      stopVoice("room");
     }
 
     async function fetchProfileMini(userId){
@@ -1051,6 +1079,236 @@
           lastRoomCreatedAt=row.created_at||lastRoomCreatedAt;
           renderOneMessage(row,myProfile&&myProfile.id?{id:myProfile.id,username:myProfile.username,avatar_url:myProfile.avatar_url}:{username:"Me",avatar_url:""});
         }
+      }
+    }
+
+    async function sendPostComment(){
+      const text=(document.getElementById("commentInput").value||"").trim();
+      if(!text || !currentPostId) return;
+      if(!requireAuth()) return;
+      if(!requireProfile()) return;
+      document.getElementById("commentInput").value="";
+      await sb.from("comments").insert({post_id:currentPostId,user_id:session.user.id,text_content:text});
+      loadPostComments();
+    }
+
+    function detectMicPlatform(){
+      const ua=(navigator.userAgent||"").toLowerCase();
+      const isAndroid=ua.includes("android");
+      const isIOS=/iphone|ipad|ipod/.test(ua);
+      const isEdge=ua.includes("edg/");
+      const isChrome=ua.includes("chrome") && !isEdge && !ua.includes("opr/");
+      const isSafari=ua.includes("safari") && !isChrome && !isEdge;
+      const isWindows=ua.includes("windows");
+      const isMac=ua.includes("macintosh") && !isIOS;
+      if(isAndroid && isChrome) return "android_chrome";
+      if(isIOS && isSafari) return "ios_safari";
+      if(isWindows && isEdge) return "windows_edge";
+      if(isWindows && isChrome) return "windows_chrome";
+      if(isMac && isSafari) return "mac_safari";
+      if(isMac && isChrome) return "mac_chrome";
+      return "generic";
+    }
+
+    function buildMicSteps(){
+      const type=detectMicPlatform();
+      const steps=document.getElementById("micHelpSteps");
+      steps.innerHTML="";
+      const blocks=[];
+      if(type==="android_chrome"){
+        blocks.push({t:"Android (Chrome)",s:["Open <b>Chrome</b> → tap <b>🔒 lock</b> near the address bar","Tap <b>Permissions</b> → set <b>Microphone</b> to <b>Allow</b>","Reload the page, then tap the mic again"]});
+        blocks.push({t:"If you blocked before",s:["Chrome Settings → <b>Site settings</b> → <b>Microphone</b>","Find HypeZone and set it to <b>Allow</b>"]});
+      }else if(type==="ios_safari"){
+        blocks.push({t:"iPhone / iPad (Safari)",s:["Open <b>Settings</b> → <b>Safari</b>","Tap <b>Microphone</b> and choose <b>Allow</b>","Back to Safari → reload HypeZone → tap mic again"]});
+        blocks.push({t:"If it still doesn’t ask",s:["Settings → <b>Privacy & Security</b> → <b>Microphone</b>","Make sure Safari is enabled, then reload"]});
+      }else if(type==="windows_edge"){
+        blocks.push({t:"Windows (Microsoft Edge)",s:["Click the <b>🔒 lock</b> icon near the address bar","Set <b>Microphone</b> to <b>Allow</b>","Reload and try again"]});
+        blocks.push({t:"Also check Windows permission",s:["Windows Settings → <b>Privacy & security</b> → <b>Microphone</b>","Enable mic access and allow your browser"]});
+      }else if(type==="windows_chrome"){
+        blocks.push({t:"Windows (Chrome)",s:["Click the <b>🔒 lock</b> icon near the address bar","Set <b>Microphone</b> to <b>Allow</b>","Reload and try again"]});
+        blocks.push({t:"Also check Windows permission",s:["Windows Settings → <b>Privacy & security</b> → <b>Microphone</b>","Enable mic access and allow your browser"]});
+      }else if(type==="mac_safari"){
+        blocks.push({t:"macOS (Safari)",s:["Safari → <b>Settings</b> (Preferences) → <b>Websites</b> → <b>Microphone</b>","Find HypeZone and choose <b>Allow</b>","Reload and try again"]});
+        blocks.push({t:"Also check macOS permission",s:["System Settings → <b>Privacy & Security</b> → <b>Microphone</b>","Enable Safari / your browser"]});
+      }else if(type==="mac_chrome"){
+        blocks.push({t:"macOS (Chrome)",s:["Click the <b>🔒 lock</b> icon near the address bar","Set <b>Microphone</b> to <b>Allow</b>","Reload and try again"]});
+        blocks.push({t:"Also check macOS permission",s:["System Settings → <b>Privacy & Security</b> → <b>Microphone</b>","Enable Chrome"]});
+      }else{
+        blocks.push({t:"Browser permission",s:["Click the <b>🔒 lock</b> icon near the address bar","Set <b>Microphone</b> to <b>Allow</b>","Reload the page and try again"]});
+        blocks.push({t:"System permission",s:["Make sure your device allows microphone access for your browser in system settings","After enabling, reload and try again"]});
+      }
+      blocks.forEach(b=>{
+        const div=document.createElement("div");
+        div.className="mic-step";
+        div.innerHTML=`<div style="font-weight:1000;color:#fff;margin-bottom:6px">${b.t}</div><div style="display:flex;flex-direction:column;gap:6px;color:rgba(255,255,255,.72);font-size:13px;line-height:1.55">${b.s.map(x=>`<div>• ${x}</div>`).join("")}</div>`;
+        steps.appendChild(div);
+      });
+    }
+
+    function openMicHelp(){
+      buildMicSteps();
+      document.getElementById("micPermModal").style.display="flex";
+    }
+
+    let voiceCtx={room:{rec:null,stream:null,chunks:[],busy:false},comment:{rec:null,stream:null,chunks:[],busy:false}};
+    function stopVoice(kind){
+      const ctx=voiceCtx[kind];
+      if(!ctx) return;
+      try{if(ctx.rec && ctx.rec.state!=="inactive") ctx.rec.stop()}catch(e){}
+      try{if(ctx.stream) ctx.stream.getTracks().forEach(t=>t.stop())}catch(e){}
+      ctx.rec=null; ctx.stream=null; ctx.chunks=[]; ctx.busy=false;
+      const btn=kind==="room"?document.getElementById("roomMic"):document.getElementById("commentMicBtn");
+      if(btn) btn.classList.remove("recording");
+    }
+
+    function pickRecorderMime(){
+      const prefers=[
+        "audio/webm;codecs=opus",
+        "audio/webm",
+        "audio/ogg;codecs=opus",
+        "audio/ogg"
+      ];
+      for(const m of prefers){
+        if(window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(m)) return m;
+      }
+      return "";
+    }
+
+    async function ensureMicAccess(){
+      if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return {ok:false,reason:"unsupported"};
+      try{
+        if(navigator.permissions && navigator.permissions.query){
+          try{
+            const p=await navigator.permissions.query({name:"microphone"});
+            if(p && p.state==="denied") return {ok:false,reason:"denied"};
+          }catch(e){}
+        }
+        const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+        return {ok:true,stream};
+      }catch(err){
+        const n=(err&&err.name)||"";
+        if(n==="NotAllowedError"||n==="SecurityError"||n==="PermissionDeniedError") return {ok:false,reason:"denied"};
+        if(n==="NotFoundError"||n==="DevicesNotFoundError") return {ok:false,reason:"notfound"};
+        return {ok:false,reason:"error"};
+      }
+    }
+
+    async function uploadVoiceBlob(blob,folder){
+      const ext=(blob.type||"").includes("ogg")?"ogg":"webm";
+      const key=`${folder}/${session.user.id}-${Date.now()}-${Math.floor(Math.random()*1e6)}.${ext}`;
+      const buckets=["voices","voice","audio","room_audio","comment_audio"];
+      let lastErr=null;
+      for(const b of buckets){
+        const up=await sb.storage.from(b).upload(key,blob,{upsert:true,contentType:blob.type||"audio/webm"});
+        if(!up.error){
+          const pub=sb.storage.from(b).getPublicUrl(key);
+          if(pub && pub.data && pub.data.publicUrl) return pub.data.publicUrl;
+        }else lastErr=up.error;
+      }
+      throw lastErr||new Error("Upload failed");
+    }
+
+    async function startVoice(kind){
+      if(!requireAuth()) return;
+      if(!requireProfile()) return;
+      if(kind==="room" && !currentRoomKey) return;
+      if(kind==="comment" && !currentPostId) return;
+
+      const ctx=voiceCtx[kind];
+      if(ctx.busy) return;
+
+      const btn=kind==="room"?document.getElementById("roomMic"):document.getElementById("commentMicBtn");
+      if(!btn) return;
+
+      if(!window.MediaRecorder){
+        openMicHelp();
+        return;
+      }
+
+      const perm=await ensureMicAccess();
+      if(!perm.ok){
+        openMicHelp();
+        return;
+      }
+
+      const mime=pickRecorderMime();
+      ctx.stream=perm.stream;
+      ctx.chunks=[];
+      ctx.busy=true;
+
+      try{
+        ctx.rec=new MediaRecorder(ctx.stream,mime?{mimeType:mime}:undefined);
+      }catch(e){
+        try{ctx.stream.getTracks().forEach(t=>t.stop())}catch(x){}
+        ctx.stream=null;
+        ctx.busy=false;
+        openMicHelp();
+        return;
+      }
+
+      ctx.rec.ondataavailable=(ev)=>{if(ev.data && ev.data.size>0) ctx.chunks.push(ev.data)};
+      ctx.rec.onstop=async ()=>{
+        btn.classList.remove("recording");
+        try{if(ctx.stream) ctx.stream.getTracks().forEach(t=>t.stop())}catch(e){}
+        const blob=new Blob(ctx.chunks,{type:mime||"audio/webm"});
+        ctx.rec=null; ctx.stream=null; ctx.chunks=[];
+        ctx.busy=false;
+        if(!blob || !blob.size) return;
+
+        try{
+          const url=await uploadVoiceBlob(blob,kind==="room"?"room":"comment");
+          if(kind==="room"){
+            const {data:row,error}=await sb.from("room_chats").insert({room_name:currentRoomKey,user_id:session.user.id,content:"",audio_url:url}).select("*").single();
+            if(!error && row && row.id && !seenRoomMsgIds.has(row.id)){
+              seenRoomMsgIds.add(row.id);
+              lastRoomCreatedAt=row.created_at||lastRoomCreatedAt;
+              renderOneMessage(row,myProfile&&myProfile.id?{id:myProfile.id,username:myProfile.username,avatar_url:myProfile.avatar_url}:{username:"Me",avatar_url:""});
+            }
+          }else{
+            await sb.from("comments").insert({post_id:currentPostId,user_id:session.user.id,text_content:"",audio_url:url});
+            loadPostComments();
+          }
+        }catch(e){}
+      };
+
+      btn.classList.add("recording");
+      try{ctx.rec.start(250)}catch(e){
+        btn.classList.remove("recording");
+        try{if(ctx.stream) ctx.stream.getTracks().forEach(t=>t.stop())}catch(x){}
+        ctx.rec=null; ctx.stream=null; ctx.chunks=[]; ctx.busy=false;
+        openMicHelp();
+      }
+    }
+
+    function toggleVoice(kind){
+      const ctx=voiceCtx[kind];
+      const btn=kind==="room"?document.getElementById("roomMic"):document.getElementById("commentMicBtn");
+      if(!ctx || !btn) return;
+      if(ctx.rec && ctx.rec.state==="recording"){
+        try{ctx.rec.stop()}catch(e){stopVoice(kind)}
+      }else startVoice(kind);
+    }
+
+    function wireMicButtons(){
+      const roomBtn=document.getElementById("roomMic");
+      const comBtn=document.getElementById("commentMicBtn");
+      if(roomBtn){
+        roomBtn.onclick=()=>toggleVoice("room");
+      }
+      if(comBtn){
+        comBtn.onclick=()=>toggleVoice("comment");
+      }
+      const tryBtn=document.getElementById("micTryBtn");
+      if(tryBtn){
+        tryBtn.onclick=async ()=>{
+          closeModal("micPermModal");
+          const perm=await ensureMicAccess();
+          if(!perm.ok){
+            openMicHelp();
+            return;
+          }
+          try{perm.stream.getTracks().forEach(t=>t.stop())}catch(e){}
+        };
       }
     }
 
@@ -1205,6 +1463,7 @@
           loadFeed();
         }
       });
+      wireMicButtons();
       showSplashThenStart();
     }
 
