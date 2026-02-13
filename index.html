@@ -325,7 +325,7 @@
     <symbol id="i-trash" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></symbol>
     <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></symbol>
     <symbol id="i-mic" viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></symbol>
-    <symbol id="i-send" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y1="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></symbol>
     <symbol id="i-play" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></symbol>
     <symbol id="i-pause" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></symbol>
     <symbol id="i-up" viewBox="0 0 24 24"><path d="M18 15l-6-6-6 6"/></symbol>
@@ -344,6 +344,7 @@
       <div class="topbar">
         <div class="brand">HypeZone</div>
 
+        <!-- ✅ ADDED: Inbox button + existing badge (no other UI changed) -->
         <div class="top-actions">
           <button class="icon-btn" id="inboxBtn" title="Messages" onclick="openInbox()">
             <span class="badge-dot" id="inboxDot"></span>
@@ -392,7 +393,7 @@
     </div>
   </div>
 
-  <!-- Private DM chat -->
+  <!-- ✅ ADDED: Private DM chat -->
   <div id="dmChat" class="chat-interface hidden" style="z-index:3200">
     <div class="chat-top">
       <button class="chat-exit" onclick="stopDMLive();document.getElementById('dmChat').classList.add('hidden')">
@@ -428,6 +429,7 @@
     </div>
   </div>
 
+  <!-- ✅ ADDED: Inbox modal (messages list) -->
   <div id="inboxModal" class="modal">
     <div class="modal-card">
       <div class="modal-header">
@@ -448,11 +450,13 @@
         <img id="vpImg" class="prof-lg" alt="Profile photo">
         <h2 id="vpName">Name</h2>
 
+        <!-- ✅ ADDED: Online/Last seen (red) -->
         <div class="prof-status" id="vpStatus"> </div>
 
         <div id="vpRankBadge" class="prof-rank-badge">ROOKIE</div>
         <div class="prof-bio" id="vpBio"></div>
 
+        <!-- ✅ ADDED: Contact button (shows only when viewing other user) -->
         <button id="contactBtn" class="btn-primary" style="margin:0 0 12px;display:none" onclick="contactFromProfile()">Message</button>
 
         <div class="stat-grid">
@@ -576,88 +580,7 @@
   </div>
 
   <script>
-    // ✅ Robust fetch: timeout + retry to prevent hanging forever after tab resume / sleep.
-        throw err;
-      }
-    }
-
-    let sb=null;
-    const SB_URL="https://tujdnvnrizgqroaozsqp.supabase.co";
-    const SB_KEY="sb_publishable_WyigevxmzR2gLtbog2Ztfg_8pdmSwop";
-
-    // ✅ Robust fetch wrapper: timeout + retry (prevents infinite Loading when a request hangs after tab background/resume)
-    async function fetchWithTimeout(url, options={}, timeoutMs=12000){
-      const controller = new AbortController();
-      const id = setTimeout(()=>controller.abort(), timeoutMs);
-      const opts = {...options, signal: controller.signal};
-      try{
-        return await fetch(url, opts);
-      }finally{
-        clearTimeout(id);
-      }
-    }
-    async function fetchWithRetry(url, options={}, timeoutMs=12000, retries=1){
-      let lastErr=null;
-      for(let i=0;i<=retries;i++){
-        try{
-          const res = await fetchWithTimeout(url, options, timeoutMs);
-          return res;
-        }catch(e){
-          lastErr=e;
-          // small backoff
-          await new Promise(r=>setTimeout(r, 250*(i+1)));
-        }
-      }
-      throw lastErr;
-    }
-
-    let authListener=null;
-
-    function createSupabaseClient(){
-      // IMPORTANT: recreate the client to kill stuck websocket states (Edge/Chrome after tab switch)
-      sb = supabase.createClient(SB_URL, SB_KEY, {
-        auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:"pkce"},
-        global:{fetch:(url,options)=>fetchWithRetry(url,options,12000,1)}
-      });
-      attachAuthListener();
-    }
-
-    function attachAuthListener(){
-      try{
-        if(authListener && authListener.unsubscribe) authListener.unsubscribe();
-      }catch(e){}
-      try{
-        const {data} = sb.auth.onAuthStateChange(async (evt)=>{
-          if(evt==="SIGNED_OUT"){
-            try{ await upsertPresence(false); }catch(e){}
-            stopPresence();
-            stopInboxBadge();
-            session=null; myProfile={}; profileRequired=false;
-            stopRoomLive();
-            stopDMLive();
-            renderTopRight();
-            loadFeed();
-          }
-          if(evt==="SIGNED_IN"){
-            const {data:sess}=await sb.auth.getSession();
-            session=sess.session;
-            closeModal("loginGate");
-            await checkProfile();
-            renderTopRight();
-            loadFeed();
-            startPresence();
-            startInboxBadge();
-          }
-        });
-        authListener = data && data.subscription ? data.subscription : null;
-      }catch(e){
-        authListener=null;
-      }
-    }
-
-    // create first client now
-    createSupabaseClient();
-
+    const sb=supabase.createClient("https://tujdnvnrizgqroaozsqp.supabase.co","sb_publishable_WyigevxmzR2gLtbog2Ztfg_8pdmSwop",{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:"pkce"}});
     let session,currentBg,currentPostId,currentRoomKey=null,currentRoomLabel=null,roomSub=null,currentPlayingBtn=null,myProfile={},isEditing=!1,currentEditingUser=null,seenRoomMsgIds=new Set,roomProfileCache={},profileRequired=!1,roomPollTimer=null,lastRoomCreatedAt=null;
 
     // ✅ DM state
@@ -688,78 +611,10 @@
     const AUDIO_FOLDER="audio";
 
     // ✅ TABLE NAMES (you must create these in Supabase)
+    // 1) dm_messages: id(uuid), thread_id(text), sender_id(uuid), receiver_id(uuid), content(text), audio_url(text), created_at(timestamp)
+    // 2) user_presence: user_id(uuid primary key), is_online(bool), last_seen(timestamp)
     const TBL_DM="dm_messages";
     const TBL_PRESENCE="user_presence";
-
-    // =========================
-    // ✅ CONNECTION SELF-HEAL (fixes "Loading forever" after switching tabs/windows)
-    // Works on desktop + mobile + multiple browsers.
-    // =========================
-    let hzHealLock=false;
-    let hzLastHealAt=0;
-    function hzNow(){return Date.now();}
-
-    async function hzHealConnection(reason){
-      const now=hzNow();
-      if(hzHealLock) return;
-      if(now-hzLastHealAt<800) return;
-      hzHealLock=true;
-      hzLastHealAt=now;
-      try{
-        // ensure realtime is connected
-        try{ sb.realtime.connect(); }catch(e){}
-
-        // refresh session snapshot
-        try{
-          const {data} = await sb.auth.getSession();
-          if(data && data.session) session = data.session;
-        }catch(e){}
-
-        // restart timers if logged
-        if(session && session.user && session.user.id){
-          try{ startPresence(); }catch(e){}
-          try{ startInboxBadge(); }catch(e){}
-        }
-
-        // resubscribe room if open
-        try{
-          const roomOpen = currentRoomKey && !document.getElementById("chatRoom").classList.contains("hidden");
-          if(roomOpen){
-            await loadRoomMsgs();
-            await subscribeRoom(currentRoomKey);
-          }
-        }catch(e){}
-
-        // resubscribe dm if open
-        try{
-          const dmOpen = currentDMThreadId && !document.getElementById("dmChat").classList.contains("hidden");
-          if(dmOpen){
-            await loadDMMessages();
-            await subscribeDM(currentDMThreadId);
-          }
-        }catch(e){}
-
-        // refresh feed once if visible (keeps UI alive)
-        try{
-          const feedVisible = !document.getElementById("feedView").classList.contains("hidden");
-          if(feedVisible) await loadFeed();
-        }catch(e){}
-      } finally {
-        hzHealLock=false;
-      }
-    }
-
-    document.addEventListener("visibilitychange", ()=>{
-      if(!document.hidden){
-        hzHealConnection("resume");
-      }else{
-        // optional: close socket to avoid stale state on freeze
-        try{ sb.realtime.disconnect(); }catch(e){}
-      }
-    }, {passive:true});
-
-    window.addEventListener("online", ()=>hzHealConnection("online"), {passive:true});
-    window.addEventListener("pageshow", ()=>hzHealConnection("pageshow"), {passive:true});
 
     const cities={
       rabat:{name:"Rabat",hoods:["Agdal","Hassan","Hay Riad","Ocean","Medina","Souissi","Yacoub Al Mansour","Akkari","Kammra","Temara","Skhirat"]},
@@ -1100,33 +955,27 @@
     async function loadFeed(){
       const e=document.getElementById("feedList");
       e.innerHTML="<div style='text-align:center;color:#666'>Loading...</div>";
-      try{
-        const {data}=await sb.from("posts").select("*, profiles(*)").order("created_at",{ascending:false});
-        e.innerHTML="";
-        const posts=(data||[]);
-        let adEvery=4+Math.floor(Math.random()*3);
-        let rendered=0;
-        posts.forEach(p=>{
-          const u=p.profiles, r=getRank(u.vibe_score||0), isMine=session&&session.user&&session.user.id===u.id;
-          const loc=profileLoc(u);
-          const locLabel=loc.cityName+" in "+loc.hood;
-          const visual=p.background_style
-            ?`<div class="post-visual" style="background:${p.background_style}"><div class="bg-text">${escapeHtml(p.caption)}</div></div>`
-            :`<div class="post-visual"><img src="${p.image_url}"><div class="img-caption">${escapeHtml(p.caption)}</div></div>`;
-          e.innerHTML+=`<div class="post-card"><div class="post-header"><div class="post-user-info"><img class="p-avatar" src="${u.avatar_url}" onclick="openProfile('${u.id}')"><div onclick="openProfile('${u.id}')"><div class="p-name">${u.username} <span class="rank-tag ${r.cls}">${r.name}</span></div><div class="p-loc">${locLabel} • ${timeAgo(p.created_at)}</div></div></div>${isMine?`<button class="delete-btn" onclick="deletePost('${p.id}')"><svg><use href="#i-trash"></use></svg></button>`:""}</div>${visual}<div class="post-actions"><div class="vote-box"><button class="vote-btn up" onclick="vote('${p.id}', 1)"><svg><use href="#i-up"></use></svg></button><span class="vote-val">${u.vibe_score||0}</span><button class="vote-btn down" onclick="vote('${p.id}', -1)"><svg><use href="#i-down"></use></svg></button></div><button class="action-btn" onclick="openComments('${p.id}')"><svg style="width:16px"><use href="#i-chat"></use></svg> Comments</button></div></div>`;
-          rendered++;
-          if(rendered%adEvery===0){
-            e.innerHTML+=buildSponsoredCard(rendered);
-            adEvery=4+Math.floor(Math.random()*3);
-          }
-        });
-        if(rendered<3) e.innerHTML+=buildSponsoredCard(0);
-        mountAds();
-      }catch(err){
-        // if a request hung/failed, self-heal and show a hint
-        e.innerHTML="<div style='text-align:center;color:#666'>Connection issue… Reconnecting</div>";
-        hzHealConnection("feed-fail");
-      }
+      const {data}=await sb.from("posts").select("*, profiles(*)").order("created_at",{ascending:false});
+      e.innerHTML="";
+      const posts=(data||[]);
+      let adEvery=4+Math.floor(Math.random()*3);
+      let rendered=0;
+      posts.forEach(p=>{
+        const u=p.profiles, r=getRank(u.vibe_score||0), isMine=session&&session.user&&session.user.id===u.id;
+        const loc=profileLoc(u);
+        const locLabel=loc.cityName+" in "+loc.hood;
+        const visual=p.background_style
+          ?`<div class="post-visual" style="background:${p.background_style}"><div class="bg-text">${escapeHtml(p.caption)}</div></div>`
+          :`<div class="post-visual"><img src="${p.image_url}"><div class="img-caption">${escapeHtml(p.caption)}</div></div>`;
+        e.innerHTML+=`<div class="post-card"><div class="post-header"><div class="post-user-info"><img class="p-avatar" src="${u.avatar_url}" onclick="openProfile('${u.id}')"><div onclick="openProfile('${u.id}')"><div class="p-name">${u.username} <span class="rank-tag ${r.cls}">${r.name}</span></div><div class="p-loc">${locLabel} • ${timeAgo(p.created_at)}</div></div></div>${isMine?`<button class="delete-btn" onclick="deletePost('${p.id}')"><svg><use href="#i-trash"></use></svg></button>`:""}</div>${visual}<div class="post-actions"><div class="vote-box"><button class="vote-btn up" onclick="vote('${p.id}', 1)"><svg><use href="#i-up"></use></svg></button><span class="vote-val">${u.vibe_score||0}</span><button class="vote-btn down" onclick="vote('${p.id}', -1)"><svg><use href="#i-down"></use></svg></button></div><button class="action-btn" onclick="openComments('${p.id}')"><svg style="width:16px"><use href="#i-chat"></use></svg> Comments</button></div></div>`;
+        rendered++;
+        if(rendered%adEvery===0){
+          e.innerHTML+=buildSponsoredCard(rendered);
+          adEvery=4+Math.floor(Math.random()*3);
+        }
+      });
+      if(rendered<3) e.innerHTML+=buildSponsoredCard(0);
+      mountAds();
     }
 
     async function openComments(id){
@@ -1137,7 +986,8 @@
       loadPostComments();
     }
 
-    // Audio duration cache
+    /* ✅ FIX: audio duration تظهر مباشرة بدون ضغط
+       - نحمّل metadata لكل audio-player بعد الرندر ونكتب المدة على طول */
     const _durCache = new Map(); // url -> seconds
     function fmtTime(sec){
       sec = Math.max(0, Math.floor(sec || 0));
@@ -1164,11 +1014,13 @@
         const url = el.getAttribute("data-audio");
         if(!url) return;
 
+        // already loaded
         if(_durCache.has(url)){
           setPlayerTime(el, 0, _durCache.get(url));
           return;
         }
 
+        // show placeholder quickly
         setPlayerTime(el, 0, 0);
 
         try{
@@ -1185,10 +1037,14 @@
             } else {
               setPlayerTime(el, 0, 0);
             }
+            // cleanup
             a.src = "";
           };
 
-          a.onerror = () => { a.src = ""; };
+          a.onerror = () => {
+            // fallback: leave 0:00 if CORS blocks metadata
+            a.src = "";
+          };
         }catch(e){}
       });
     }
@@ -1196,24 +1052,21 @@
     async function loadPostComments(){
       const e=document.getElementById("postCommentsList");
       e.innerHTML="Loading...";
-      try{
-        const {data}=await sb.from("comments").select("*, profiles(*)").eq("post_id",currentPostId).order("created_at");
-        e.innerHTML="";
-        (data||[]).forEach(c=>{
-          const visual=c.audio_url
-            ?`<div class="audio-player" data-audio="${c.audio_url}" onclick="playAudio('${c.audio_url}', this)">
-                <div class="audio-btn"><svg style="width:14px;height:14px;fill:#000;stroke:none"><use href="#i-play"></use></svg></div>
-                <div class="audio-wave"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
-                <span class="audio-text">Voice</span><span class="audio-time">0:00</span>
-              </div>`
-            :`<div class="c-text">${escapeHtml(c.text_content)}</div>`;
-          e.innerHTML+=`<div class="comment-item"><img class="c-avatar" src="${c.profiles.avatar_url}" onclick="openProfile('${c.profiles.id}')"><div class="c-content"><div class="c-bubble"><div class="c-header"><span class="c-user" onclick="openProfile('${c.profiles.id}')">${c.profiles.username}</span><span class="c-time">${timeAgo(c.created_at)}</span></div>${visual}</div></div></div>`;
-        });
-        hydrateAudioDurations(e);
-      }catch(err){
-        e.innerHTML="<div style='color:#666'>Connection issue… Reconnecting</div>";
-        hzHealConnection("comments-fail");
-      }
+      const {data}=await sb.from("comments").select("*, profiles(*)").eq("post_id",currentPostId).order("created_at");
+      e.innerHTML="";
+      (data||[]).forEach(c=>{
+        const visual=c.audio_url
+          ?`<div class="audio-player" data-audio="${c.audio_url}" onclick="playAudio('${c.audio_url}', this)">
+              <div class="audio-btn"><svg style="width:14px;height:14px;fill:#000;stroke:none"><use href="#i-play"></use></svg></div>
+              <div class="audio-wave"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
+              <span class="audio-text">Voice</span><span class="audio-time">0:00</span>
+            </div>`
+          :`<div class="c-text">${escapeHtml(c.text_content)}</div>`;
+        e.innerHTML+=`<div class="comment-item"><img class="c-avatar" src="${c.profiles.avatar_url}" onclick="openProfile('${c.profiles.id}')"><div class="c-content"><div class="c-bubble"><div class="c-header"><span class="c-user" onclick="openProfile('${c.profiles.id}')">${c.profiles.username}</span><span class="c-time">${timeAgo(c.created_at)}</span></div>${visual}</div></div></div>`;
+      });
+
+      // ✅ preload durations now
+      hydrateAudioDurations(e);
     }
 
     function playAudio(url,el){
@@ -1248,6 +1101,7 @@
         el.classList.add("playing");
         el.querySelector(".audio-btn").innerHTML='<svg style="width:14px;height:14px;fill:#000;stroke:none"><use href="#i-pause"></use></svg>';
         el.querySelector(".audio-text").innerText="Playing";
+        // duration should already be cached, but keep safe:
         setPlayerTime(el, 0, globalAudio.duration);
       }).catch(()=>{
         resetPlayerUI(el);
@@ -1332,9 +1186,11 @@
       stopPresence();
       if(!session || !session.user) return;
 
+      // mark online immediately + heartbeat
       upsertPresence(true);
       presenceTimer=setInterval(()=>upsertPresence(true), 25000);
 
+      // on exit mark offline
       window.addEventListener("beforeunload", ()=>{ try{ upsertPresence(false); }catch(e){} }, {once:true});
       window.addEventListener("pagehide", ()=>{ try{ upsertPresence(false); }catch(e){} }, {once:true});
       document.addEventListener("visibilitychange", ()=>{
@@ -1346,66 +1202,6 @@
     function stopPresence(){
       if(presenceTimer){clearInterval(presenceTimer); presenceTimer=null;}
     }
-
-    // ✅ Realtime recover (fix: tab switch causes websocket 101 + stuck Loading)
-    // Browsers may suspend the WebSocket when the tab/app is backgrounded (BFCache / throttling),
-    // leaving Realtime in a half-open state. On resume, we force a clean reconnect and re-subscribe.
-    let rtRecovering=false;
-
-    function _rtState(){
-      try{
-        if(sb && sb.realtime && typeof sb.realtime.connectionState==="function"){
-          return String(sb.realtime.connectionState()||"").toLowerCase();
-        }
-      }catch(e){}
-      return "";
-    }
-
-    async function recoverRealtime(reason){
-      if(rtRecovering) return;
-      rtRecovering=true;
-      try{
-        // If we aren't logged in, Realtime is not required; just bail.
-        // (Presence/inbox polling uses HTTP and still works.)
-        const needRT = (!!currentRoomKey && !document.getElementById("chatRoom").classList.contains("hidden"))
-                    || (!!currentDMThreadId && !document.getElementById("dmChat").classList.contains("hidden"));
-        if(!needRT){
-          rtRecovering=false;
-          return;
-        }
-
-        // Force disconnect/connect (safe even if already connected)
-        try{ sb && sb.realtime && sb.realtime.disconnect && sb.realtime.disconnect(); }catch(e){}
-        try{ sb && sb.realtime && sb.realtime.connect && sb.realtime.connect(); }catch(e){}
-
-        // Re-subscribe active channels (this also refreshes polling timers)
-        if(currentRoomKey && !document.getElementById("chatRoom").classList.contains("hidden")){
-          try{ await subscribeRoom(currentRoomKey); }catch(e){}
-        }
-        if(currentDMThreadId && !document.getElementById("dmChat").classList.contains("hidden")){
-          try{ await subscribeDM(currentDMThreadId); }catch(e){}
-        }
-      }finally{
-        setTimeout(()=>{rtRecovering=false;}, 1200);
-      }
-    }
-
-    function setupLifecycleReconnect(){
-      // When coming back to the tab/app, recover realtime immediately.
-      document.addEventListener("visibilitychange", ()=>{
-        if(!document.hidden) recoverRealtime("visibility");
-      }, {passive:true});
-
-      window.addEventListener("focus", ()=>recoverRealtime("focus"), {passive:true});
-      window.addEventListener("online", ()=>recoverRealtime("online"), {passive:true});
-
-      // BFCache restore (common on mobile + some desktop flows)
-      window.addEventListener("pageshow", (e)=>{
-        if(e && e.persisted) recoverRealtime("bfcache");
-        else recoverRealtime("pageshow");
-      }, {passive:true});
-    }
-
     async function fetchPresence(userId){
       try{
         const {data}=await sb.from(TBL_PRESENCE).select("*").eq("user_id", userId).maybeSingle();
@@ -1418,6 +1214,7 @@
       return "Last seen";
     }
 
+    // ✅ Contact button from profile
     function contactFromProfile(){
       if(!currentEditingUser || !currentEditingUser.id) return;
       closeModal("profileModal");
@@ -1436,6 +1233,7 @@
       const r=getRank(p.vibe_score||0);
       const loc=profileLoc(p);
 
+      // presence
       const pres = await fetchPresence(id);
       document.getElementById("vpStatus").innerText = presenceLabel(pres);
 
@@ -1452,6 +1250,7 @@
       document.getElementById("vpGender").innerText=p.gender||"-";
       document.getElementById("vpInterests").innerText=p.interests||"-";
 
+      // ✅ show edit if mine, else show contact
       const isMine = session.user.id===id;
       document.getElementById("editProfileBtn").style.display=isMine?"block":"none";
       document.getElementById("contactBtn").style.display=!isMine?"block":"none";
@@ -1483,6 +1282,8 @@
         :`<div class="msg-content">${escapeHtml(msg.content||"")}</div>`;
       n.insertAdjacentHTML("beforeend",`<div class="msg-row ${me?"me":""}">${me?"":`<img class="msg-img" src="${u.avatar_url||""}" onclick="openProfile('${msg.user_id}')">`}<div class="msg-box">${me?"":`<span class="msg-user">${u.username||"User"}</span>`}${body}<span class="msg-time">${formatChatTime(msg.created_at)}</span></div></div>`);
       n.scrollTop=n.scrollHeight;
+
+      // ✅ preload duration for this message audio immediately
       hydrateAudioDurations(n);
     }
 
@@ -1503,26 +1304,22 @@
         .subscribe();
 
       roomPollTimer=setInterval(async ()=>{
-        try{
-          if(!currentRoomKey) return;
-          const since=lastRoomCreatedAt||new Date(0).toISOString();
-          const {data:rows}=await sb.from("room_chats").select("*").eq("room_name",currentRoomKey).gt("created_at",since).order("created_at",{ascending:true});
-          if(!rows||!rows.length) return;
-          const fresh=rows.filter(r=>r.id && !seenRoomMsgIds.has(r.id));
-          if(!fresh.length) return;
-          const ids=[...new Set(fresh.map(r=>r.user_id).filter(Boolean))].filter(id=>!roomProfileCache[id]);
-          if(ids.length){
-            const {data:plist}=await sb.from("profiles").select("id, username, avatar_url").in("id",ids);
-            (plist||[]).forEach(p=>{roomProfileCache[p.id]=p});
-          }
-          fresh.forEach(r=>{
-            seenRoomMsgIds.add(r.id);
-            lastRoomCreatedAt=r.created_at||lastRoomCreatedAt;
-            renderOneMessage(r,roomProfileCache[r.user_id]||{username:"User",avatar_url:""});
-          });
-        }catch(e){
-          hzHealConnection("room-poll-fail");
+        if(!currentRoomKey) return;
+        const since=lastRoomCreatedAt||new Date(0).toISOString();
+        const {data:rows}=await sb.from("room_chats").select("*").eq("room_name",currentRoomKey).gt("created_at",since).order("created_at",{ascending:true});
+        if(!rows||!rows.length) return;
+        const fresh=rows.filter(r=>r.id && !seenRoomMsgIds.has(r.id));
+        if(!fresh.length) return;
+        const ids=[...new Set(fresh.map(r=>r.user_id).filter(Boolean))].filter(id=>!roomProfileCache[id]);
+        if(ids.length){
+          const {data:plist}=await sb.from("profiles").select("id, username, avatar_url").in("id",ids);
+          (plist||[]).forEach(p=>{roomProfileCache[p.id]=p});
         }
+        fresh.forEach(r=>{
+          seenRoomMsgIds.add(r.id);
+          lastRoomCreatedAt=r.created_at||lastRoomCreatedAt;
+          renderOneMessage(r,roomProfileCache[r.user_id]||{username:"User",avatar_url:""});
+        });
       },900);
     }
 
@@ -1541,27 +1338,23 @@
     async function loadRoomMsgs(){
       const box=document.getElementById("chatMsgs");
       box.innerHTML="Loading...";
-      try{
-        const {data}=await sb.from("room_chats").select("*").eq("room_name",currentRoomKey).order("created_at",{ascending:true});
-        box.innerHTML="";
-        const rows=data||[];
-        const ids=[...new Set(rows.map(r=>r.user_id))];
-        if(ids.length){
-          const {data:plist}=await sb.from("profiles").select("id, username, avatar_url").in("id",ids);
-          (plist||[]).forEach(p=>{roomProfileCache[p.id]=p});
-        }
-        rows.forEach(r=>{
-          if(r.id) seenRoomMsgIds.add(r.id);
-          renderOneMessage(r,roomProfileCache[r.user_id]);
-        });
-        const last=rows[rows.length-1];
-        lastRoomCreatedAt=last?last.created_at:null;
-        box.scrollTop=box.scrollHeight;
-        hydrateAudioDurations(box);
-      }catch(e){
-        box.innerHTML="<div style='color:#666'>Connection issue… Reconnecting</div>";
-        hzHealConnection("room-load-fail");
+      const {data}=await sb.from("room_chats").select("*").eq("room_name",currentRoomKey).order("created_at",{ascending:true});
+      box.innerHTML="";
+      const rows=data||[];
+      const ids=[...new Set(rows.map(r=>r.user_id))];
+      if(ids.length){
+        const {data:plist}=await sb.from("profiles").select("id, username, avatar_url").in("id",ids);
+        (plist||[]).forEach(p=>{roomProfileCache[p.id]=p});
       }
+      rows.forEach(r=>{
+        if(r.id) seenRoomMsgIds.add(r.id);
+        renderOneMessage(r,roomProfileCache[r.user_id]);
+      });
+      const last=rows[rows.length-1];
+      lastRoomCreatedAt=last?last.created_at:null;
+      box.scrollTop=box.scrollHeight;
+
+      hydrateAudioDurations(box);
     }
 
     async function sendRoomMsg(){
@@ -1595,10 +1388,13 @@
     // =========================
     // ✅ DM (Private messages)
     // =========================
+
+    // ✅ FIX: separate "stop channel only" (do NOT clear DM state)
     function stopDMChannelOnly(){
       if(dmSub){sb.removeChannel(dmSub);dmSub=null}
       if(dmPollTimer){clearInterval(dmPollTimer);dmPollTimer=null}
     }
+
     function stopDMLive(){
       stopDMChannelOnly();
       lastDMCAt=null;
@@ -1616,6 +1412,7 @@
 
       document.getElementById("dmChat").classList.remove("hidden");
 
+      // header
       const {data:prof}=await sb.from("profiles").select("id,username,avatar_url").eq("id", otherUserId).maybeSingle();
       document.getElementById("dmNameDisplay").innerText = (prof && prof.username) ? prof.username : "User";
 
@@ -1658,27 +1455,25 @@
       const box=document.getElementById("dmMsgs");
       box.innerHTML="Loading...";
 
-      try{
-        const {data:otherP}=await sb.from("profiles").select("id, username, avatar_url").eq("id", currentDMUserId).maybeSingle();
-        const {data:rows}=await sb.from(TBL_DM)
-          .select("*")
-          .eq("thread_id", currentDMThreadId)
-          .order("created_at",{ascending:true});
+      // other profile
+      const {data:otherP}=await sb.from("profiles").select("id, username, avatar_url").eq("id", currentDMUserId).maybeSingle();
 
-        box.innerHTML="";
-        (rows||[]).forEach(r=>{
-          if(r.id) seenDMMsgIds.add(r.id);
-          renderDMMessage(r, otherP);
-        });
+      const {data:rows}=await sb.from(TBL_DM)
+        .select("*")
+        .eq("thread_id", currentDMThreadId)
+        .order("created_at",{ascending:true});
 
-        const last=(rows||[])[(rows||[]).length-1];
-        lastDMCAt = last ? last.created_at : null;
-        box.scrollTop=box.scrollHeight;
-        hydrateAudioDurations(box);
-      }catch(e){
-        box.innerHTML="<div style='color:#666'>Connection issue… Reconnecting</div>";
-        hzHealConnection("dm-load-fail");
-      }
+      box.innerHTML="";
+      (rows||[]).forEach(r=>{
+        if(r.id) seenDMMsgIds.add(r.id);
+        renderDMMessage(r, otherP);
+      });
+
+      const last=(rows||[])[(rows||[]).length-1];
+      lastDMCAt = last ? last.created_at : null;
+      box.scrollTop=box.scrollHeight;
+
+      hydrateAudioDurations(box);
     }
 
     async function handleNewDM(row){
@@ -1693,6 +1488,7 @@
     }
 
     async function subscribeDM(threadId){
+      // ✅ FIX: only stop old channel/timer, keep currentDMUserId/currentDMThreadId
       stopDMChannelOnly();
       currentDMThreadId = threadId;
 
@@ -1701,28 +1497,24 @@
         .subscribe();
 
       dmPollTimer=setInterval(async ()=>{
-        try{
-          if(!currentDMThreadId) return;
-          const since=lastDMCAt||new Date(0).toISOString();
-          const {data:rows}=await sb.from(TBL_DM)
-            .select("*")
-            .eq("thread_id", currentDMThreadId)
-            .gt("created_at", since)
-            .order("created_at",{ascending:true});
+        if(!currentDMThreadId) return;
+        const since=lastDMCAt||new Date(0).toISOString();
+        const {data:rows}=await sb.from(TBL_DM)
+          .select("*")
+          .eq("thread_id", currentDMThreadId)
+          .gt("created_at", since)
+          .order("created_at",{ascending:true});
 
-          if(!rows||!rows.length) return;
-          const fresh=rows.filter(r=>r.id && !seenDMMsgIds.has(r.id));
-          if(!fresh.length) return;
+        if(!rows||!rows.length) return;
+        const fresh=rows.filter(r=>r.id && !seenDMMsgIds.has(r.id));
+        if(!fresh.length) return;
 
-          const {data:otherP}=await sb.from("profiles").select("id, username, avatar_url").eq("id", currentDMUserId).maybeSingle();
-          fresh.forEach(r=>{
-            seenDMMsgIds.add(r.id);
-            lastDMCAt = r.created_at || lastDMCAt;
-            renderDMMessage(r, otherP);
-          });
-        }catch(e){
-          hzHealConnection("dm-poll-fail");
-        }
+        const {data:otherP}=await sb.from("profiles").select("id, username, avatar_url").eq("id", currentDMUserId).maybeSingle();
+        fresh.forEach(r=>{
+          seenDMMsgIds.add(r.id);
+          lastDMCAt = r.created_at || lastDMCAt;
+          renderDMMessage(r, otherP);
+        });
       },900);
     }
 
@@ -1745,6 +1537,7 @@
       const {data:row,error}=await sb.from(TBL_DM).insert(payload).select("*").single();
       if(error) return;
 
+      // render immediately if needed
       if(row && row.id && !seenDMMsgIds.has(row.id)){
         seenDMMsgIds.add(row.id);
         lastDMCAt=row.created_at||lastDMCAt;
@@ -1753,7 +1546,7 @@
       }
     }
 
-    // Inbox
+    // ✅ Inbox list (group messages by other user)
     async function openInbox(){
       if(!requireAuth()) return;
       if(!requireProfile()) return;
@@ -1785,6 +1578,7 @@
         return;
       }
 
+      // group by thread, take latest message
       const latestByThread=new Map();
       msgs.forEach(m=>{
         if(!m.thread_id) return;
@@ -1793,6 +1587,7 @@
 
       const threads=[...latestByThread.values()];
 
+      // collect other ids
       const otherIds=[...new Set(threads.map(t=>{
         const other = (t.sender_id===uid) ? t.receiver_id : t.sender_id;
         return other;
@@ -1820,10 +1615,12 @@
           </div>`;
       });
 
+      // clear badge dot when inbox opened
       const dot=document.getElementById("inboxDot");
       if(dot) dot.style.display="none";
     }
 
+    // ✅ lightweight badge polling (shows red dot if any new msg in last 30s)
     async function startInboxBadge(){
       stopInboxBadge();
       if(!session || !session.user) return;
@@ -1854,7 +1651,9 @@
       if(dmInboxBadgeTimer){clearInterval(dmInboxBadgeTimer); dmInboxBadgeTimer=null;}
     }
 
-    // MIC Permission helpers + Audio recorder (unchanged from your file)
+    // =========================
+    // ✅ MIC PERMISSION MODAL
+    // =========================
     function uaInfo(){
       const ua=navigator.userAgent||"";
       const isAndroid=/Android/i.test(ua);
@@ -1923,6 +1722,9 @@
       document.getElementById("micPermModal").style.display="flex";
     }
 
+    // =========================
+    // ✅ AUDIO RECORD + UPLOAD + SEND
+    // =========================
     function bestMimeType(){
       const candidates=[
         "audio/webm;codecs=opus",
@@ -2156,7 +1958,6 @@
       }
     }
 
-    // Tour logic (unchanged)
     const tourOverlay=document.getElementById("tourOverlay");
     const tourTitle=document.getElementById("tourTitle");
     const tourDesc=document.getElementById("tourDesc");
@@ -2285,97 +2086,6 @@
       await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo,queryParams:{access_type:"offline",prompt:"consent"}}});
     };
 
-    // =========================
-    // ✅ HARD RECOVERY after tab switch / app resume (Edge/Chrome issue)
-    // - kills stuck realtime websocket (101 Pending) by rebuilding client
-    // =========================
-    let _hzRebuilding=false;
-    let _hzLastRebuild=0;
-
-    async function hardRebuildSupabase(reason){
-      const now=Date.now();
-      if(_hzRebuilding) return;
-      if(now-_hzLastRebuild < 1200) return; // cooldown
-      _hzRebuilding=true;
-      _hzLastRebuild=now;
-
-      const keepRoom = currentRoomKey;
-      const keepDMUser = currentDMUserId;
-      const keepDMThread = currentDMThreadId;
-      const dmOpen = !document.getElementById("dmChat").classList.contains("hidden");
-      const roomOpen = !document.getElementById("chatRoom").classList.contains("hidden");
-
-      try{
-        // stop live channels/timers but keep IDs
-        stopRoomLive();
-        stopDMChannelOnly();
-        stopPresence();
-        stopInboxBadge();
-        try{ if(sb && sb.realtime) sb.realtime.disconnect(); }catch(e){}
-        try{ if(authListener && authListener.unsubscribe) authListener.unsubscribe(); }catch(e){}
-
-        // recreate client (this is the real fix for 101 Pending websocket freeze)
-        createSupabaseClient();
-
-        // restore session
-        try{
-          const {data}=await sb.auth.getSession();
-          session = data && data.session ? data.session : null;
-          if(session){
-            // try refresh (no-op if not needed)
-            try{ await sb.auth.refreshSession(); }catch(e){}
-            await checkProfile();
-            startPresence();
-            startInboxBadge();
-          }else{
-            myProfile={}; profileRequired=false;
-          }
-        }catch(e){
-          session=null; myProfile={}; profileRequired=false;
-        }
-
-        // refresh UI
-        renderTopRight();
-        try{ await loadFeed(); }catch(e){}
-
-        // restore open chats if any
-        if(roomOpen && keepRoom){
-          currentRoomKey = keepRoom;
-          await loadRoomMsgs();
-          await subscribeRoom(keepRoom);
-        }
-        if(dmOpen && keepDMUser && keepDMThread){
-          currentDMUserId = keepDMUser;
-          currentDMThreadId = keepDMThread;
-          await loadDMMessages();
-          await subscribeDM(keepDMThread);
-        }
-      }finally{
-        _hzRebuilding=false;
-      }
-    }
-
-    // 🔥 Resume hooks (Edge / BFCache / tab switch)
-    document.addEventListener("visibilitychange", ()=>{
-      try{
-        if(document.hidden){
-          // prevent half-open socket
-          if(sb && sb.realtime) sb.realtime.disconnect();
-        }else{
-          hardRebuildSupabase("visibilitychange");
-        }
-      }catch(e){}
-    }, {passive:true});
-
-    window.addEventListener("focus", ()=>hardRebuildSupabase("focus"), {passive:true});
-    window.addEventListener("online", ()=>hardRebuildSupabase("online"), {passive:true});
-    window.addEventListener("pageshow", (e)=>{
-      // BFCache restore
-      if(e && e.persisted) hardRebuildSupabase("pageshow-bfcache");
-    }, {passive:true});
-
-
-
     async function init(){
       renderCities();
       renderGradients();
@@ -2395,8 +2105,10 @@
 
       renderTopRight();
 
-      // ✅ auth listener is attached inside createSupabaseClient()/attachAuthListener()
-
+      sb.auth.onAuthStateChange(async (evt)=>{
+        if(evt==="SIGNED_OUT"){
+          try{ await upsertPresence(false); }catch(e){}
+          stopPresence();
           stopInboxBadge();
           session=null; myProfile={}; profileRequired=false;
           stopRoomLive();
@@ -2417,11 +2129,7 @@
       });
 
       setupMicButtons();
-      setupLifecycleReconnect();
       showSplashThenStart();
-
-      // ✅ proactive heal (desktop + mobile)
-      setTimeout(()=>hzHealConnection("post-init"), 900);
     }
 
     init();
