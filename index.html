@@ -1389,9 +1389,15 @@
     // =========================
     // ✅ DM (Private messages)
     // =========================
-    function stopDMLive(){
+
+    // ✅ FIX: separate "stop channel only" (do NOT clear DM state)
+    function stopDMChannelOnly(){
       if(dmSub){sb.removeChannel(dmSub);dmSub=null}
       if(dmPollTimer){clearInterval(dmPollTimer);dmPollTimer=null}
+    }
+
+    function stopDMLive(){
+      stopDMChannelOnly();
       lastDMCAt=null;
       currentDMUserId=null;
       currentDMThreadId=null;
@@ -1483,8 +1489,8 @@
     }
 
     async function subscribeDM(threadId){
-      stopDMLive(); // ensures old channels closed, but keep current variables -> so re-set after
-      // restore variables:
+      // ✅ FIX: only stop old channel/timer, keep currentDMUserId/currentDMThreadId
+      stopDMChannelOnly();
       currentDMThreadId = threadId;
 
       dmSub=sb.channel("dm:"+threadId)
