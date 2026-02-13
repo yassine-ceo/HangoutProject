@@ -50,7 +50,7 @@
     body.tour-lock{overflow:hidden!important}
 
     .topbar{padding:15px 20px;display:flex;justify-content:space-between;align-items:center;background:0 0;z-index:50}
-    .brand{font-family:'Courgette',cursive;font-size:26px;color:var(--primary);text-shadow:0 0 15px rgba(0,210,255,.4)}
+    .brand{font-family:'Courgette',cursive;font-size:26px;color:var(--primary);text-shadow:0 0 15px rgba(0,0,0,.4)}
     .top-actions{display:flex;align-items:center;gap:10px}
     .icon-btn{
       width:42px;height:42px;border-radius:50%;
@@ -595,6 +595,10 @@
     let presenceTimer=null;
     let dmInboxBadgeTimer=null;
 
+    // ✅ presence refresh timers (for profile modal + dm header)
+    let profilePresenceTimer=null;
+    let dmPresenceTimer=null;
+
     const globalAudio=document.getElementById("globalAudio");
     const TIKTOK_URL="https://www.tiktok.com/@hypezone.ma";
     const AD_IMAGE="https://i.postimg.cc/rwTFC8C7/Tik-Tok.png";
@@ -768,7 +772,18 @@
     function formatChatTime(d){return new Date(d).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}
     function escapeHtml(s){return s?s.replace(/&/g,"&amp;").replace(/</g,"&lt;"):""}
 
-    function closeModal(id){if(profileRequired && id==="setupModal") return; document.getElementById(id).style.display="none"}
+    // ✅ UPDATED: closeModal clears presence refresh timers (no UI changes)
+    function closeModal(id){
+      if(profileRequired && id==="setupModal") return;
+      document.getElementById(id).style.display="none";
+
+      if(id==="profileModal"){
+        stopProfilePresenceWatch();
+      }
+      if(id==="dmChat"){
+        stopDMPresenceWatch();
+      }
+    }
 
     function switchView(view,btn){
       document.querySelectorAll(".dock-btn").forEach(e=>e.classList.remove("active"));
@@ -1208,10 +1223,50 @@
         return data||null;
       }catch(e){ return null; }
     }
+
+    // ✅ UPDATED: show exact date + hour for last_seen
+    function formatLastSeen(ts){
+      try{
+        const d=new Date(ts);
+        if(!isFinite(d)) return "";
+        return d.toLocaleString([], {year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"});
+      }catch(e){ return ""; }
+    }
     function presenceLabel(p){
       if(p && p.is_online) return "Active Now";
-      if(p && p.last_seen) return "Last seen " + timeAgo(p.last_seen);
+      if(p && p.last_seen){
+        const pretty = formatLastSeen(p.last_seen);
+        return pretty ? ("Last seen " + pretty) : ("Last seen " + timeAgo(p.last_seen));
+      }
       return "Last seen";
+    }
+
+    // ✅ presence watch (profile modal)
+    function stopProfilePresenceWatch(){
+      if(profilePresenceTimer){clearInterval(profilePresenceTimer); profilePresenceTimer=null;}
+    }
+    function startProfilePresenceWatch(userId){
+      stopProfilePresenceWatch();
+      if(!userId) return;
+      profilePresenceTimer=setInterval(async ()=>{
+        const pres = await fetchPresence(userId);
+        const el=document.getElementById("vpStatus");
+        if(el) el.innerText = presenceLabel(pres);
+      }, 8000);
+    }
+
+    // ✅ presence watch (dm header)
+    function stopDMPresenceWatch(){
+      if(dmPresenceTimer){clearInterval(dmPresenceTimer); dmPresenceTimer=null;}
+    }
+    function startDMPresenceWatch(userId){
+      stopDMPresenceWatch();
+      if(!userId) return;
+      dmPresenceTimer=setInterval(async ()=>{
+        const pres = await fetchPresence(userId);
+        const el=document.getElementById("dmStatusDisplay");
+        if(el) el.innerText = presenceLabel(pres);
+      }, 7000);
     }
 
     // ✅ Contact button from profile
@@ -1236,6 +1291,9 @@
       // presence
       const pres = await fetchPresence(id);
       document.getElementById("vpStatus").innerText = presenceLabel(pres);
+
+      // ✅ keep it updated while modal is open
+      startProfilePresenceWatch(id);
 
       document.getElementById("vpImg").src=p.avatar_url||"";
       document.getElementById("vpName").innerText=p.username||"";
@@ -1388,9 +1446,16 @@
     // =========================
     // ✅ DM (Private messages)
     // =========================
-    function stopDMLive(){
+
+    // ✅ FIX: separate "stop DM channel" from "reset DM state"
+    function stopDMChannel(){
       if(dmSub){sb.removeChannel(dmSub);dmSub=null}
       if(dmPollTimer){clearInterval(dmPollTimer);dmPollTimer=null}
+    }
+
+    function stopDMLive(){
+      stopDMChannel();
+      stopDMPresenceWatch();
       lastDMCAt=null;
       currentDMUserId=null;
       currentDMThreadId=null;
@@ -1412,6 +1477,9 @@
 
       const pres = await fetchPresence(otherUserId);
       document.getElementById("dmStatusDisplay").innerText = presenceLabel(pres);
+
+      // ✅ keep it updated while dm is open
+      startDMPresenceWatch(otherUserId);
 
       seenDMMsgIds=new Set();
       lastDMCAt=null;
@@ -1482,9 +1550,8 @@
     }
 
     async function subscribeDM(threadId){
-      stopDMLive(); // ensures old channels closed, but keep current variables -> so re-set after
-      // restore variables:
-      currentDMThreadId = threadId;
+      // ✅ FIX: do NOT reset currentDMUserId / thread variables
+      stopDMChannel();
 
       dmSub=sb.channel("dm:"+threadId)
         .on("postgres_changes",{event:"INSERT",schema:"public",table:TBL_DM,filter:`thread_id=eq.${threadId}`},payload=>{handleNewDM(payload.new)})
