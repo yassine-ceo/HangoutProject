@@ -577,32 +577,86 @@
 
   <script>
     // ✅ Robust fetch: timeout + retry to prevent hanging forever after tab resume / sleep.
-    function fetchWithTimeout(url, options={}, timeoutMs=15000){
-      const controller = new AbortController();
-      const id = setTimeout(()=>controller.abort("timeout"), timeoutMs);
-      const opts = {...options, signal: controller.signal};
-      return fetch(url, opts).finally(()=>clearTimeout(id));
-    }
-    async function fetchWithRetry(url, options={}, timeoutMs=15000, retries=1){
-      try{
-        return await fetchWithTimeout(url, options, timeoutMs);
-      }catch(err){
-        if(retries>0){
-          await new Promise(r=>setTimeout(r, 400));
-          return fetchWithRetry(url, options, timeoutMs, retries-1);
-        }
         throw err;
       }
     }
 
-    const sb=supabase.createClient(
-      "https://tujdnvnrizgqroaozsqp.supabase.co",
-      "sb_publishable_WyigevxmzR2gLtbog2Ztfg_8pdmSwop",
-      {
-        auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:"pkce"},
-        global:{fetch:(url,options)=>fetchWithRetry(url,options,15000,1)}
+    let sb=null;
+    const SB_URL="https://tujdnvnrizgqroaozsqp.supabase.co";
+    const SB_KEY="sb_publishable_WyigevxmzR2gLtbog2Ztfg_8pdmSwop";
+
+    // ✅ Robust fetch wrapper: timeout + retry (prevents infinite Loading when a request hangs after tab background/resume)
+    async function fetchWithTimeout(url, options={}, timeoutMs=12000){
+      const controller = new AbortController();
+      const id = setTimeout(()=>controller.abort(), timeoutMs);
+      const opts = {...options, signal: controller.signal};
+      try{
+        return await fetch(url, opts);
+      }finally{
+        clearTimeout(id);
       }
-    );
+    }
+    async function fetchWithRetry(url, options={}, timeoutMs=12000, retries=1){
+      let lastErr=null;
+      for(let i=0;i<=retries;i++){
+        try{
+          const res = await fetchWithTimeout(url, options, timeoutMs);
+          return res;
+        }catch(e){
+          lastErr=e;
+          // small backoff
+          await new Promise(r=>setTimeout(r, 250*(i+1)));
+        }
+      }
+      throw lastErr;
+    }
+
+    let authListener=null;
+
+    function createSupabaseClient(){
+      // IMPORTANT: recreate the client to kill stuck websocket states (Edge/Chrome after tab switch)
+      sb = supabase.createClient(SB_URL, SB_KEY, {
+        auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:"pkce"},
+        global:{fetch:(url,options)=>fetchWithRetry(url,options,12000,1)}
+      });
+      attachAuthListener();
+    }
+
+    function attachAuthListener(){
+      try{
+        if(authListener && authListener.unsubscribe) authListener.unsubscribe();
+      }catch(e){}
+      try{
+        const {data} = sb.auth.onAuthStateChange(async (evt)=>{
+          if(evt==="SIGNED_OUT"){
+            try{ await upsertPresence(false); }catch(e){}
+            stopPresence();
+            stopInboxBadge();
+            session=null; myProfile={}; profileRequired=false;
+            stopRoomLive();
+            stopDMLive();
+            renderTopRight();
+            loadFeed();
+          }
+          if(evt==="SIGNED_IN"){
+            const {data:sess}=await sb.auth.getSession();
+            session=sess.session;
+            closeModal("loginGate");
+            await checkProfile();
+            renderTopRight();
+            loadFeed();
+            startPresence();
+            startInboxBadge();
+          }
+        });
+        authListener = data && data.subscription ? data.subscription : null;
+      }catch(e){
+        authListener=null;
+      }
+    }
+
+    // create first client now
+    createSupabaseClient();
 
     let session,currentBg,currentPostId,currentRoomKey=null,currentRoomLabel=null,roomSub=null,currentPlayingBtn=null,myProfile={},isEditing=!1,currentEditingUser=null,seenRoomMsgIds=new Set,roomProfileCache={},profileRequired=!1,roomPollTimer=null,lastRoomCreatedAt=null;
 
@@ -2171,6 +2225,97 @@
       await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo,queryParams:{access_type:"offline",prompt:"consent"}}});
     };
 
+    // =========================
+    // ✅ HARD RECOVERY after tab switch / app resume (Edge/Chrome issue)
+    // - kills stuck realtime websocket (101 Pending) by rebuilding client
+    // =========================
+    let _hzRebuilding=false;
+    let _hzLastRebuild=0;
+
+    async function hardRebuildSupabase(reason){
+      const now=Date.now();
+      if(_hzRebuilding) return;
+      if(now-_hzLastRebuild < 1200) return; // cooldown
+      _hzRebuilding=true;
+      _hzLastRebuild=now;
+
+      const keepRoom = currentRoomKey;
+      const keepDMUser = currentDMUserId;
+      const keepDMThread = currentDMThreadId;
+      const dmOpen = !document.getElementById("dmChat").classList.contains("hidden");
+      const roomOpen = !document.getElementById("chatRoom").classList.contains("hidden");
+
+      try{
+        // stop live channels/timers but keep IDs
+        stopRoomLive();
+        stopDMChannelOnly();
+        stopPresence();
+        stopInboxBadge();
+        try{ if(sb && sb.realtime) sb.realtime.disconnect(); }catch(e){}
+        try{ if(authListener && authListener.unsubscribe) authListener.unsubscribe(); }catch(e){}
+
+        // recreate client (this is the real fix for 101 Pending websocket freeze)
+        createSupabaseClient();
+
+        // restore session
+        try{
+          const {data}=await sb.auth.getSession();
+          session = data && data.session ? data.session : null;
+          if(session){
+            // try refresh (no-op if not needed)
+            try{ await sb.auth.refreshSession(); }catch(e){}
+            await checkProfile();
+            startPresence();
+            startInboxBadge();
+          }else{
+            myProfile={}; profileRequired=false;
+          }
+        }catch(e){
+          session=null; myProfile={}; profileRequired=false;
+        }
+
+        // refresh UI
+        renderTopRight();
+        try{ await loadFeed(); }catch(e){}
+
+        // restore open chats if any
+        if(roomOpen && keepRoom){
+          currentRoomKey = keepRoom;
+          await loadRoomMsgs();
+          await subscribeRoom(keepRoom);
+        }
+        if(dmOpen && keepDMUser && keepDMThread){
+          currentDMUserId = keepDMUser;
+          currentDMThreadId = keepDMThread;
+          await loadDMMessages();
+          await subscribeDM(keepDMThread);
+        }
+      }finally{
+        _hzRebuilding=false;
+      }
+    }
+
+    // 🔥 Resume hooks (Edge / BFCache / tab switch)
+    document.addEventListener("visibilitychange", ()=>{
+      try{
+        if(document.hidden){
+          // prevent half-open socket
+          if(sb && sb.realtime) sb.realtime.disconnect();
+        }else{
+          hardRebuildSupabase("visibilitychange");
+        }
+      }catch(e){}
+    }, {passive:true});
+
+    window.addEventListener("focus", ()=>hardRebuildSupabase("focus"), {passive:true});
+    window.addEventListener("online", ()=>hardRebuildSupabase("online"), {passive:true});
+    window.addEventListener("pageshow", (e)=>{
+      // BFCache restore
+      if(e && e.persisted) hardRebuildSupabase("pageshow-bfcache");
+    }, {passive:true});
+
+
+
     async function init(){
       renderCities();
       renderGradients();
@@ -2190,10 +2335,8 @@
 
       renderTopRight();
 
-      sb.auth.onAuthStateChange(async (evt)=>{
-        if(evt==="SIGNED_OUT"){
-          try{ await upsertPresence(false); }catch(e){}
-          stopPresence();
+      // ✅ auth listener is attached inside createSupabaseClient()/attachAuthListener()
+
           stopInboxBadge();
           session=null; myProfile={}; profileRequired=false;
           stopRoomLive();
