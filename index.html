@@ -67,15 +67,6 @@
       border:2px solid #000;
       display:none;
     }
-    .badge-count{
-      position:absolute;top:5px;right:5px;
-      min-width:18px;height:18px;border-radius:999px;
-      background:var(--danger);color:#fff;
-      font-size:10px;font-weight:900;
-      display:none;align-items:center;justify-content:center;
-      padding:0 6px;border:2px solid #000;
-      line-height:1;
-    }
 
     .user-badge{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.08);padding:7px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.12);cursor:pointer;backdrop-filter:blur(12px)}
     .user-badge .badge-icon{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:rgba(0,210,255,.12);border:1px solid rgba(0,210,255,.35);color:var(--primary)}
@@ -151,7 +142,15 @@
     .audio-player.playing .audio-text{color:var(--primary)}
     @keyframes soundWave{0%{height:4px}100%{height:16px}}
 
-    .audio-time{font-size:11px;font-weight:800;color:rgba(255,255,255,.55);margin-left:10px;min-width:68px;text-align:right}
+    /* ✅ audio time label */
+    .audio-time{
+      font-size:11px;
+      font-weight:800;
+      color:rgba(255,255,255,.55);
+      margin-left:10px;
+      min-width:68px;
+      text-align:right;
+    }
     .audio-player.playing .audio-time{color:var(--viby)}
 
     .comment-item{display:flex;gap:10px;margin-bottom:15px;align-items:flex-start}
@@ -186,7 +185,12 @@
     .prof-lg{width:100px;height:100px;border-radius:50%;border:3px solid var(--primary);object-fit:cover;margin-bottom:10px}
     .prof-rank-badge{display:inline-block;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:900;text-transform:uppercase;margin-bottom:10px;color:#000;letter-spacing:1px}
     .prof-bio{font-size:14px;color:#ccc;margin-bottom:14px;font-style:italic;line-height:1.4;padding:0 15px}
-    .prof-status{font-size:12px;font-weight:900;color:var(--danger);margin:-4px 0 14px}
+    .prof-status{
+      font-size:12px;
+      font-weight:900;
+      color:var(--danger); /* ✅ الأحمر */
+      margin:-4px 0 14px;
+    }
     .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
     .stat-box{background:#222;padding:15px;border-radius:12px;border:1px solid var(--border)}
     .info-list{text-align:left;background:#1a1a1a;padding:15px;border-radius:16px;border:1px solid var(--border)}
@@ -200,6 +204,7 @@
     .upload-tools{display:flex;gap:10px;align-items:center}
     .tool-btn{width:45px;height:45px;border-radius:50%;background:#222;border:1px solid var(--border);display:grid;place-items:center;color:#fff;cursor:pointer;flex-shrink:0}
 
+    /* ✅ Inbox list UI */
     .thread-item{
       display:flex;gap:10px;align-items:center;
       padding:12px;border-radius:14px;
@@ -207,7 +212,6 @@
       background:rgba(255,255,255,.05);
       margin-bottom:10px;
       cursor:pointer;
-      position:relative;
     }
     .thread-item:active{transform:scale(.99)}
     .thread-avatar{width:44px;height:44px;border-radius:50%;object-fit:cover;border:1px solid rgba(255,255,255,.18)}
@@ -215,13 +219,6 @@
     .thread-name{font-weight:900;font-size:13px;color:#fff;display:flex;align-items:center;gap:8px}
     .thread-preview{font-size:11px;color:rgba(255,255,255,.62);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .thread-time{font-size:10px;color:rgba(255,255,255,.45);font-weight:900}
-    .thread-unread{
-      min-width:18px;height:18px;border-radius:999px;
-      background:var(--danger);color:#fff;
-      font-size:10px;font-weight:900;
-      display:none;align-items:center;justify-content:center;
-      padding:0 6px;border:2px solid rgba(0,0,0,.85);
-    }
 
     :root{--maxW:1100px}
     #mainScroll{scrollbar-gutter:stable}
@@ -347,10 +344,10 @@
       <div class="topbar">
         <div class="brand">HypeZone</div>
 
+        <!-- ✅ ADDED: Inbox button + existing badge (no other UI changed) -->
         <div class="top-actions">
           <button class="icon-btn" id="inboxBtn" title="Messages" onclick="openInbox()">
             <span class="badge-dot" id="inboxDot"></span>
-            <span class="badge-count" id="inboxCount">0</span>
             <svg><use href="#i-chat"></use></svg>
           </button>
           <div class="user-badge" id="topRightBadge"></div>
@@ -378,6 +375,7 @@
     </div>
   </div>
 
+  <!-- Rooms chat -->
   <div id="chatRoom" class="chat-interface hidden">
     <div class="chat-top">
       <button class="chat-exit" onclick="stopRoomLive();document.getElementById('chatRoom').classList.add('hidden')">
@@ -395,6 +393,7 @@
     </div>
   </div>
 
+  <!-- ✅ ADDED: Private DM chat -->
   <div id="dmChat" class="chat-interface hidden" style="z-index:3200">
     <div class="chat-top">
       <button class="chat-exit" onclick="stopDMLive();document.getElementById('dmChat').classList.add('hidden')">
@@ -430,6 +429,7 @@
     </div>
   </div>
 
+  <!-- ✅ ADDED: Inbox modal (messages list) -->
   <div id="inboxModal" class="modal">
     <div class="modal-card">
       <div class="modal-header">
@@ -450,11 +450,13 @@
         <img id="vpImg" class="prof-lg" alt="Profile photo">
         <h2 id="vpName">Name</h2>
 
+        <!-- ✅ ADDED: Online/Last seen (red) -->
         <div class="prof-status" id="vpStatus"> </div>
 
         <div id="vpRankBadge" class="prof-rank-badge">ROOKIE</div>
         <div class="prof-bio" id="vpBio"></div>
 
+        <!-- ✅ ADDED: Contact button (shows only when viewing other user) -->
         <button id="contactBtn" class="btn-primary" style="margin:0 0 12px;display:none" onclick="contactFromProfile()">Message</button>
 
         <div class="stat-grid">
@@ -581,6 +583,7 @@
     const sb=supabase.createClient("https://tujdnvnrizgqroaozsqp.supabase.co","sb_publishable_WyigevxmzR2gLtbog2Ztfg_8pdmSwop",{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:"pkce"}});
     let session,currentBg,currentPostId,currentRoomKey=null,currentRoomLabel=null,roomSub=null,currentPlayingBtn=null,myProfile={},isEditing=!1,currentEditingUser=null,seenRoomMsgIds=new Set,roomProfileCache={},profileRequired=!1,roomPollTimer=null,lastRoomCreatedAt=null;
 
+    // ✅ DM state
     let currentDMUserId=null;
     let currentDMThreadId=null;
     let dmSub=null;
@@ -588,32 +591,30 @@
     let lastDMCAt=null;
     let seenDMMsgIds=new Set();
 
+    // ✅ presence heartbeat
     let presenceTimer=null;
     let dmInboxBadgeTimer=null;
-    let dmInboxRealtimeSub=null;
-    let dmPresenceWatchTimer=null;
 
     const globalAudio=document.getElementById("globalAudio");
     const TIKTOK_URL="https://www.tiktok.com/@hypezone.ma";
     const AD_IMAGE="https://i.postimg.cc/rwTFC8C7/Tik-Tok.png";
 
+    // ✅ AUDIO RECORDER STATE
     let hzRecorder=null;
     let hzStream=null;
     let hzChunks=[];
-    let hzRecordingTarget=null;
+    let hzRecordingTarget=null; // "room" | "comment" | "dm"
     let hzIsUploading=false;
 
+    // ✅ CHANGE THIS IF YOU WANT A DEDICATED BUCKET NAME
     const AUDIO_BUCKET="post_images";
     const AUDIO_FOLDER="audio";
 
+    // ✅ TABLE NAMES (you must create these in Supabase)
+    // 1) dm_messages: id(uuid), thread_id(text), sender_id(uuid), receiver_id(uuid), content(text), audio_url(text), created_at(timestamp)
+    // 2) user_presence: user_id(uuid primary key), is_online(bool), last_seen(timestamp)
     const TBL_DM="dm_messages";
     const TBL_PRESENCE="user_presence";
-
-    function lockTourScroll(on){
-      const ms=document.getElementById("mainScroll");
-      if(on){document.body.classList.add("tour-lock");ms.classList.add("tour-lock")}
-      else{document.body.classList.remove("tour-lock");ms.classList.remove("tour-lock")}
-    }
 
     const cities={
       rabat:{name:"Rabat",hoods:["Agdal","Hassan","Hay Riad","Ocean","Medina","Souissi","Yacoub Al Mansour","Akkari","Kammra","Temara","Skhirat"]},
@@ -641,6 +642,12 @@
     const cityOrder=["rabat","sale","casablanca","marrakech","fes","tangier","agadir","meknes","oujda","kenitra","tetouan","eljadida","safi","mohammedia","nador","benimellal","khouribga","taza","essaouira","laayoune","dakhla"];
     const gradients=["linear-gradient(45deg,#ff9a9e,#fecfef)","linear-gradient(120deg,#84fab0,#8fd3f4)","linear-gradient(to top,#30cfd0,#330867)","linear-gradient(to right,#434343,black)","linear-gradient(to top,#fcc5e4,#020f75)"];
 
+    function lockTourScroll(on){
+      const ms=document.getElementById("mainScroll");
+      if(on){document.body.classList.add("tour-lock");ms.classList.add("tour-lock")}
+      else{document.body.classList.remove("tour-lock");ms.classList.remove("tour-lock")}
+    }
+
     function roomKey(cityKey,hood){return cityKey+"|"+hood}
     function parseHoodValue(v){const t=(v||"").split("|");return t.length>=2?{cityKey:t[0]||"rabat",hood:t[1]||"Agdal"}:{cityKey:"rabat",hood:(v||"Agdal")}}
     function cityInHoodLabel(cityKey,hood){const n=cities[cityKey]?cities[cityKey].name:"Rabat";return n+" in "+hood}
@@ -663,6 +670,7 @@
       return true
     }
 
+    // ✅ DM thread id (deterministic)
     function dmThreadId(a,b){
       const x=String(a||"");
       const y=String(b||"");
@@ -941,7 +949,6 @@
         profileRequired=true;
         openMandatorySetup();
       }
-      renderTop ( );
       renderTopRight();
     }
 
@@ -979,7 +986,9 @@
       loadPostComments();
     }
 
-    const _durCache = new Map();
+    /* ✅ FIX: audio duration تظهر مباشرة بدون ضغط
+       - نحمّل metadata لكل audio-player بعد الرندر ونكتب المدة على طول */
+    const _durCache = new Map(); // url -> seconds
     function fmtTime(sec){
       sec = Math.max(0, Math.floor(sec || 0));
       const m = Math.floor(sec / 60);
@@ -1000,28 +1009,42 @@
       const wrap = root || document;
       const items = [...wrap.querySelectorAll(".audio-player[data-audio]")];
       if(!items.length) return;
+
       items.forEach(el=>{
         const url = el.getAttribute("data-audio");
         if(!url) return;
+
+        // already loaded
         if(_durCache.has(url)){
           setPlayerTime(el, 0, _durCache.get(url));
           return;
         }
+
+        // show placeholder quickly
         setPlayerTime(el, 0, 0);
+
         try{
           const a = new Audio();
           a.preload = "metadata";
           a.crossOrigin = "anonymous";
           a.src = url;
+
           a.onloadedmetadata = () => {
             const d = (a.duration && isFinite(a.duration)) ? a.duration : 0;
             if(d>0){
               _durCache.set(url, d);
               setPlayerTime(el, 0, d);
-            } else setPlayerTime(el, 0, 0);
+            } else {
+              setPlayerTime(el, 0, 0);
+            }
+            // cleanup
             a.src = "";
           };
-          a.onerror = () => { a.src = ""; };
+
+          a.onerror = () => {
+            // fallback: leave 0:00 if CORS blocks metadata
+            a.src = "";
+          };
         }catch(e){}
       });
     }
@@ -1041,17 +1064,21 @@
           :`<div class="c-text">${escapeHtml(c.text_content)}</div>`;
         e.innerHTML+=`<div class="comment-item"><img class="c-avatar" src="${c.profiles.avatar_url}" onclick="openProfile('${c.profiles.id}')"><div class="c-content"><div class="c-bubble"><div class="c-header"><span class="c-user" onclick="openProfile('${c.profiles.id}')">${c.profiles.username}</span><span class="c-time">${timeAgo(c.created_at)}</span></div>${visual}</div></div></div>`;
       });
+
+      // ✅ preload durations now
       hydrateAudioDurations(e);
     }
 
     function playAudio(url,el){
       if(!url || !el) return;
+
       if(currentPlayingBtn===el && !globalAudio.paused){
         globalAudio.pause();
         resetPlayerUI(el);
         return;
       }
       if(currentPlayingBtn && currentPlayingBtn!==el) resetPlayerUI(currentPlayingBtn);
+
       currentPlayingBtn=el;
 
       globalAudio.onloadedmetadata=()=>{ setPlayerTime(el, 0, globalAudio.duration); };
@@ -1074,8 +1101,11 @@
         el.classList.add("playing");
         el.querySelector(".audio-btn").innerHTML='<svg style="width:14px;height:14px;fill:#000;stroke:none"><use href="#i-pause"></use></svg>';
         el.querySelector(".audio-text").innerText="Playing";
+        // duration should already be cached, but keep safe:
         setPlayerTime(el, 0, globalAudio.duration);
-      }).catch(()=>{ resetPlayerUI(el); });
+      }).catch(()=>{
+        resetPlayerUI(el);
+      });
     }
 
     function resetPlayerUI(el, ended=false){
@@ -1141,36 +1171,7 @@
       loadFeed();
     }
 
-    // =========================
-    // ✅ Realtime connection watchdog (prevents "Loading..." stuck)
-    // =========================
-    let rtWatchTimer=null;
-    function startRealtimeWatchdog(){
-      stopRealtimeWatchdog();
-      rtWatchTimer=setInterval(()=>{
-        try{
-          if(sb && sb.realtime && typeof sb.realtime.connect==="function"){
-            sb.realtime.connect();
-          }
-          if(dmSub && dmSub.state && (dmSub.state==="closed" || dmSub.state==="errored")){
-            if(currentDMThreadId) subscribeDM(currentDMThreadId);
-          }
-          if(roomSub && roomSub.state && (roomSub.state==="closed" || roomSub.state==="errored")){
-            if(currentRoomKey) subscribeRoom(currentRoomKey);
-          }
-          if(dmInboxRealtimeSub && dmInboxRealtimeSub.state && (dmInboxRealtimeSub.state==="closed" || dmInboxRealtimeSub.state==="errored")){
-            startInboxRealtime();
-          }
-        }catch(e){}
-      }, 5000);
-    }
-    function stopRealtimeWatchdog(){
-      if(rtWatchTimer){clearInterval(rtWatchTimer); rtWatchTimer=null;}
-    }
-
-    // =========================
-    // ✅ Presence (REAL-TIME stable)
-    // =========================
+    // ✅ presence helpers
     async function upsertPresence(isOnline){
       if(!session || !session.user) return;
       try{
@@ -1181,58 +1182,39 @@
         });
       }catch(e){}
     }
-
     function startPresence(){
       stopPresence();
       if(!session || !session.user) return;
 
+      // mark online immediately + heartbeat
       upsertPresence(true);
+      presenceTimer=setInterval(()=>upsertPresence(true), 25000);
 
-      // ✅ keep alive: update last_seen frequently (does not flip offline)
-      presenceTimer=setInterval(()=>upsertPresence(true), 15000);
-
-      // ✅ mark offline only when leaving page (NOT on visibilitychange)
+      // on exit mark offline
       window.addEventListener("beforeunload", ()=>{ try{ upsertPresence(false); }catch(e){} }, {once:true});
       window.addEventListener("pagehide", ()=>{ try{ upsertPresence(false); }catch(e){} }, {once:true});
-
-      // still update last_seen when tab becomes visible again
       document.addEventListener("visibilitychange", ()=>{
         if(!session || !session.user) return;
-        if(!document.hidden) upsertPresence(true);
+        if(document.hidden) upsertPresence(false);
+        else upsertPresence(true);
       }, {passive:true});
     }
-
     function stopPresence(){
       if(presenceTimer){clearInterval(presenceTimer); presenceTimer=null;}
-      stopPresenceWatch();
     }
-
     async function fetchPresence(userId){
       try{
         const {data}=await sb.from(TBL_PRESENCE).select("*").eq("user_id", userId).maybeSingle();
         return data||null;
       }catch(e){ return null; }
     }
-
     function presenceLabel(p){
       if(p && p.is_online) return "Active Now";
       if(p && p.last_seen) return "Last seen " + timeAgo(p.last_seen);
       return "Last seen";
     }
 
-    function startPresenceWatch(userId, elId){
-      stopPresenceWatch();
-      if(!userId) return;
-      dmPresenceWatchTimer=setInterval(async ()=>{
-        const p=await fetchPresence(userId);
-        const el=document.getElementById(elId);
-        if(el) el.innerText=presenceLabel(p);
-      }, 7000);
-    }
-    function stopPresenceWatch(){
-      if(dmPresenceWatchTimer){clearInterval(dmPresenceWatchTimer); dmPresenceWatchTimer=null;}
-    }
-
+    // ✅ Contact button from profile
     function contactFromProfile(){
       if(!currentEditingUser || !currentEditingUser.id) return;
       closeModal("profileModal");
@@ -1251,6 +1233,7 @@
       const r=getRank(p.vibe_score||0);
       const loc=profileLoc(p);
 
+      // presence
       const pres = await fetchPresence(id);
       document.getElementById("vpStatus").innerText = presenceLabel(pres);
 
@@ -1267,6 +1250,7 @@
       document.getElementById("vpGender").innerText=p.gender||"-";
       document.getElementById("vpInterests").innerText=p.interests||"-";
 
+      // ✅ show edit if mine, else show contact
       const isMine = session.user.id===id;
       document.getElementById("editProfileBtn").style.display=isMine?"block":"none";
       document.getElementById("contactBtn").style.display=!isMine?"block":"none";
@@ -1298,6 +1282,8 @@
         :`<div class="msg-content">${escapeHtml(msg.content||"")}</div>`;
       n.insertAdjacentHTML("beforeend",`<div class="msg-row ${me?"me":""}">${me?"":`<img class="msg-img" src="${u.avatar_url||""}" onclick="openProfile('${msg.user_id}')">`}<div class="msg-box">${me?"":`<span class="msg-user">${u.username||"User"}</span>`}${body}<span class="msg-time">${formatChatTime(msg.created_at)}</span></div></div>`);
       n.scrollTop=n.scrollHeight;
+
+      // ✅ preload duration for this message audio immediately
       hydrateAudioDurations(n);
     }
 
@@ -1367,6 +1353,7 @@
       const last=rows[rows.length-1];
       lastRoomCreatedAt=last?last.created_at:null;
       box.scrollTop=box.scrollHeight;
+
       hydrateAudioDurations(box);
     }
 
@@ -1399,61 +1386,10 @@
     }
 
     // =========================
-    // ✅ DM Unread system (requires dm_messages.read_at)
-    // =========================
-    async function markThreadRead(threadId){
-      if(!session || !session.user || !threadId) return;
-      try{
-        await sb.from(TBL_DM)
-          .update({read_at: new Date().toISOString()})
-          .eq("thread_id", threadId)
-          .eq("receiver_id", session.user.id)
-          .is("read_at", null);
-      }catch(e){}
-    }
-
-    async function countUnreadAll(){
-      if(!session || !session.user) return 0;
-      try{
-        const {count}=await sb.from(TBL_DM)
-          .select("id",{count:"exact",head:true})
-          .eq("receiver_id", session.user.id)
-          .is("read_at", null);
-        return count||0;
-      }catch(e){ return 0; }
-    }
-
-    async function countUnreadByThread(threadId){
-      if(!session || !session.user || !threadId) return 0;
-      try{
-        const {count}=await sb.from(TBL_DM)
-          .select("id",{count:"exact",head:true})
-          .eq("thread_id", threadId)
-          .eq("receiver_id", session.user.id)
-          .is("read_at", null);
-        return count||0;
-      }catch(e){ return 0; }
-    }
-
-    function setInboxBadge(n){
-      const dot=document.getElementById("inboxDot");
-      const countEl=document.getElementById("inboxCount");
-      n = Number(n||0);
-      if(countEl){
-        if(n>0){
-          countEl.style.display="flex";
-          countEl.textContent = n>99 ? "99+" : String(n);
-        }else{
-          countEl.style.display="none";
-          countEl.textContent="0";
-        }
-      }
-      if(dot) dot.style.display = (n>0 && !countEl) ? "block" : "none";
-    }
-
-    // =========================
     // ✅ DM (Private messages)
     // =========================
+
+    // ✅ FIX: separate "stop channel only" (do NOT clear DM state)
     function stopDMChannelOnly(){
       if(dmSub){sb.removeChannel(dmSub);dmSub=null}
       if(dmPollTimer){clearInterval(dmPollTimer);dmPollTimer=null}
@@ -1465,7 +1401,6 @@
       currentDMUserId=null;
       currentDMThreadId=null;
       seenDMMsgIds=new Set();
-      stopPresenceWatch();
     }
 
     async function openDM(otherUserId){
@@ -1477,20 +1412,17 @@
 
       document.getElementById("dmChat").classList.remove("hidden");
 
+      // header
       const {data:prof}=await sb.from("profiles").select("id,username,avatar_url").eq("id", otherUserId).maybeSingle();
       document.getElementById("dmNameDisplay").innerText = (prof && prof.username) ? prof.username : "User";
 
       const pres = await fetchPresence(otherUserId);
       document.getElementById("dmStatusDisplay").innerText = presenceLabel(pres);
-      startPresenceWatch(otherUserId, "dmStatusDisplay");
 
       seenDMMsgIds=new Set();
       lastDMCAt=null;
       await loadDMMessages();
       await subscribeDM(currentDMThreadId);
-
-      await markThreadRead(currentDMThreadId);
-      await refreshInboxBadgeNow();
     }
 
     function renderDMMessage(row, otherProfile){
@@ -1523,6 +1455,7 @@
       const box=document.getElementById("dmMsgs");
       box.innerHTML="Loading...";
 
+      // other profile
       const {data:otherP}=await sb.from("profiles").select("id, username, avatar_url").eq("id", currentDMUserId).maybeSingle();
 
       const {data:rows}=await sb.from(TBL_DM)
@@ -1552,15 +1485,10 @@
 
       const {data:otherP}=await sb.from("profiles").select("id, username, avatar_url").eq("id", currentDMUserId).maybeSingle();
       renderDMMessage(row, otherP);
-
-      // ✅ if message is for me and I’m inside this thread -> mark read immediately
-      if(row.receiver_id===session.user.id){
-        await markThreadRead(currentDMThreadId);
-        await refreshInboxBadgeNow();
-      }
     }
 
     async function subscribeDM(threadId){
+      // ✅ FIX: only stop old channel/timer, keep currentDMUserId/currentDMThreadId
       stopDMChannelOnly();
       currentDMThreadId = threadId;
 
@@ -1582,15 +1510,11 @@
         if(!fresh.length) return;
 
         const {data:otherP}=await sb.from("profiles").select("id, username, avatar_url").eq("id", currentDMUserId).maybeSingle();
-        fresh.forEach(async r=>{
+        fresh.forEach(r=>{
           seenDMMsgIds.add(r.id);
           lastDMCAt = r.created_at || lastDMCAt;
           renderDMMessage(r, otherP);
-          if(r.receiver_id===session.user.id){
-            await markThreadRead(currentDMThreadId);
-          }
         });
-        await refreshInboxBadgeNow();
       },900);
     }
 
@@ -1607,13 +1531,13 @@
         sender_id: session.user.id,
         receiver_id: currentDMUserId,
         content: text,
-        audio_url: null,
-        read_at: null
+        audio_url: null
       };
 
       const {data:row,error}=await sb.from(TBL_DM).insert(payload).select("*").single();
       if(error) return;
 
+      // render immediately if needed
       if(row && row.id && !seenDMMsgIds.has(row.id)){
         seenDMMsgIds.add(row.id);
         lastDMCAt=row.created_at||lastDMCAt;
@@ -1622,15 +1546,13 @@
       }
     }
 
-    // =========================
-    // ✅ Inbox (Threads + unread like WhatsApp)
-    // =========================
+    // ✅ Inbox list (group messages by other user)
     async function openInbox(){
       if(!requireAuth()) return;
       if(!requireProfile()) return;
+
       document.getElementById("inboxModal").style.display="flex";
       await loadInbox();
-      await refreshInboxBadgeNow(); // keep badge correct
     }
 
     async function loadInbox(){
@@ -1643,10 +1565,10 @@
         .select("*")
         .or(`sender_id.eq.${uid},receiver_id.eq.${uid}`)
         .order("created_at",{ascending:false})
-        .limit(400);
+        .limit(300);
 
       if(error){
-        box.innerHTML="<div style='color:#666'>Inbox unavailable (check dm_messages table / RLS / read_at column).</div>";
+        box.innerHTML="<div style='color:#666'>Inbox unavailable (create dm_messages table first).</div>";
         return;
       }
 
@@ -1656,6 +1578,7 @@
         return;
       }
 
+      // group by thread, take latest message
       const latestByThread=new Map();
       msgs.forEach(m=>{
         if(!m.thread_id) return;
@@ -1664,6 +1587,7 @@
 
       const threads=[...latestByThread.values()];
 
+      // collect other ids
       const otherIds=[...new Set(threads.map(t=>{
         const other = (t.sender_id===uid) ? t.receiver_id : t.sender_id;
         return other;
@@ -1676,22 +1600,10 @@
       }
 
       box.innerHTML="";
-
-      // preload unread counts per thread (fast batch using local scan + DB safety)
-      // we can compute unread from loaded msgs (receiver_id=uid && read_at null)
-      const unreadMap={};
-      msgs.forEach(m=>{
-        if(m.receiver_id===uid && (m.read_at===null || typeof m.read_at==="undefined")){
-          unreadMap[m.thread_id]=(unreadMap[m.thread_id]||0)+1;
-        }
-      });
-
-      for(const t of threads){
+      threads.forEach(t=>{
         const otherId = (t.sender_id===uid) ? t.receiver_id : t.sender_id;
         const p = profMap[otherId] || {id:otherId, username:"User", avatar_url:""};
         const preview = t.audio_url ? "Voice message" : (t.content||"");
-        const unread = unreadMap[t.thread_id]||0;
-
         box.innerHTML +=
           `<div class="thread-item" onclick="closeModal('inboxModal');openDM('${otherId}')">
             <img class="thread-avatar" src="${p.avatar_url||""}" alt="">
@@ -1699,51 +1611,44 @@
               <div class="thread-name">${p.username||"User"}</div>
               <div class="thread-preview">${escapeHtml(preview)}</div>
             </div>
-            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
-              <div class="thread-time">${timeAgo(t.created_at)}</div>
-              <div class="thread-unread" style="${unread>0?'display:flex':''}">${unread>99?'99+':unread}</div>
-            </div>
+            <div class="thread-time">${timeAgo(t.created_at)}</div>
           </div>`;
-      }
+      });
 
-      // ✅ when user opens inbox, we do NOT mark read (only when opens a chat)
+      // clear badge dot when inbox opened
+      const dot=document.getElementById("inboxDot");
+      if(dot) dot.style.display="none";
     }
 
-    // =========================
-    // ✅ Inbox badge in REAL-TIME + fallback polling
-    // =========================
-    async function refreshInboxBadgeNow(){
-      const n=await countUnreadAll();
-      setInboxBadge(n);
-    }
-
-    function startInboxBadgePolling(){
-      stopInboxBadgePolling();
-      if(!session || !session.user) return;
-      dmInboxBadgeTimer=setInterval(async ()=>{ await refreshInboxBadgeNow(); }, 2500);
-    }
-    function stopInboxBadgePolling(){
-      if(dmInboxBadgeTimer){clearInterval(dmInboxBadgeTimer); dmInboxBadgeTimer=null;}
-    }
-
-    function startInboxRealtime(){
-      stopInboxRealtime();
+    // ✅ lightweight badge polling (shows red dot if any new msg in last 30s)
+    async function startInboxBadge(){
+      stopInboxBadge();
       if(!session || !session.user) return;
       const uid=session.user.id;
 
-      dmInboxRealtimeSub = sb.channel("dm-inbox:"+uid)
-        .on("postgres_changes",
-          {event:"INSERT",schema:"public",table:TBL_DM,filter:`receiver_id=eq.${uid}`},
-          async ()=>{ await refreshInboxBadgeNow(); }
-        )
-        .on("postgres_changes",
-          {event:"UPDATE",schema:"public",table:TBL_DM,filter:`receiver_id=eq.${uid}`},
-          async ()=>{ await refreshInboxBadgeNow(); }
-        )
-        .subscribe();
+      let lastCheck=new Date().toISOString();
+
+      dmInboxBadgeTimer=setInterval(async ()=>{
+        try{
+          const since = lastCheck;
+          lastCheck = new Date().toISOString();
+
+          const {data}=await sb.from(TBL_DM)
+            .select("id,receiver_id,created_at")
+            .eq("receiver_id", uid)
+            .gt("created_at", since)
+            .order("created_at",{ascending:false})
+            .limit(1);
+
+          if(data && data.length){
+            const dot=document.getElementById("inboxDot");
+            if(dot) dot.style.display="block";
+          }
+        }catch(e){}
+      }, 2500);
     }
-    function stopInboxRealtime(){
-      if(dmInboxRealtimeSub){ try{ sb.removeChannel(dmInboxRealtimeSub); }catch(e){} dmInboxRealtimeSub=null; }
+    function stopInboxBadge(){
+      if(dmInboxBadgeTimer){clearInterval(dmInboxBadgeTimer); dmInboxBadgeTimer=null;}
     }
 
     // =========================
@@ -1817,6 +1722,9 @@
       document.getElementById("micPermModal").style.display="flex";
     }
 
+    // =========================
+    // ✅ AUDIO RECORD + UPLOAD + SEND
+    // =========================
     function bestMimeType(){
       const candidates=[
         "audio/webm;codecs=opus",
@@ -1990,8 +1898,7 @@
           sender_id: session.user.id,
           receiver_id: currentDMUserId,
           content: "",
-          audio_url: audioUrl,
-          read_at: null
+          audio_url: audioUrl
         };
         const {data:row,error}=await sb.from(TBL_DM).insert(payload).select("*").single();
         if(error){
@@ -2051,9 +1958,6 @@
       }
     }
 
-    // =========================
-    // ✅ Tour (unchanged)
-    // =========================
     const tourOverlay=document.getElementById("tourOverlay");
     const tourTitle=document.getElementById("tourTitle");
     const tourDesc=document.getElementById("tourDesc");
@@ -2182,9 +2086,6 @@
       await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo,queryParams:{access_type:"offline",prompt:"consent"}}});
     };
 
-    // =========================
-    // ✅ Init
-    // =========================
     async function init(){
       renderCities();
       renderGradients();
@@ -2199,11 +2100,7 @@
         session=data.session;
         await checkProfile();
         startPresence();
-        startInboxBadgePolling();
-        startInboxRealtime();
-        await refreshInboxBadgeNow();
-      } else {
-        setInboxBadge(0);
+        startInboxBadge();
       }
 
       renderTopRight();
@@ -2212,15 +2109,12 @@
         if(evt==="SIGNED_OUT"){
           try{ await upsertPresence(false); }catch(e){}
           stopPresence();
-          stopInboxBadgePolling();
-          stopInboxRealtime();
-          stopRealtimeWatchdog();
+          stopInboxBadge();
           session=null; myProfile={}; profileRequired=false;
           stopRoomLive();
           stopDMLive();
           renderTopRight();
           loadFeed();
-          setInboxBadge(0);
         }
         if(evt==="SIGNED_IN"){
           const {data:sess}=await sb.auth.getSession();
@@ -2230,15 +2124,11 @@
           renderTopRight();
           loadFeed();
           startPresence();
-          startInboxBadgePolling();
-          startInboxRealtime();
-          await refreshInboxBadgeNow();
-          startRealtimeWatchdog();
+          startInboxBadge();
         }
       });
 
       setupMicButtons();
-      startRealtimeWatchdog();
       showSplashThenStart();
     }
 
@@ -2246,4 +2136,3 @@
   </script>
 </body>
 </html>
-
