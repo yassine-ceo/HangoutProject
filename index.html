@@ -33,6 +33,7 @@
     .hidden{display:none!important}
     svg{display:block;width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
     .visually-hidden-seo{position:absolute !important;width:1px !important;height:1px !important;padding:0 !important;margin:-1px !important;overflow:hidden !important;clip:rect(0,0,0,0) !important;white-space:nowrap !important;border:0 !important}
+
     #splash{position:fixed;inset:0;z-index:5000;display:none;align-items:center;justify-content:center;background:linear-gradient(180deg,#000 0%, #000 68%, #111 100%)}
     .splash-wrap{width:min(520px,92vw);padding:22px 18px;display:flex;flex-direction:column;align-items:center;gap:14px}
     .splash-title{font-size:44px;font-weight:900;letter-spacing:.6px;color:var(--primary);text-shadow:0 0 22px rgba(0,210,255,.35);line-height:1}
@@ -43,9 +44,11 @@
     .splash-bar{width:min(420px,86vw);height:10px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);overflow:hidden;box-shadow:0 20px 70px rgba(0,0,0,.75)}
     .splash-fill{height:100%;width:0;border-radius:999px;background:linear-gradient(135deg,#00d2ff,#007aff);animation:splashLoad 1.5s cubic-bezier(.2,.9,.2,1) forwards}
     @keyframes splashLoad{0%{width:0}70%{width:88%}100%{width:100%}}
+
     #mainScroll{height:100vh;overflow-y:auto;padding-bottom:110px;position:relative}
     #mainScroll.tour-lock{overflow:hidden!important;touch-action:none!important}
     body.tour-lock{overflow:hidden!important}
+
     .topbar{padding:15px 20px;display:flex;justify-content:space-between;align-items:center;background:0 0;z-index:50}
     .brand{font-family:'Courgette',cursive;font-size:26px;color:var(--primary);text-shadow:0 0 15px rgba(0,210,255,.4)}
     .top-actions{display:flex;align-items:center;gap:10px}
@@ -64,6 +67,7 @@
       border:2px solid #000;
       display:none;
     }
+
     .user-badge{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.08);padding:7px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.12);cursor:pointer;backdrop-filter:blur(12px)}
     .user-badge .badge-icon{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:rgba(0,210,255,.12);border:1px solid rgba(0,210,255,.35);color:var(--primary)}
     .user-badge img{width:30px;height:30px;border-radius:50%;border:1px solid var(--primary);object-fit:cover}
@@ -73,6 +77,7 @@
     .badge-sub{font-size:10px;color:rgba(255,255,255,.55);margin-top:2px}
     .event-banner{padding:0 15px;margin-bottom:20px}
     .event-banner img{width:100%;height:90px;object-fit:cover;border-radius:20px;border:1px solid var(--border);box-shadow:0 5px 20px rgba(0,0,0,.5);display:block}
+
     .feed{padding:0 15px 15px 15px;display:flex;flex-direction:column;gap:25px}
     .post-card{background:var(--card);border-radius:24px;border:1px solid var(--border);overflow:hidden;position:relative}
     .post-header{padding:12px 15px;display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,.2);min-height:64px}
@@ -96,6 +101,7 @@
     .vote-btn.down.active{color:var(--danger)}
     .vote-val{font-size:14px;font-weight:800;min-width:20px;text-align:center;color:#fff}
     .action-btn{background:rgba(255,255,255,.05);border:1px solid var(--border);color:#fff;padding:8px 16px;border-radius:20px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px;cursor:pointer}
+
     .rooms-layout{padding:0 20px 20px 20px}
     .city-header{display:flex;align-items:center;gap:10px;margin:25px 0 15px;border-bottom:1px solid var(--border);padding-bottom:10px}
     .city-icon{color:var(--primary);width:24px;height:24px}
@@ -105,6 +111,7 @@
     .hood-item:active{transform:scale(.96);border-color:var(--primary)}
     .hood-name{font-size:14px;font-weight:700;z-index:2;position:relative}
     .online-dot{width:8px;height:8px;background:#00ff9d;border-radius:50%;position:absolute;top:10px;right:10px;box-shadow:0 0 8px #00ff9d}
+
     .dock-wrapper{position:fixed;bottom:22px;left:0;right:0;display:flex;justify-content:center;pointer-events:none;z-index:100}
     .dock{pointer-events:auto;background:rgba(18,18,18,.92);backdrop-filter:blur(22px);border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:12px 18px;display:flex;align-items:center;gap:14px;box-shadow:0 20px 70px rgba(0,0,0,.75)}
     .dock-btn{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.10);color:rgba(255,255,255,.70);display:flex;align-items:center;gap:10px;font-size:12px;font-weight:900;cursor:pointer;border-radius:999px;padding:10px 14px;transition:.2s}
@@ -113,11 +120,13 @@
     .fab-main{pointer-events:auto;width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,#00d2ff,#007aff);box-shadow:0 14px 40px rgba(0,210,255,.32);display:grid;place-items:center;color:#fff;border:none;cursor:pointer;margin:0 6px;transform:translateY(-22px);border:5px solid var(--bg);transition:transform .2s}
     .fab-main svg{width:26px;height:26px}
     .fab-main:active{transform:translateY(-22px) scale(.95)}
+
     .modal{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:3500;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(10px)}
     .modal-card{background:#161b22;width:100%;max-width:420px;border-radius:24px;padding:20px;border:1px solid var(--border);display:flex;flex-direction:column;max-height:85vh;box-shadow:0 20px 60px rgba(0,0,0,.8)}
     .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;padding-bottom:10px;border-bottom:1px solid var(--border)}
     .close-btn{background:0 0;border:none;color:#fff;font-size:24px;cursor:pointer}
     .scroll-content{flex:1;overflow-y:auto;margin-bottom:15px}
+
     .audio-player{display:flex;align-items:center;gap:10px;background:linear-gradient(145deg,#1e1e1e,#161616);border:1px solid rgba(255,255,255,.1);padding:8px 12px;border-radius:25px;width:fit-content;margin-top:5px;cursor:pointer;transition:all .2s ease;box-shadow:0 2px 5px rgba(0,0,0,.2)}
     .audio-player.playing{border-color:var(--primary);background:rgba(0,210,255,.1)}
     .audio-btn{width:28px;height:28px;border-radius:50%;background:var(--primary);display:grid;place-items:center;color:#000;flex-shrink:0;transition:.2s}
@@ -132,6 +141,7 @@
     .audio-text{font-size:11px;font-weight:700;color:#aaa;margin-left:5px}
     .audio-player.playing .audio-text{color:var(--primary)}
     @keyframes soundWave{0%{height:4px}100%{height:16px}}
+
     /* ✅ audio time label */
     .audio-time{
       font-size:11px;
@@ -142,6 +152,7 @@
       text-align:right;
     }
     .audio-player.playing .audio-time{color:var(--viby)}
+
     .comment-item{display:flex;gap:10px;margin-bottom:15px;align-items:flex-start}
     .c-avatar{width:34px;height:34px;border-radius:50%;object-fit:cover;cursor:pointer;border:1px solid var(--border)}
     .c-content{flex:1}
@@ -150,6 +161,7 @@
     .c-user{font-weight:700;color:var(--primary);font-size:12px;cursor:pointer}
     .c-time{font-size:10px;color:var(--muted)}
     .c-text{font-size:14px;color:#eee;line-height:1.4}
+
     .chat-interface{position:fixed;inset:0;background:#000;z-index:3000;display:flex;flex-direction:column}
     .chat-top{padding:15px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:15px;background:#111}
     .chat-exit{background:0 0;border:none;color:var(--danger);display:flex;align-items:center;cursor:pointer}
@@ -168,6 +180,7 @@
     .circle-btn.recording{background:var(--danger);border-color:var(--danger);box-shadow:0 0 15px var(--danger);animation:pulse 1s infinite}
     .send-btn{width:42px;height:42px;border-radius:50%;background:var(--primary);border:none;display:grid;place-items:center;cursor:pointer;color:#000}
     @keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.1)}100%{transform:scale(1)}}
+
     .prof-view{text-align:center}
     .prof-lg{width:100px;height:100px;border-radius:50%;border:3px solid var(--primary);object-fit:cover;margin-bottom:10px}
     .prof-rank-badge{display:inline-block;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:900;text-transform:uppercase;margin-bottom:10px;color:#000;letter-spacing:1px}
@@ -190,6 +203,7 @@
     .bg-circle.selected{border-color:#fff;transform:scale(1.1)}
     .upload-tools{display:flex;gap:10px;align-items:center}
     .tool-btn{width:45px;height:45px;border-radius:50%;background:#222;border:1px solid var(--border);display:grid;place-items:center;color:#fff;cursor:pointer;flex-shrink:0}
+
     /* ✅ Inbox list UI */
     .thread-item{
       display:flex;gap:10px;align-items:center;
@@ -205,10 +219,12 @@
     .thread-name{font-weight:900;font-size:13px;color:#fff;display:flex;align-items:center;gap:8px}
     .thread-preview{font-size:11px;color:rgba(255,255,255,.62);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .thread-time{font-size:10px;color:rgba(255,255,255,.45);font-weight:900}
+
     :root{--maxW:1100px}
     #mainScroll{scrollbar-gutter:stable}
     .post-visual{min-height:260px;height:clamp(260px,55vw,420px)}
     .post-visual img{width:100%;height:100%;object-fit:cover}
+
     .sponsored-pill{font-size:10px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;padding:4px 12px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.88)}
     .ad-header{position:relative;justify-content:center}
     .sponsored-center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none}
@@ -217,6 +233,7 @@
     .ad-link{display:block;width:100%;height:100%;border-radius:14px;overflow:hidden}
     .ad-img{width:100%;height:auto;max-height:260px;object-fit:contain;display:block;border-radius:14px;opacity:0;transform:translateY(6px);transition:opacity .35s ease, transform .35s ease}
     .ad-img.in{opacity:1;transform:translateY(0)}
+
     .gate-card{background:radial-gradient(120% 120% at 10% 0%, rgba(0,210,255,.18), rgba(0,0,0,0)), #0b0f14;border:1px solid rgba(255,255,255,.14);border-radius:26px;max-width:420px;width:100%;padding:18px;box-shadow:0 30px 90px rgba(0,0,0,.85)}
     .gate-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
     .gate-title{font-size:16px;font-weight:900;color:#fff}
@@ -226,6 +243,7 @@
     .gate-google img{width:20px;height:20px;background:#fff;border-radius:50%;padding:2px}
     .gate-tiktok{margin:12px auto 0;display:flex;align-items:center;justify-content:center;gap:10px;color:#fff;text-decoration:none;font-weight:900;font-size:12px;width:fit-content;padding:10px 14px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12)}
     .gate-tiktok svg{width:16px;height:16px;fill:#fff;stroke:none}
+
     .tour-overlay{position:fixed;inset:0;z-index:4200;display:none}
     .tour-dim{position:absolute;inset:0;pointer-events:none;opacity:1;transition:opacity .45s ease}
     .tour-dim::before{content:"";position:absolute;inset:0;background:rgba(0,0,0,.55);-webkit-mask-image:radial-gradient(circle at var(--tx,50%) var(--ty,30%), transparent 0, transparent calc(var(--tr,110px) - 2px), #000 calc(var(--tr,110px) + 2px));mask-image:radial-gradient(circle at var(--tx,50%) var(--ty,30%), transparent 0, transparent calc(var(--tr,110px) - 2px), #000 calc(var(--tr,110px) + 2px));transition:all .65s cubic-bezier(.2,.9,.2,1)}
@@ -245,6 +263,7 @@
     .tour-style-0 .tour-ring,.tour-style-0 .tour-box,.tour-style-0 .tour-arrow{transition-timing-function:cubic-bezier(.16,.9,.22,1)}
     .tour-style-1 .tour-ring,.tour-style-1 .tour-box,.tour-style-1 .tour-arrow{transition-timing-function:cubic-bezier(.15,1.05,.2,1)}
     .tour-style-2 .tour-ring,.tour-style-2 .tour-box,.tour-style-2 .tour-arrow{transition-timing-function:cubic-bezier(.12,.88,.28,1)}
+
     @media (min-width:768px){
       #mainScroll{padding-bottom:150px}
       .topbar,.event-banner,.rooms-layout{max-width:var(--maxW);margin-left:auto;margin-right:auto}
@@ -270,8 +289,323 @@
     }
   </style>
   <script>
-    const sb=supabase.createClient("https://tujdnvnrizgqroaozsqp.supabase.co","sb_publishable_WyigevxmzR2gLtbog2Ztfg_8pdmSwop",{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:"pkce"}});
+    document.addEventListener("contextmenu",e=>e.preventDefault());
+    document.addEventListener("copy",e=>e.preventDefault());
+    document.addEventListener("cut",e=>e.preventDefault());
+    document.addEventListener("dragstart",e=>e.preventDefault());
+    document.onkeydown=function(e){
+      const k=e.key||"";
+      if((e.ctrlKey||e.metaKey) && (k.toLowerCase()==="c" || k.toLowerCase()==="x")) return !1;
+      if(123==e.keyCode||e.ctrlKey&&e.shiftKey&&"I"==e.key||e.ctrlKey&&e.shiftKey&&"C"==e.key||e.ctrlKey&&e.shiftKey&&"J"==e.key||e.ctrlKey&&"U"==e.key) return !1
+    };
+  </script>
+</head>
+
+<body>
+  <main class="visually-hidden-seo" aria-hidden="false">
+    <h1>HypeZone Elite — Morocco rooms by city and neighborhood</h1>
+    <p>HypeZone is a Morocco-based social zone where you can join rooms by city and neighborhood, chat locally, and post vibes.</p>
+  </main>
+
+  <div id="splash">
+    <div class="splash-wrap">
+      <div class="splash-typing">
+        <div class="splash-title" id="splashTyped"></div><span class="cursor"></span>
+      </div>
+      <div class="splash-sub">Morocco’s Social Zone by City & Neighborhood</div>
+      <div class="splash-bar"><div class="splash-fill"></div></div>
+    </div>
+  </div>
+
+  <svg style="display:none">
+    <symbol id="i-home-strong" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V21a1.5 1.5 0 0 1-1.5 1.5H15v-6a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v6H4.5A1.5 1.5 0 0 1 3 21z"></path></symbol>
+    <symbol id="i-rooms-strong" viewBox="0 0 24 24"><path d="M7 2h10a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"></path><path d="M9 6h6"></path><path d="M9 10h6"></path><path d="M9 14h6"></path></symbol>
+    <symbol id="i-plus-strong" viewBox="0 0 24 24"><path d="M12 5v14"></path><path d="M5 12h14"></path></symbol>
+    <symbol id="i-user-strong" viewBox="0 0 24 24"><path d="M20 21a8 8 0 1 0-16 0"></path><circle cx="12" cy="9" r="4"></circle></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></symbol>
+    <symbol id="i-mic" viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y1="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24"><path d="M18 15l-6-6-6 6"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+    <symbol id="i-camera" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></symbol>
+    <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></symbol>
+    <symbol id="i-bolt-filled" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-gps" viewBox="0 0 24 24"><path d="M12 2a8 8 0 0 1 8 8c0 5.4-8 14-8 14S4 15.4 4 10a8 8 0 0 1 8-8z"/><circle cx="12" cy="10" r="3"/></symbol>
+    <symbol id="i-exit" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol>
+  </svg>
+
+  <audio id="globalAudio"></audio>
+
+  <div id="mainScroll">
+    <div id="app">
+      <div class="topbar">
+        <div class="brand">HypeZone</div>
+
+        <div class="top-actions">
+          <button class="icon-btn" id="inboxBtn" title="Messages" onclick="openInbox()">
+            <span class="badge-dot" id="inboxDot"></span>
+            <svg><use href="#i-chat"></use></svg>
+          </button>
+          <div class="user-badge" id="topRightBadge"></div>
+        </div>
+      </div>
+
+      <div id="feedView">
+        <div class="event-banner">
+          <img src="https://i.postimg.cc/Jzk5f5fw/Hype-Zone.png" alt="Event banner">
+        </div>
+        <div class="feed" id="feedList"></div>
+      </div>
+
+      <div id="roomsView" class="hidden">
+        <div class="rooms-layout" id="citiesWrap"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dock-wrapper" id="dockWrap">
+    <div class="dock">
+      <button class="dock-btn active" id="dockHome" onclick="switchView('feed',this)"><svg><use href="#i-home-strong"></use></svg> Home</button>
+      <button class="fab-main" id="dockCreate" onclick="openCreate()"><svg><use href="#i-plus-strong"></use></svg></button>
+      <button class="dock-btn" id="dockRooms" onclick="switchView('rooms',this)"><svg><use href="#i-rooms-strong"></use></svg> Rooms</button>
+    </div>
+  </div>
+
+  <!-- Rooms chat -->
+  <div id="chatRoom" class="chat-interface hidden">
+    <div class="chat-top">
+      <button class="chat-exit" onclick="stopRoomLive();document.getElementById('chatRoom').classList.add('hidden')">
+        <svg style="width:28px;height:28px"><use href="#i-exit"></use></svg>
+      </button>
+      <div style="font-weight:800;font-size:18px;color:#fff;margin-left:15px" id="roomNameDisplay">Room</div>
+    </div>
+    <div class="chat-scroll" id="chatMsgs"></div>
+    <div class="chat-controls">
+      <div class="input-row">
+        <input class="chat-input" id="roomInput" placeholder="Message...">
+        <button class="circle-btn" id="roomMic"><svg><use href="#i-mic"></use></svg></button>
+        <button class="circle-btn send-btn" onclick="sendRoomMsg()"><svg><use href="#i-send"></use></svg></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Private DM chat -->
+  <div id="dmChat" class="chat-interface hidden" style="z-index:3200">
+    <div class="chat-top">
+      <button class="chat-exit" onclick="stopDMLive();document.getElementById('dmChat').classList.add('hidden')">
+        <svg style="width:28px;height:28px"><use href="#i-exit"></use></svg>
+      </button>
+      <div style="display:flex;flex-direction:column;gap:2px;margin-left:15px">
+        <div style="font-weight:900;font-size:16px;color:#fff" id="dmNameDisplay">User</div>
+        <div class="prof-status" id="dmStatusDisplay" style="margin:0;font-size:11px"> </div>
+      </div>
+    </div>
+    <div class="chat-scroll" id="dmMsgs"></div>
+    <div class="chat-controls">
+      <div class="input-row">
+        <input class="chat-input" id="dmInput" placeholder="Message...">
+        <button class="circle-btn" id="dmMic"><svg><use href="#i-mic"></use></svg></button>
+        <button class="circle-btn send-btn" onclick="sendDMMsg()"><svg><use href="#i-send"></use></svg></button>
+      </div>
+    </div>
+  </div>
+
+  <div id="commentsModal" class="modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Comments</h3>
+        <button class="close-btn" onclick="closeModal('commentsModal')">✕</button>
+      </div>
+      <div class="scroll-content" id="postCommentsList"></div>
+      <div class="input-row">
+        <input class="chat-input" id="commentInput" placeholder="Add comment...">
+        <button class="circle-btn" id="commentMicBtn"><svg><use href="#i-mic"></use></svg></button>
+        <button class="circle-btn send-btn" onclick="sendPostComment()"><svg><use href="#i-send"></use></svg></button>
+      </div>
+    </div>
+  </div>
+
+  <div id="inboxModal" class="modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Messages</h3>
+        <button class="close-btn" onclick="closeModal('inboxModal')">✕</button>
+      </div>
+      <div class="scroll-content" id="inboxList"></div>
+    </div>
+  </div>
+
+  <div id="profileModal" class="modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Profile</h3>
+        <button class="close-btn" onclick="closeModal('profileModal')">✕</button>
+      </div>
+      <div class="prof-view">
+        <img id="vpImg" class="prof-lg" alt="Profile photo">
+        <h2 id="vpName">Name</h2>
+
+        <div class="prof-status" id="vpStatus"> </div>
+
+        <div id="vpRankBadge" class="prof-rank-badge">ROOKIE</div>
+        <div class="prof-bio" id="vpBio"></div>
+
+        <button id="contactBtn" class="btn-primary" style="margin:0 0 12px;display:none" onclick="contactFromProfile()">Message</button>
+
+        <div class="stat-grid">
+          <div class="stat-box">
+            <div style="font-size:20px;font-weight:800;color:var(--viby)" id="vpScore">0</div>
+            <div style="font-size:10px;color:#888">SCORE</div>
+          </div>
+          <div class="stat-box">
+            <div style="font-size:20px;font-weight:800" id="vpPosts">0</div>
+            <div style="font-size:10px;color:#888">POSTS</div>
+          </div>
+        </div>
+        <div class="info-list">
+          <div class="info-row"><span>City</span><span id="vpCity">-</span></div>
+          <div class="info-row"><span>Neighborhood</span><span id="vpHood">-</span></div>
+          <div class="info-row"><span>Age</span><span id="vpAge">-</span></div>
+          <div class="info-row"><span>Gender</span><span id="vpGender">-</span></div>
+          <div class="info-row"><span>Interests</span><span id="vpInterests">-</span></div>
+        </div>
+        <button id="editProfileBtn" class="edit-profile-btn" onclick="openEditProfile()">Edit Profile</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="setupModal" class="modal" style="z-index:3600">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 style="color:#fff" id="setupTitle">Create Profile</h2>
+        <button class="close-btn" id="setupCloseBtn" onclick="document.getElementById('setupModal').style.display='none'">✕</button>
+      </div>
+      <div class="scroll-content">
+        <div style="text-align:center;margin-bottom:15px">
+          <label class="bg-circle" style="display:inline-block;width:80px;height:80px;background:#222;border:2px dashed #555;overflow:hidden">
+            <img id="setupAvatarImg" style="width:100%;height:100%;object-fit:cover;display:none" alt="Avatar preview">
+            <input type="file" id="setupFile" hidden accept="image/*" onchange="previewSetupImg(this)">
+          </label>
+          <div style="margin-top:10px;font-size:11px;color:rgba(255,255,255,.6);font-weight:800">Avatar is required</div>
+        </div>
+        <input class="form-input" id="setupUser" placeholder="Username (unique)">
+        <input class="form-input" id="setupFull" placeholder="Display Name">
+        <div style="display:flex;gap:10px">
+          <select class="form-input" id="setupGender"><option value="Male">Male</option><option value="Female">Female</option></select>
+          <input class="form-input" id="setupInterests" placeholder="Interests">
+        </div>
+        <select class="form-input" id="setupHood"></select>
+        <textarea class="form-input" id="setupBio" placeholder="Bio (optional)"></textarea>
+        <button class="btn-primary" id="setupSaveBtn" onclick="saveProfileChanges()">Save Profile</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="createModal" class="modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>New Hype</h3>
+        <button class="close-btn" onclick="document.getElementById('createModal').style.display='none'">✕</button>
+      </div>
+      <div id="bgOptions">
+        <div class="upload-tools">
+          <label class="tool-btn" onclick="document.getElementById('postFile').click()"><svg><use href="#i-image"></use></svg></label>
+          <label class="tool-btn" onclick="document.getElementById('postFile').click()"><svg><use href="#i-camera"></use></svg></label>
+        </div>
+      </div>
+      <input type="file" id="postFile" hidden accept="image/*" onchange="previewFile()">
+      <img id="imgPreview" style="width:100%;display:none;margin-bottom:10px;border-radius:10px" alt="Preview">
+      <textarea class="form-input" id="postCap" placeholder="Caption..."></textarea>
+      <button class="btn-primary" onclick="submitPost()">Post</button>
+    </div>
+  </div>
+
+  <div id="loginGate" class="modal">
+    <div class="gate-card">
+      <div class="gate-top">
+        <div class="gate-title">Login Required</div>
+        <button class="close-btn" onclick="closeModal('loginGate')">✕</button>
+      </div>
+      <div class="gate-sub">You must login to send messages, comment, like, or post.</div>
+      <div class="gate-avatar">
+        <svg style="width:40px;height:40px;color:#fff;opacity:.9"><use href="#i-user-strong"></use></svg>
+      </div>
+      <button class="gate-google" id="gateGoogleBtn">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+        Continue with Google
+      </button>
+      <a class="gate-tiktok" href="https://www.tiktok.com/@hypezone.ma" rel="nofollow">
+        <svg viewBox="0 0 448 512"><path d="M448 209.91a210.06 210.06 0 0 1-122.77-39.25v178.72A162.55 162.55 0 1 1 185 188.31v89.89a74.62 74.62 0 1 0 52.23 71.18V0h88a121.18 121.18 0 0 0 1.86 22.17A122.18 122.18 0 0 0 381 102.39a121.43 121.43 0 0 0 67 20.14z"/></svg>
+        TikTok
+      </a>
+    </div>
+  </div>
+
+  <div id="micPermModal" class="modal" style="z-index:3605">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 style="color:#fff">Microphone permission needed</h3>
+        <button class="close-btn" onclick="closeModal('micPermModal')">✕</button>
+      </div>
+      <div class="scroll-content" id="micPermBody" style="color:rgba(255,255,255,.82);line-height:1.7;font-size:13px"></div>
+      <button class="btn-primary" onclick="closeModal('micPermModal')" style="margin-top:4px">OK</button>
+    </div>
+  </div>
+
+  <div id="tourOverlay" class="tour-overlay">
+    <div class="tour-dim"></div>
+    <div class="tour-ring"></div>
+    <div class="tour-arrow" id="tourArrow">
+      <svg viewBox="0 0 100 100">
+        <path d="M82 18C60 20 44 32 34 46c-7 10-10 22-10 34"></path>
+        <path d="M18 70l6 14 14-6"></path>
+      </svg>
+    </div>
+    <div class="tour-box" id="tourBox">
+      <div class="tour-title" id="tourTitle">Welcome</div>
+      <div class="tour-desc" id="tourDesc"></div>
+      <div class="tour-actions">
+        <button class="tour-skip" id="tourSkip">Skip</button>
+        <div class="tour-progress" id="tourProg"></div>
+        <button class="tour-ok" id="tourOk">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ✅ Robust fetch: timeout + retry to prevent hanging forever after tab resume / sleep.
+    function fetchWithTimeout(url, options={}, timeoutMs=15000){
+      const controller = new AbortController();
+      const id = setTimeout(()=>controller.abort("timeout"), timeoutMs);
+      const opts = {...options, signal: controller.signal};
+      return fetch(url, opts).finally(()=>clearTimeout(id));
+    }
+    async function fetchWithRetry(url, options={}, timeoutMs=15000, retries=1){
+      try{
+        return await fetchWithTimeout(url, options, timeoutMs);
+      }catch(err){
+        if(retries>0){
+          await new Promise(r=>setTimeout(r, 400));
+          return fetchWithRetry(url, options, timeoutMs, retries-1);
+        }
+        throw err;
+      }
+    }
+
+    const sb=supabase.createClient(
+      "https://tujdnvnrizgqroaozsqp.supabase.co",
+      "sb_publishable_WyigevxmzR2gLtbog2Ztfg_8pdmSwop",
+      {
+        auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:"pkce"},
+        global:{fetch:(url,options)=>fetchWithRetry(url,options,15000,1)}
+      }
+    );
+
     let session,currentBg,currentPostId,currentRoomKey=null,currentRoomLabel=null,roomSub=null,currentPlayingBtn=null,myProfile={},isEditing=!1,currentEditingUser=null,seenRoomMsgIds=new Set,roomProfileCache={},profileRequired=!1,roomPollTimer=null,lastRoomCreatedAt=null;
+
     // ✅ DM state
     let currentDMUserId=null;
     let currentDMThreadId=null;
@@ -279,24 +613,100 @@
     let dmPollTimer=null;
     let lastDMCAt=null;
     let seenDMMsgIds=new Set();
+
     // ✅ presence heartbeat
     let presenceTimer=null;
     let dmInboxBadgeTimer=null;
+
     const globalAudio=document.getElementById("globalAudio");
     const TIKTOK_URL="https://www.tiktok.com/@hypezone.ma";
     const AD_IMAGE="https://i.postimg.cc/rwTFC8C7/Tik-Tok.png";
+
     // ✅ AUDIO RECORDER STATE
     let hzRecorder=null;
     let hzStream=null;
     let hzChunks=[];
     let hzRecordingTarget=null; // "room" | "comment" | "dm"
     let hzIsUploading=false;
+
     // ✅ CHANGE THIS IF YOU WANT A DEDICATED BUCKET NAME
     const AUDIO_BUCKET="post_images";
     const AUDIO_FOLDER="audio";
+
     // ✅ TABLE NAMES (you must create these in Supabase)
     const TBL_DM="dm_messages";
     const TBL_PRESENCE="user_presence";
+
+    // =========================
+    // ✅ CONNECTION SELF-HEAL (fixes "Loading forever" after switching tabs/windows)
+    // Works on desktop + mobile + multiple browsers.
+    // =========================
+    let hzHealLock=false;
+    let hzLastHealAt=0;
+    function hzNow(){return Date.now();}
+
+    async function hzHealConnection(reason){
+      const now=hzNow();
+      if(hzHealLock) return;
+      if(now-hzLastHealAt<800) return;
+      hzHealLock=true;
+      hzLastHealAt=now;
+      try{
+        // ensure realtime is connected
+        try{ sb.realtime.connect(); }catch(e){}
+
+        // refresh session snapshot
+        try{
+          const {data} = await sb.auth.getSession();
+          if(data && data.session) session = data.session;
+        }catch(e){}
+
+        // restart timers if logged
+        if(session && session.user && session.user.id){
+          try{ startPresence(); }catch(e){}
+          try{ startInboxBadge(); }catch(e){}
+        }
+
+        // resubscribe room if open
+        try{
+          const roomOpen = currentRoomKey && !document.getElementById("chatRoom").classList.contains("hidden");
+          if(roomOpen){
+            await loadRoomMsgs();
+            await subscribeRoom(currentRoomKey);
+          }
+        }catch(e){}
+
+        // resubscribe dm if open
+        try{
+          const dmOpen = currentDMThreadId && !document.getElementById("dmChat").classList.contains("hidden");
+          if(dmOpen){
+            await loadDMMessages();
+            await subscribeDM(currentDMThreadId);
+          }
+        }catch(e){}
+
+        // refresh feed once if visible (keeps UI alive)
+        try{
+          const feedVisible = !document.getElementById("feedView").classList.contains("hidden");
+          if(feedVisible) await loadFeed();
+        }catch(e){}
+      } finally {
+        hzHealLock=false;
+      }
+    }
+
+    document.addEventListener("visibilitychange", ()=>{
+      if(!document.hidden){
+        hzHealConnection("resume");
+      }else{
+        // optional: close socket to avoid stale state on freeze
+        try{ sb.realtime.disconnect(); }catch(e){}
+      }
+    }, {passive:true});
+
+    window.addEventListener("online", ()=>hzHealConnection("online"), {passive:true});
+    window.addEventListener("pageshow", ()=>hzHealConnection("pageshow"), {passive:true});
+
     const cities={
       rabat:{name:"Rabat",hoods:["Agdal","Hassan","Hay Riad","Ocean","Medina","Souissi","Yacoub Al Mansour","Akkari","Kammra","Temara","Skhirat"]},
       sale:{name:"Sale",hoods:["Diar","Hay Chmaaou","Opera","Wad Adahab","Bab Lmrissa","Tabriquet","Sala Al Jadida","Hay Salam","Bettana","Sidi Moussa"]},
@@ -322,11 +732,13 @@
     };
     const cityOrder=["rabat","sale","casablanca","marrakech","fes","tangier","agadir","meknes","oujda","kenitra","tetouan","eljadida","safi","mohammedia","nador","benimellal","khouribga","taza","essaouira","laayoune","dakhla"];
     const gradients=["linear-gradient(45deg,#ff9a9e,#fecfef)","linear-gradient(120deg,#84fab0,#8fd3f4)","linear-gradient(to top,#30cfd0,#330867)","linear-gradient(to right,#434343,black)","linear-gradient(to top,#fcc5e4,#020f75)"];
+
     function lockTourScroll(on){
       const ms=document.getElementById("mainScroll");
       if(on){document.body.classList.add("tour-lock");ms.classList.add("tour-lock")}
       else{document.body.classList.remove("tour-lock");ms.classList.remove("tour-lock")}
     }
+
     function roomKey(cityKey,hood){return cityKey+"|"+hood}
     function parseHoodValue(v){const t=(v||"").split("|");return t.length>=2?{cityKey:t[0]||"rabat",hood:t[1]||"Agdal"}:{cityKey:"rabat",hood:(v||"Agdal")}}
     function cityInHoodLabel(cityKey,hood){const n=cities[cityKey]?cities[cityKey].name:"Rabat";return n+" in "+hood}
@@ -339,6 +751,7 @@
       }
       return {cityName:(p.city||"Rabat"),hood:(t||"Agdal")}
     }
+
     function showLoginGate(){document.getElementById("loginGate").style.display="flex"}
     function requireAuth(){if(session&&session.user&&session.user.id) return true; showLoginGate(); return false}
     function requireProfile(){
@@ -347,12 +760,14 @@
       if(!myProfile||!myProfile.id){openMandatorySetup(); return false}
       return true
     }
+
     // ✅ DM thread id (deterministic)
     function dmThreadId(a,b){
       const x=String(a||"");
       const y=String(b||"");
       return (x<y) ? `${x}_${y}` : `${y}_${x}`;
     }
+
     function renderTopRight(){
       const e=document.getElementById("topRightBadge");
       if(!e) return;
@@ -364,10 +779,12 @@
         e.innerHTML=`<span class="badge-icon"><svg style="width:18px;height:18px"><use href="#i-user-strong"></use></svg></span><span class="badge-text"><span class="badge-title">Guest</span><span class="badge-sub">guest</span></span>`
       }
     }
+
     function buildSponsoredCard(idx){
       const adId=`adSlot_${Date.now()}_${idx}_${Math.floor(1e6*Math.random())}`;
       return `<div class="post-card" data-ad="1"><div class="post-header ad-header"><div class="sponsored-center"><span class="sponsored-pill">Sponsored</span></div></div><div class="ad-visual"><div class="ad-shell"><a class="ad-link" href="${TIKTOK_URL}" rel="nofollow"><img class="ad-img" data-adimg="1" data-adid="${adId}" src="${AD_IMAGE}" alt="Sponsored"></a></div></div></div>`
     }
+
     let adObserver=null;
     function mountAds(){
       const imgs=[...document.querySelectorAll('img[data-adimg="1"]')];
@@ -392,6 +809,7 @@
         });
       }else imgs.forEach(show);
     }
+
     function typeSplash(){
       const el=document.getElementById("splashTyped");
       const txt="HypeZone";
@@ -405,6 +823,7 @@
         if(i>=txt.length) clearInterval(timer);
       },step);
     }
+
     function showSplashThenStart(){
       const splash=document.getElementById("splash");
       splash.style.display="flex";
@@ -419,6 +838,7 @@
         }else lockTourScroll(false);
       },1500)
     }
+
     async function handleOAuthRedirect(){
       const url=new URL(window.location.href);
       const hasCode=url.searchParams.get("code");
@@ -433,11 +853,14 @@
         window.history.replaceState({},document.title,url.toString());
       }
     }
+
     function getRank(score){return score<50?{name:"ROOKIE",cls:"rank-rookie"}:score<1000?{name:"GOLD",cls:"rank-gold"}:{name:"LEGEND",cls:"rank-legend"}}
     function timeAgo(d){const t=Math.floor((new Date-new Date(d))/1000);if(t<60)return"Just now";const m=Math.floor(t/60);if(m<60)return m+"m";const h=Math.floor(m/60);return h<24?h+"h":Math.floor(h/24)+"d"}
     function formatChatTime(d){return new Date(d).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}
     function escapeHtml(s){return s?s.replace(/&/g,"&amp;").replace(/</g,"&lt;"):""}
+
     function closeModal(id){if(profileRequired && id==="setupModal") return; document.getElementById(id).style.display="none"}
+
     function switchView(view,btn){
       document.querySelectorAll(".dock-btn").forEach(e=>e.classList.remove("active"));
       btn.classList.add("active");
@@ -445,6 +868,7 @@
       document.getElementById("roomsView").classList.add("hidden");
       document.getElementById(view+"View").classList.remove("hidden");
     }
+
     function renderCities(){
       const e=document.getElementById("citiesWrap"); if(!e) return;
       e.innerHTML="";
@@ -461,6 +885,7 @@
         e.appendChild(header); e.appendChild(grid);
       });
     }
+
     function renderGradients(){
       const e=document.getElementById("bgOptions");
       gradients.forEach(t=>e.innerHTML+=`<div class="bg-circle" style="background:${t}" onclick="setBg('${t}', this)"></div>`);
@@ -470,6 +895,7 @@
       document.querySelectorAll(".bg-circle").forEach(e=>e.classList.remove("selected"));
       el&&el.classList.add("selected");
     }
+
     function renderSetupHoods(){
       const e=document.getElementById("setupHood"); if(!e) return;
       e.innerHTML="";
@@ -485,6 +911,7 @@
       });
       e.value=roomKey("rabat","Agdal");
     }
+
     function openMandatorySetup(){
       if(!session||!session.user) return;
       profileRequired=true;
@@ -502,6 +929,7 @@
       document.getElementById("setupFile").value="";
       lockTourScroll(true);
     }
+
     function openEditProfile(){
       if(!requireAuth()) return;
       if(profileRequired) return openMandatorySetup();
@@ -524,12 +952,14 @@
       document.getElementById("setupAvatarImg").style.display=e.avatar_url?"block":"none";
       document.getElementById("setupFile").value="";
     }
+
     function previewSetupImg(inp){
       if(inp.files&&inp.files[0]){
         document.getElementById("setupAvatarImg").src=URL.createObjectURL(inp.files[0]);
         document.getElementById("setupAvatarImg").style.display="block";
       }
     }
+
     async function ensureUsernameUnique(u){
       const username=(u||"").trim();
       if(!username) return false;
@@ -540,6 +970,7 @@
       }
       return true;
     }
+
     async function saveProfileChanges(){
       if(!requireAuth()) return;
       const btn=document.getElementById("setupSaveBtn");
@@ -551,14 +982,18 @@
       const hoodVal=document.getElementById("setupHood").value;
       const bio=(document.getElementById("setupBio").value||"").trim();
       const file=document.getElementById("setupFile").files[0] || null;
+
       if(!username || username.length<3){btn.disabled=false;btn.textContent="Save Profile";return alert("Username required (min 3 chars)");}
       if(!displayName){btn.disabled=false;btn.textContent="Save Profile";return alert("Display Name required");}
       if(!interests){btn.disabled=false;btn.textContent="Save Profile";return alert("Interests required");}
       if(!hoodVal){btn.disabled=false;btn.textContent="Save Profile";return alert("City & neighborhood required");}
+
       const unique=await ensureUsernameUnique(username);
       if(!unique){btn.disabled=false;btn.textContent="Save Profile";return alert("Username already taken");}
+
       let avatarUrl=(myProfile&&myProfile.avatar_url)||"";
       if(profileRequired && !file && !avatarUrl){btn.disabled=false;btn.textContent="Save Profile";return alert("Avatar required");}
+
       if(file){
         if(avatarUrl && avatarUrl.includes("/storage/") && avatarUrl.includes("/avatars/")){
           const old=avatarUrl.split("/").pop();
@@ -569,6 +1004,7 @@
         const {data:o}=sb.storage.from("avatars").getPublicUrl(key);
         avatarUrl=o.publicUrl;
       }
+
       const parsed=parseHoodValue(hoodVal);
       const payload={
         id:session.user.id,
@@ -580,8 +1016,10 @@
         neighborhood:roomKey(parsed.cityKey,parsed.hood),
         avatar_url:avatarUrl
       };
+
       const {error}=await sb.from("profiles").upsert(payload);
       if(error){btn.disabled=false;btn.textContent="Save Profile";return alert(error.message);}
+
       profileRequired=false;
       isEditing=false;
       document.getElementById("setupModal").style.display="none";
@@ -590,6 +1028,7 @@
       renderTopRight();
       loadFeed();
     }
+
     async function checkProfile(){
       if(!session||!session.user) return;
       const {data}=await sb.from("profiles").select("*").eq("id",session.user.id).maybeSingle();
@@ -603,18 +1042,12 @@
       }
       renderTopRight();
     }
+
     async function loadFeed(){
       const e=document.getElementById("feedList");
       e.innerHTML="<div style='text-align:center;color:#666'>Loading...</div>";
-      
-      // ✅ FIX: TIMEOUT PROMISE
-      const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000));
-      try {
-        const {data} = await Promise.race([
-           sb.from("posts").select("*, profiles(*)").order("created_at",{ascending:false}),
-           timeout
-        ]);
-        
+      try{
+        const {data}=await sb.from("posts").select("*, profiles(*)").order("created_at",{ascending:false});
         e.innerHTML="";
         const posts=(data||[]);
         let adEvery=4+Math.floor(Math.random()*3);
@@ -635,11 +1068,13 @@
         });
         if(rendered<3) e.innerHTML+=buildSponsoredCard(0);
         mountAds();
-      } catch (err) {
-        e.innerHTML="<div style='text-align:center;color:#666'>Tap to retry</div>";
-        e.onclick = () => loadFeed();
+      }catch(err){
+        // if a request hung/failed, self-heal and show a hint
+        e.innerHTML="<div style='text-align:center;color:#666'>Connection issue… Reconnecting</div>";
+        hzHealConnection("feed-fail");
       }
     }
+
     async function openComments(id){
       if(!requireAuth()) return;
       if(!requireProfile()) return;
@@ -647,7 +1082,9 @@
       document.getElementById("commentsModal").style.display="flex";
       loadPostComments();
     }
-    const _durCache = new Map();
+
+    // Audio duration cache
+    const _durCache = new Map(); // url -> seconds
     function fmtTime(sec){
       sec = Math.max(0, Math.floor(sec || 0));
       const m = Math.floor(sec / 60);
@@ -668,19 +1105,24 @@
       const wrap = root || document;
       const items = [...wrap.querySelectorAll(".audio-player[data-audio]")];
       if(!items.length) return;
+
       items.forEach(el=>{
         const url = el.getAttribute("data-audio");
         if(!url) return;
+
         if(_durCache.has(url)){
           setPlayerTime(el, 0, _durCache.get(url));
           return;
         }
+
         setPlayerTime(el, 0, 0);
+
         try{
           const a = new Audio();
           a.preload = "metadata";
           a.crossOrigin = "anonymous";
           a.src = url;
+
           a.onloadedmetadata = () => {
             const d = (a.duration && isFinite(a.duration)) ? a.duration : 0;
             if(d>0){
@@ -691,36 +1133,47 @@
             }
             a.src = "";
           };
+
           a.onerror = () => { a.src = ""; };
         }catch(e){}
       });
     }
+
     async function loadPostComments(){
       const e=document.getElementById("postCommentsList");
       e.innerHTML="Loading...";
-      const {data}=await sb.from("comments").select("*, profiles(*)").eq("post_id",currentPostId).order("created_at");
-      e.innerHTML="";
-      (data||[]).forEach(c=>{
-        const visual=c.audio_url
-          ?`<div class="audio-player" data-audio="${c.audio_url}" onclick="playAudio('${c.audio_url}', this)">
-              <div class="audio-btn"><svg style="width:14px;height:14px;fill:#000;stroke:none"><use href="#i-play"></use></svg></div>
-              <div class="audio-wave"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
-              <span class="audio-text">Voice</span><span class="audio-time">0:00</span>
-            </div>`
-          :`<div class="c-text">${escapeHtml(c.text_content)}</div>`;
-        e.innerHTML+=`<div class="comment-item"><img class="c-avatar" src="${c.profiles.avatar_url}" onclick="openProfile('${c.profiles.id}')"><div class="c-content"><div class="c-bubble"><div class="c-header"><span class="c-user" onclick="openProfile('${c.profiles.id}')">${c.profiles.username}</span><span class="c-time">${timeAgo(c.created_at)}</span></div>${visual}</div></div></div>`;
-      });
-      hydrateAudioDurations(e);
+      try{
+        const {data}=await sb.from("comments").select("*, profiles(*)").eq("post_id",currentPostId).order("created_at");
+        e.innerHTML="";
+        (data||[]).forEach(c=>{
+          const visual=c.audio_url
+            ?`<div class="audio-player" data-audio="${c.audio_url}" onclick="playAudio('${c.audio_url}', this)">
+                <div class="audio-btn"><svg style="width:14px;height:14px;fill:#000;stroke:none"><use href="#i-play"></use></svg></div>
+                <div class="audio-wave"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
+                <span class="audio-text">Voice</span><span class="audio-time">0:00</span>
+              </div>`
+            :`<div class="c-text">${escapeHtml(c.text_content)}</div>`;
+          e.innerHTML+=`<div class="comment-item"><img class="c-avatar" src="${c.profiles.avatar_url}" onclick="openProfile('${c.profiles.id}')"><div class="c-content"><div class="c-bubble"><div class="c-header"><span class="c-user" onclick="openProfile('${c.profiles.id}')">${c.profiles.username}</span><span class="c-time">${timeAgo(c.created_at)}</span></div>${visual}</div></div></div>`;
+        });
+        hydrateAudioDurations(e);
+      }catch(err){
+        e.innerHTML="<div style='color:#666'>Connection issue… Reconnecting</div>";
+        hzHealConnection("comments-fail");
+      }
     }
+
     function playAudio(url,el){
       if(!url || !el) return;
+
       if(currentPlayingBtn===el && !globalAudio.paused){
         globalAudio.pause();
         resetPlayerUI(el);
         return;
       }
       if(currentPlayingBtn && currentPlayingBtn!==el) resetPlayerUI(currentPlayingBtn);
+
       currentPlayingBtn=el;
+
       globalAudio.onloadedmetadata=()=>{ setPlayerTime(el, 0, globalAudio.duration); };
       globalAudio.ontimeupdate=()=>{
         if(currentPlayingBtn===el){
@@ -733,8 +1186,10 @@
           currentPlayingBtn=null;
         }
       };
+
       globalAudio.src=url;
       globalAudio.currentTime=0;
+
       globalAudio.play().then(()=>{
         el.classList.add("playing");
         el.querySelector(".audio-btn").innerHTML='<svg style="width:14px;height:14px;fill:#000;stroke:none"><use href="#i-pause"></use></svg>';
@@ -744,6 +1199,7 @@
         resetPlayerUI(el);
       });
     }
+
     function resetPlayerUI(el, ended=false){
       if(!el) return;
       el.classList.remove("playing");
@@ -755,17 +1211,20 @@
       const dur = url && _durCache.has(url) ? _durCache.get(url) : ((globalAudio && isFinite(globalAudio.duration)) ? globalAudio.duration : 0);
       setPlayerTime(el, 0, dur);
     }
+
     function previewFile(){
       const f=document.getElementById("postFile").files[0];
       if(!f) return;
       document.getElementById("imgPreview").src=URL.createObjectURL(f);
       document.getElementById("imgPreview").style.display="block";
     }
+
     function openCreate(){
       if(!requireAuth()) return;
       if(!requireProfile()) return;
       document.getElementById("createModal").style.display="flex";
     }
+
     async function submitPost(){
       if(!requireAuth()) return;
       if(!requireProfile()) return;
@@ -782,6 +1241,7 @@
       document.getElementById("createModal").style.display="none";
       loadFeed();
     }
+
     async function deletePost(id){
       if(!requireAuth()) return;
       if(!requireProfile()) return;
@@ -789,6 +1249,7 @@
       await sb.from("posts").delete().eq("id",id);
       loadFeed();
     }
+
     async function vote(postId,type){
       if(!requireAuth()) return;
       if(!requireProfile()) return;
@@ -801,6 +1262,7 @@
       }
       loadFeed();
     }
+
     // ✅ presence helpers
     async function upsertPresence(isOnline){
       if(!session || !session.user) return;
@@ -815,10 +1277,17 @@
     function startPresence(){
       stopPresence();
       if(!session || !session.user) return;
+
       upsertPresence(true);
       presenceTimer=setInterval(()=>upsertPresence(true), 25000);
+
       window.addEventListener("beforeunload", ()=>{ try{ upsertPresence(false); }catch(e){} }, {once:true});
       window.addEventListener("pagehide", ()=>{ try{ upsertPresence(false); }catch(e){} }, {once:true});
+      document.addEventListener("visibilitychange", ()=>{
+        if(!session || !session.user) return;
+        if(document.hidden) upsertPresence(false);
+        else upsertPresence(true);
+      }, {passive:true});
     }
     function stopPresence(){
       if(presenceTimer){clearInterval(presenceTimer); presenceTimer=null;}
@@ -834,11 +1303,13 @@
       if(p && p.last_seen) return "Last seen " + timeAgo(p.last_seen);
       return "Last seen";
     }
+
     function contactFromProfile(){
       if(!currentEditingUser || !currentEditingUser.id) return;
       closeModal("profileModal");
       openDM(currentEditingUser.id);
     }
+
     async function openProfile(id){
       if(!requireAuth()) return;
       if(!requireProfile()) return;
@@ -846,11 +1317,14 @@
       modal.style.display="flex";
       const {data:p}=await sb.from("profiles").select("*").eq("id",id).single();
       currentEditingUser=p;
+
       const {count:postsCount}=await sb.from("posts").select("*",{count:"exact",head:true}).eq("user_id",id);
       const r=getRank(p.vibe_score||0);
       const loc=profileLoc(p);
+
       const pres = await fetchPresence(id);
       document.getElementById("vpStatus").innerText = presenceLabel(pres);
+
       document.getElementById("vpImg").src=p.avatar_url||"";
       document.getElementById("vpName").innerText=p.username||"";
       document.getElementById("vpRankBadge").innerText=r.name;
@@ -863,21 +1337,25 @@
       document.getElementById("vpAge").innerText=p.age||"-";
       document.getElementById("vpGender").innerText=p.gender||"-";
       document.getElementById("vpInterests").innerText=p.interests||"-";
+
       const isMine = session.user.id===id;
       document.getElementById("editProfileBtn").style.display=isMine?"block":"none";
       document.getElementById("contactBtn").style.display=!isMine?"block":"none";
     }
+
     function stopRoomLive(){
       if(roomSub){sb.removeChannel(roomSub);roomSub=null}
       if(roomPollTimer){clearInterval(roomPollTimer);roomPollTimer=null}
       lastRoomCreatedAt=null;
     }
+
     async function fetchProfileMini(userId){
       if(roomProfileCache[userId]) return roomProfileCache[userId];
       const {data}=await sb.from("profiles").select("id, username, avatar_url").eq("id",userId).maybeSingle();
       if(data){roomProfileCache[userId]=data; return data}
       return {id:userId,username:"User",avatar_url:""}
     }
+
     function renderOneMessage(msg,prof){
       const n=document.getElementById("chatMsgs");
       const me=session&&session.user&&msg.user_id===session.user.id;
@@ -893,6 +1371,7 @@
       n.scrollTop=n.scrollHeight;
       hydrateAudioDurations(n);
     }
+
     async function handleNewRoomMessage(row){
       if(!row || !row.id) return;
       if(row.room_name!==currentRoomKey) return;
@@ -902,30 +1381,37 @@
       const prof=await fetchProfileMini(row.user_id);
       renderOneMessage(row,prof);
     }
+
     async function subscribeRoom(roomName){
       stopRoomLive();
       roomSub=sb.channel("room:"+roomName)
         .on("postgres_changes",{event:"INSERT",schema:"public",table:"room_chats",filter:`room_name=eq.${roomName}`},payload=>{handleNewRoomMessage(payload.new)})
         .subscribe();
+
       roomPollTimer=setInterval(async ()=>{
-        if(!currentRoomKey) return;
-        const since=lastRoomCreatedAt||new Date(0).toISOString();
-        const {data:rows}=await sb.from("room_chats").select("*").eq("room_name",currentRoomKey).gt("created_at",since).order("created_at",{ascending:true});
-        if(!rows||!rows.length) return;
-        const fresh=rows.filter(r=>r.id && !seenRoomMsgIds.has(r.id));
-        if(!fresh.length) return;
-        const ids=[...new Set(fresh.map(r=>r.user_id).filter(Boolean))].filter(id=>!roomProfileCache[id]);
-        if(ids.length){
-          const {data:plist}=await sb.from("profiles").select("id, username, avatar_url").in("id",ids);
-          (plist||[]).forEach(p=>{roomProfileCache[p.id]=p});
+        try{
+          if(!currentRoomKey) return;
+          const since=lastRoomCreatedAt||new Date(0).toISOString();
+          const {data:rows}=await sb.from("room_chats").select("*").eq("room_name",currentRoomKey).gt("created_at",since).order("created_at",{ascending:true});
+          if(!rows||!rows.length) return;
+          const fresh=rows.filter(r=>r.id && !seenRoomMsgIds.has(r.id));
+          if(!fresh.length) return;
+          const ids=[...new Set(fresh.map(r=>r.user_id).filter(Boolean))].filter(id=>!roomProfileCache[id]);
+          if(ids.length){
+            const {data:plist}=await sb.from("profiles").select("id, username, avatar_url").in("id",ids);
+            (plist||[]).forEach(p=>{roomProfileCache[p.id]=p});
+          }
+          fresh.forEach(r=>{
+            seenRoomMsgIds.add(r.id);
+            lastRoomCreatedAt=r.created_at||lastRoomCreatedAt;
+            renderOneMessage(r,roomProfileCache[r.user_id]||{username:"User",avatar_url:""});
+          });
+        }catch(e){
+          hzHealConnection("room-poll-fail");
         }
-        fresh.forEach(r=>{
-          seenRoomMsgIds.add(r.id);
-          lastRoomCreatedAt=r.created_at||lastRoomCreatedAt;
-          renderOneMessage(r,roomProfileCache[r.user_id]||{username:"User",avatar_url:""});
-        });
       },900);
     }
+
     async function openRoom(cityKey,hood){
       currentRoomKey=roomKey(cityKey,hood);
       currentRoomLabel=cityInHoodLabel(cityKey,hood);
@@ -934,42 +1420,36 @@
       seenRoomMsgIds=new Set();
       roomProfileCache={};
       lastRoomCreatedAt=null;
-      
-      // ✅ FIX: TIMEOUT AND ERROR HANDLING
-      try {
-        await loadRoomMsgs();
-        await subscribeRoom(currentRoomKey);
-      } catch(e) {
-         // silently fail or show retry
-         document.getElementById("chatMsgs").innerHTML = `<div style="text-align:center;color:#666;margin-top:20px">Connection weak. <span style="text-decoration:underline;cursor:pointer" onclick="openRoom('${cityKey}','${hood}')">Tap to retry</span></div>`;
-      }
+      await loadRoomMsgs();
+      await subscribeRoom(currentRoomKey);
     }
+
     async function loadRoomMsgs(){
       const box=document.getElementById("chatMsgs");
       box.innerHTML="Loading...";
-      // ✅ TIMEOUT PROMISE
-      const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 4000));
-      const {data} = await Promise.race([
-          sb.from("room_chats").select("*").eq("room_name",currentRoomKey).order("created_at",{ascending:true}),
-          timeout
-      ]);
-      
-      box.innerHTML="";
-      const rows=data||[];
-      const ids=[...new Set(rows.map(r=>r.user_id))];
-      if(ids.length){
-        const {data:plist}=await sb.from("profiles").select("id, username, avatar_url").in("id",ids);
-        (plist||[]).forEach(p=>{roomProfileCache[p.id]=p});
+      try{
+        const {data}=await sb.from("room_chats").select("*").eq("room_name",currentRoomKey).order("created_at",{ascending:true});
+        box.innerHTML="";
+        const rows=data||[];
+        const ids=[...new Set(rows.map(r=>r.user_id))];
+        if(ids.length){
+          const {data:plist}=await sb.from("profiles").select("id, username, avatar_url").in("id",ids);
+          (plist||[]).forEach(p=>{roomProfileCache[p.id]=p});
+        }
+        rows.forEach(r=>{
+          if(r.id) seenRoomMsgIds.add(r.id);
+          renderOneMessage(r,roomProfileCache[r.user_id]);
+        });
+        const last=rows[rows.length-1];
+        lastRoomCreatedAt=last?last.created_at:null;
+        box.scrollTop=box.scrollHeight;
+        hydrateAudioDurations(box);
+      }catch(e){
+        box.innerHTML="<div style='color:#666'>Connection issue… Reconnecting</div>";
+        hzHealConnection("room-load-fail");
       }
-      rows.forEach(r=>{
-        if(r.id) seenRoomMsgIds.add(r.id);
-        renderOneMessage(r,roomProfileCache[r.user_id]);
-      });
-      const last=rows[rows.length-1];
-      lastRoomCreatedAt=last?last.created_at:null;
-      box.scrollTop=box.scrollHeight;
-      hydrateAudioDurations(box);
     }
+
     async function sendRoomMsg(){
       const text=(document.getElementById("roomInput").value||"").trim();
       if(!text || !currentRoomKey) return;
@@ -986,6 +1466,7 @@
         }
       }
     }
+
     async function sendPostComment(){
       const text=(document.getElementById("commentInput").value||"").trim();
       if(!text || !currentPostId) return;
@@ -996,6 +1477,10 @@
       if(error) return alert(error.message);
       loadPostComments();
     }
+
+    // =========================
+    // ✅ DM (Private messages)
+    // =========================
     function stopDMChannelOnly(){
       if(dmSub){sb.removeChannel(dmSub);dmSub=null}
       if(dmPollTimer){clearInterval(dmPollTimer);dmPollTimer=null}
@@ -1007,25 +1492,28 @@
       currentDMThreadId=null;
       seenDMMsgIds=new Set();
     }
+
     async function openDM(otherUserId){
       if(!requireAuth()) return;
       if(!requireProfile()) return;
+
       currentDMUserId=otherUserId;
       currentDMThreadId=dmThreadId(session.user.id, otherUserId);
+
       document.getElementById("dmChat").classList.remove("hidden");
+
       const {data:prof}=await sb.from("profiles").select("id,username,avatar_url").eq("id", otherUserId).maybeSingle();
       document.getElementById("dmNameDisplay").innerText = (prof && prof.username) ? prof.username : "User";
+
       const pres = await fetchPresence(otherUserId);
       document.getElementById("dmStatusDisplay").innerText = presenceLabel(pres);
+
       seenDMMsgIds=new Set();
       lastDMCAt=null;
-      try {
-        await loadDMMessages();
-        await subscribeDM(currentDMThreadId);
-      } catch(e) {
-        // fail silently
-      }
+      await loadDMMessages();
+      await subscribeDM(currentDMThreadId);
     }
+
     function renderDMMessage(row, otherProfile){
       const box=document.getElementById("dmMsgs");
       const me = row.sender_id===session.user.id;
@@ -1037,6 +1525,7 @@
             <span class="audio-text">Voice</span><span class="audio-time">0:00</span>
           </div>`
         :`<div class="msg-content">${escapeHtml(row.content||"")}</div>`;
+
       box.insertAdjacentHTML("beforeend",
         `<div class="msg-row ${me?"me":""}">
           ${me?"":`<img class="msg-img" src="${u.avatar_url||""}" onclick="openProfile('${u.id}')">`}
@@ -1050,67 +1539,87 @@
       box.scrollTop=box.scrollHeight;
       hydrateAudioDurations(box);
     }
+
     async function loadDMMessages(){
       const box=document.getElementById("dmMsgs");
       box.innerHTML="Loading...";
-      const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 4000));
-      
-      const {data:otherP}=await sb.from("profiles").select("id, username, avatar_url").eq("id", currentDMUserId).maybeSingle();
-      const {data:rows}=await Promise.race([
-        sb.from(TBL_DM).select("*").eq("thread_id", currentDMThreadId).order("created_at",{ascending:true}),
-        timeout
-      ]);
-        
-      box.innerHTML="";
-      (rows||[]).forEach(r=>{
-        if(r.id) seenDMMsgIds.add(r.id);
-        renderDMMessage(r, otherP);
-      });
-      const last=(rows||[])[(rows||[]).length-1];
-      lastDMCAt = last ? last.created_at : null;
-      box.scrollTop=box.scrollHeight;
-      hydrateAudioDurations(box);
+
+      try{
+        const {data:otherP}=await sb.from("profiles").select("id, username, avatar_url").eq("id", currentDMUserId).maybeSingle();
+        const {data:rows}=await sb.from(TBL_DM)
+          .select("*")
+          .eq("thread_id", currentDMThreadId)
+          .order("created_at",{ascending:true});
+
+        box.innerHTML="";
+        (rows||[]).forEach(r=>{
+          if(r.id) seenDMMsgIds.add(r.id);
+          renderDMMessage(r, otherP);
+        });
+
+        const last=(rows||[])[(rows||[]).length-1];
+        lastDMCAt = last ? last.created_at : null;
+        box.scrollTop=box.scrollHeight;
+        hydrateAudioDurations(box);
+      }catch(e){
+        box.innerHTML="<div style='color:#666'>Connection issue… Reconnecting</div>";
+        hzHealConnection("dm-load-fail");
+      }
     }
+
     async function handleNewDM(row){
       if(!row || !row.id) return;
       if(row.thread_id!==currentDMThreadId) return;
       if(seenDMMsgIds.has(row.id)) return;
       seenDMMsgIds.add(row.id);
       lastDMCAt = row.created_at || lastDMCAt;
+
       const {data:otherP}=await sb.from("profiles").select("id, username, avatar_url").eq("id", currentDMUserId).maybeSingle();
       renderDMMessage(row, otherP);
     }
+
     async function subscribeDM(threadId){
       stopDMChannelOnly();
       currentDMThreadId = threadId;
+
       dmSub=sb.channel("dm:"+threadId)
         .on("postgres_changes",{event:"INSERT",schema:"public",table:TBL_DM,filter:`thread_id=eq.${threadId}`},payload=>{handleNewDM(payload.new)})
         .subscribe();
+
       dmPollTimer=setInterval(async ()=>{
-        if(!currentDMThreadId) return;
-        const since=lastDMCAt||new Date(0).toISOString();
-        const {data:rows}=await sb.from(TBL_DM)
-          .select("*")
-          .eq("thread_id", currentDMThreadId)
-          .gt("created_at", since)
-          .order("created_at",{ascending:true});
-        if(!rows||!rows.length) return;
-        const fresh=rows.filter(r=>r.id && !seenDMMsgIds.has(r.id));
-        if(!fresh.length) return;
-        const {data:otherP}=await sb.from("profiles").select("id, username, avatar_url").eq("id", currentDMUserId).maybeSingle();
-        fresh.forEach(r=>{
-          seenDMMsgIds.add(r.id);
-          lastDMCAt = r.created_at || lastDMCAt;
-          renderDMMessage(r, otherP);
-        });
+        try{
+          if(!currentDMThreadId) return;
+          const since=lastDMCAt||new Date(0).toISOString();
+          const {data:rows}=await sb.from(TBL_DM)
+            .select("*")
+            .eq("thread_id", currentDMThreadId)
+            .gt("created_at", since)
+            .order("created_at",{ascending:true});
+
+          if(!rows||!rows.length) return;
+          const fresh=rows.filter(r=>r.id && !seenDMMsgIds.has(r.id));
+          if(!fresh.length) return;
+
+          const {data:otherP}=await sb.from("profiles").select("id, username, avatar_url").eq("id", currentDMUserId).maybeSingle();
+          fresh.forEach(r=>{
+            seenDMMsgIds.add(r.id);
+            lastDMCAt = r.created_at || lastDMCAt;
+            renderDMMessage(r, otherP);
+          });
+        }catch(e){
+          hzHealConnection("dm-poll-fail");
+        }
       },900);
     }
+
     async function sendDMMsg(){
       const text=(document.getElementById("dmInput").value||"").trim();
       if(!text || !currentDMUserId || !currentDMThreadId) return;
       if(!requireAuth()) return;
       if(!requireProfile()) return;
+
       document.getElementById("dmInput").value="";
+
       const payload={
         thread_id: currentDMThreadId,
         sender_id: session.user.id,
@@ -1118,8 +1627,10 @@
         content: text,
         audio_url: null
       };
+
       const {data:row,error}=await sb.from(TBL_DM).insert(payload).select("*").single();
       if(error) return;
+
       if(row && row.id && !seenDMMsgIds.has(row.id)){
         seenDMMsgIds.add(row.id);
         lastDMCAt=row.created_at||lastDMCAt;
@@ -1127,45 +1638,58 @@
         renderDMMessage(row, otherP);
       }
     }
+
+    // Inbox
     async function openInbox(){
       if(!requireAuth()) return;
       if(!requireProfile()) return;
+
       document.getElementById("inboxModal").style.display="flex";
       await loadInbox();
     }
+
     async function loadInbox(){
       const box=document.getElementById("inboxList");
       box.innerHTML="Loading...";
+
       const uid = session.user.id;
+
       const {data:rows, error}=await sb.from(TBL_DM)
         .select("*")
         .or(`sender_id.eq.${uid},receiver_id.eq.${uid}`)
         .order("created_at",{ascending:false})
         .limit(300);
+
       if(error){
         box.innerHTML="<div style='color:#666'>Inbox unavailable (create dm_messages table first).</div>";
         return;
       }
+
       const msgs = rows||[];
       if(!msgs.length){
         box.innerHTML="<div style='text-align:center;color:#666'>No messages yet.</div>";
         return;
       }
+
       const latestByThread=new Map();
       msgs.forEach(m=>{
         if(!m.thread_id) return;
         if(!latestByThread.has(m.thread_id)) latestByThread.set(m.thread_id, m);
       });
+
       const threads=[...latestByThread.values()];
+
       const otherIds=[...new Set(threads.map(t=>{
         const other = (t.sender_id===uid) ? t.receiver_id : t.sender_id;
         return other;
       }).filter(Boolean))];
+
       let profMap={};
       if(otherIds.length){
         const {data:plist}=await sb.from("profiles").select("id, username, avatar_url").in("id", otherIds);
         (plist||[]).forEach(p=>{profMap[p.id]=p});
       }
+
       box.innerHTML="";
       threads.forEach(t=>{
         const otherId = (t.sender_id===uid) ? t.receiver_id : t.sender_id;
@@ -1181,24 +1705,30 @@
             <div class="thread-time">${timeAgo(t.created_at)}</div>
           </div>`;
       });
+
       const dot=document.getElementById("inboxDot");
       if(dot) dot.style.display="none";
     }
+
     async function startInboxBadge(){
       stopInboxBadge();
       if(!session || !session.user) return;
       const uid=session.user.id;
+
       let lastCheck=new Date().toISOString();
+
       dmInboxBadgeTimer=setInterval(async ()=>{
         try{
           const since = lastCheck;
           lastCheck = new Date().toISOString();
+
           const {data}=await sb.from(TBL_DM)
             .select("id,receiver_id,created_at")
             .eq("receiver_id", uid)
             .gt("created_at", since)
             .order("created_at",{ascending:false})
             .limit(1);
+
           if(data && data.length){
             const dot=document.getElementById("inboxDot");
             if(dot) dot.style.display="block";
@@ -1209,6 +1739,8 @@
     function stopInboxBadge(){
       if(dmInboxBadgeTimer){clearInterval(dmInboxBadgeTimer); dmInboxBadgeTimer=null;}
     }
+
+    // MIC Permission helpers + Audio recorder (unchanged from your file)
     function uaInfo(){
       const ua=navigator.userAgent||"";
       const isAndroid=/Android/i.test(ua);
@@ -1221,10 +1753,12 @@
       const isMac=/Macintosh/i.test(ua) && !isIOS;
       return {ua,isAndroid,isIOS,isChrome,isEdge,isSafari,isFirefox,isWindows,isMac};
     }
+
     function micHelpHtml(){
       const i=uaInfo();
       const httpsTip=`<div style="margin-top:10px;color:rgba(255,255,255,.72)"><b>Important:</b> Recording requires <b>HTTPS</b> (not http) and you must tap the mic button inside the page (user gesture).</div>`;
       let html=`<div style="font-size:13px">You can’t send voice because the browser doesn’t have microphone permission (blocked or denied).</div>`;
+
       if(i.isAndroid && i.isChrome){
         html+=`<div style="margin-top:10px"><b>Android — Chrome</b><br>
         1) Open the website<br>
@@ -1265,13 +1799,16 @@
         2) Set Microphone to <b>Allow</b><br>
         3) Reload the page</div>`;
       }
+
       html+=httpsTip;
       return html;
     }
+
     function showMicPermModal(){
       document.getElementById("micPermBody").innerHTML=micHelpHtml();
       document.getElementById("micPermModal").style.display="flex";
     }
+
     function bestMimeType(){
       const candidates=[
         "audio/webm;codecs=opus",
@@ -1285,12 +1822,14 @@
       }
       return "";
     }
+
     function extFromMime(m){
       if(!m) return "webm";
       if(m.includes("ogg")) return "ogg";
       if(m.includes("mp4")) return "mp4";
       return "webm";
     }
+
     async function ensureMicAllowedOrPrompt(){
       try{
         if(navigator.permissions && navigator.permissions.query){
@@ -1300,28 +1839,34 @@
       }catch(e){}
       return true;
     }
+
     async function startRecording(target,btnEl){
       if(hzIsUploading) return;
       if(!requireAuth()) return;
       if(!requireProfile()) return;
+
       if(target==="room" && !currentRoomKey) return;
       if(target==="comment" && !currentPostId) return;
       if(target==="dm" && (!currentDMUserId || !currentDMThreadId)) return;
+
       if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
         showMicPermModal();
         return;
       }
+
       const ok=await ensureMicAllowedOrPrompt();
       if(!ok){
         showMicPermModal();
         return;
       }
+
       try{
         hzStream=await navigator.mediaDevices.getUserMedia({audio:true});
       }catch(err){
         showMicPermModal();
         return;
       }
+
       const mime=bestMimeType();
       try{
         hzChunks=[];
@@ -1332,6 +1877,7 @@
         showMicPermModal();
         return;
       }
+
       hzRecorder.ondataavailable=(e)=>{ if(e.data && e.data.size>0) hzChunks.push(e.data); };
       hzRecorder.onstop=async ()=>{
         try{
@@ -1348,6 +1894,7 @@
           hzRecordingTarget=null;
         }
       };
+
       if(btnEl) btnEl.classList.add("recording");
       try{ hzRecorder.start(); }catch(e){
         if(btnEl) btnEl.classList.remove("recording");
@@ -1357,6 +1904,7 @@
         showMicPermModal();
       }
     }
+
     function stopRecording(btnEl){
       if(!hzRecorder) return;
       try{
@@ -1369,19 +1917,24 @@
         hzRecordingTarget=null;
       }
     }
+
     function stopTracksSafe(stream){
       try{
         if(stream && stream.getTracks) stream.getTracks().forEach(t=>{try{t.stop()}catch(e){}});
       }catch(e){}
     }
+
     async function uploadAndSendAudio(blob,mime,target,btnEl){
       if(!blob || !blob.size) return;
       if(hzIsUploading) return;
       hzIsUploading=true;
+
       const prevTitle=btnEl ? btnEl.title : "";
       if(btnEl) btnEl.title="Sending...";
+
       const ext=extFromMime(mime);
       const key=`${AUDIO_FOLDER}/${session.user.id}-${Date.now()}-${Math.floor(Math.random()*1e6)}.${ext}`;
+
       const {error:upErr}=await sb.storage.from(AUDIO_BUCKET).upload(key, blob, { upsert:true, contentType:mime||"audio/webm" });
       if(upErr){
         hzIsUploading=false;
@@ -1389,6 +1942,7 @@
         alert("Audio upload failed. Check Storage policies / bucket permissions.");
         return;
       }
+
       const {data:pub}=sb.storage.from(AUDIO_BUCKET).getPublicUrl(key);
       const audioUrl=pub && pub.publicUrl ? pub.publicUrl : null;
       if(!audioUrl){
@@ -1397,6 +1951,7 @@
         alert("Audio URL failed.");
         return;
       }
+
       if(target==="room"){
         const {data:row,error}=await sb.from("room_chats")
           .insert({room_name:currentRoomKey,user_id:session.user.id,content:"",audio_url:audioUrl})
@@ -1443,13 +1998,16 @@
           renderDMMessage(row, otherP);
         }
       }
+
       hzIsUploading=false;
       if(btnEl) btnEl.title=prevTitle||"";
     }
+
     function setupMicButtons(){
       const roomBtn=document.getElementById("roomMic");
       const cmtBtn=document.getElementById("commentMicBtn");
       const dmBtn=document.getElementById("dmMic");
+
       if(roomBtn){
         roomBtn.addEventListener("click", async ()=>{
           if(hzIsUploading) return;
@@ -1460,6 +2018,7 @@
           }
         },{passive:true});
       }
+
       if(cmtBtn){
         cmtBtn.addEventListener("click", async ()=>{
           if(hzIsUploading) return;
@@ -1470,6 +2029,7 @@
           }
         },{passive:true});
       }
+
       if(dmBtn){
         dmBtn.addEventListener("click", async ()=>{
           if(hzIsUploading) return;
@@ -1481,6 +2041,8 @@
         },{passive:true});
       }
     }
+
+    // Tour logic (unchanged)
     const tourOverlay=document.getElementById("tourOverlay");
     const tourTitle=document.getElementById("tourTitle");
     const tourDesc=document.getElementById("tourDesc");
@@ -1490,6 +2052,7 @@
     let tourStep=0;
     let tourSteps=[];
     let styleIdx=0;
+
     function buildTourSteps(){
       const firstHood=document.querySelector("#citiesWrap .hood-item");
       tourSteps=[
@@ -1502,6 +2065,7 @@
         {sel:"#dockHome",title:"Back to Feed",desc:"Go back to Home anytime from the dock.",arrow:"up",action:()=>{const b=document.getElementById("dockHome");b&&b.click();}}
       ];
     }
+
     function startTour(){
       tourStep=0;
       styleIdx=0;
@@ -1512,12 +2076,15 @@
       window.addEventListener("resize",()=>renderTourStep(false),{passive:true});
       document.getElementById("mainScroll").addEventListener("scroll",()=>renderTourStep(false),{passive:true});
     }
+
     function endTour(){
       tourOverlay.style.display="none";
       localStorage.setItem("hz_tour_v2","1");
       lockTourScroll(false);
     }
+
     function resolveTourTarget(step){if(step.element) return step.element; if(step.sel) return document.querySelector(step.sel); return null}
+
     function placeArrow(cx,cy,r,dir){
       let ax=cx,ay=cy;
       if(dir==="up"){ay=cy+r+70}
@@ -1532,6 +2099,7 @@
       if(dir==="right") rot=-90;
       tourOverlay.style.setProperty("--ar",rot+"deg");
     }
+
     function computeBoxTop(cx,cy,r,rect){
       const margin=14;
       const boxH=218;
@@ -1554,82 +2122,54 @@
       }
       return top;
     }
+
     function renderTourStep(initial){
       if(tourOverlay.style.display!=="block") return;
       const step=tourSteps[tourStep];
       if(!step) return;
+
       if(step.action && !step._done){
         step._done=true;
         try{step.action()}catch(e){}
         setTimeout(()=>renderTourStep(false),240);
         return;
       }
+
       const el=resolveTourTarget(step);
       let rect=null;
       if(el && el.getBoundingClientRect) rect=el.getBoundingClientRect();
       if(!rect) rect={left:window.innerWidth*0.5-60,top:window.innerHeight*0.3-60,width:120,height:120};
+
       const cx=rect.left+rect.width/2;
       const cy=rect.top+rect.height/2;
       const r=Math.max(72,Math.min(170,Math.max(rect.width,rect.height)*0.72));
       tourOverlay.style.setProperty("--tx",cx+"px");
       tourOverlay.style.setProperty("--ty",cy+"px");
       tourOverlay.style.setProperty("--tr",r+"px");
+
       const top=computeBoxTop(cx,cy,r,rect);
       tourOverlay.style.setProperty("--tby",top+"px");
+
       tourTitle.textContent=step.title||"Guide";
       tourDesc.textContent=step.desc||"";
       tourProg.textContent=`${tourStep+1}/${tourSteps.length}`;
+
       placeArrow(cx,cy,r,step.arrow||"down");
+
       if(!initial){
         styleIdx=(styleIdx+1)%3;
         tourOverlay.classList.remove("tour-style-0","tour-style-1","tour-style-2");
         tourOverlay.classList.add("tour-style-"+styleIdx);
       }
     }
+
     tourOk.onclick=()=>{tourStep++; if(tourStep>=tourSteps.length){endTour();return} renderTourStep(false)};
     tourSkip.onclick=()=>endTour();
+
     document.getElementById("gateGoogleBtn").onclick=async()=>{
       const redirectTo=window.location.origin+window.location.pathname;
       await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo,queryParams:{access_type:"offline",prompt:"consent"}}});
     };
-
-    // ===========================================
-    // ✅ RESUME MANAGER: THE "HARD RESET" FIX
-    // ===========================================
-    
-    // Force disconnect and reconnect on resume
-    async function resumeApp(){
-      if(document.hidden) return;
-      
-      // 1. HARD DISCONNECT (Kill zombie socket)
-      sb.realtime.disconnect();
-      
-      // 2. Refresh Auth if logged in
-      if(session){
-        const { data: { session: newSession }, error } = await sb.auth.getSession();
-        session = newSession;
-      }
-
-      // 3. RECONNECT
-      setTimeout(async () => {
-         sb.realtime.connect();
-         
-         // 4. Force Reload Active View
-         if(currentRoomKey && !document.getElementById('chatRoom').classList.contains('hidden')){
-            await loadRoomMsgs(); // Refetch missing messages
-            await subscribeRoom(currentRoomKey); // Re-bind
-         } else if(currentDMThreadId && !document.getElementById('dmChat').classList.contains('hidden')){
-            await loadDMMessages();
-            await subscribeDM(currentDMThreadId);
-         } else if(!document.getElementById('feedView').classList.contains('hidden')){
-           // Optional: refresh feed silently if needed
-         }
-         
-         // Update presence
-         startPresence();
-         
-      }, 300); // Short delay to ensure socket cleared
-    }
 
     async function init(){
       renderCities();
@@ -1637,7 +2177,9 @@
       renderSetupHoods();
       renderTopRight();
       loadFeed();
+
       await handleOAuthRedirect();
+
       const {data}=await sb.auth.getSession();
       if(data.session){
         session=data.session;
@@ -1645,7 +2187,9 @@
         startPresence();
         startInboxBadge();
       }
+
       renderTopRight();
+
       sb.auth.onAuthStateChange(async (evt)=>{
         if(evt==="SIGNED_OUT"){
           try{ await upsertPresence(false); }catch(e){}
@@ -1668,14 +2212,14 @@
           startInboxBadge();
         }
       });
+
       setupMicButtons();
       showSplashThenStart();
 
-      // ✅ ADD RESUME LISTENERS
-      document.addEventListener("visibilitychange", resumeApp);
-      window.addEventListener("pageshow", resumeApp);
-      window.addEventListener("focus", resumeApp);
+      // ✅ proactive heal (desktop + mobile)
+      setTimeout(()=>hzHealConnection("post-init"), 900);
     }
+
     init();
   </script>
 </body>
