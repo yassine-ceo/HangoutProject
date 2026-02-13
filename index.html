@@ -51,6 +51,23 @@
 
     .topbar{padding:15px 20px;display:flex;justify-content:space-between;align-items:center;background:0 0;z-index:50}
     .brand{font-family:'Courgette',cursive;font-size:26px;color:var(--primary);text-shadow:0 0 15px rgba(0,210,255,.4)}
+    .top-actions{display:flex;align-items:center;gap:10px}
+    .icon-btn{
+      width:42px;height:42px;border-radius:50%;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.06);
+      color:#fff;display:grid;place-items:center;cursor:pointer;
+      backdrop-filter:blur(12px);
+      position:relative;
+    }
+    .badge-dot{
+      position:absolute;top:6px;right:6px;
+      width:10px;height:10px;border-radius:50%;
+      background:var(--danger);
+      border:2px solid #000;
+      display:none;
+    }
+
     .user-badge{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.08);padding:7px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.12);cursor:pointer;backdrop-filter:blur(12px)}
     .user-badge .badge-icon{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:rgba(0,210,255,.12);border:1px solid rgba(0,210,255,.35);color:var(--primary)}
     .user-badge img{width:30px;height:30px;border-radius:50%;border:1px solid var(--primary);object-fit:cover}
@@ -125,18 +142,16 @@
     .audio-player.playing .audio-text{color:var(--primary)}
     @keyframes soundWave{0%{height:4px}100%{height:16px}}
 
-    /* ✅ ADDED ONLY: audio time label */
+    /* ✅ audio time label */
     .audio-time{
       font-size:11px;
       font-weight:800;
       color:rgba(255,255,255,.55);
       margin-left:10px;
-      min-width:44px;
+      min-width:68px;
       text-align:right;
     }
-    .audio-player.playing .audio-time{
-      color:var(--viby);
-    }
+    .audio-player.playing .audio-time{color:var(--viby)}
 
     .comment-item{display:flex;gap:10px;margin-bottom:15px;align-items:flex-start}
     .c-avatar{width:34px;height:34px;border-radius:50%;object-fit:cover;cursor:pointer;border:1px solid var(--border)}
@@ -169,7 +184,13 @@
     .prof-view{text-align:center}
     .prof-lg{width:100px;height:100px;border-radius:50%;border:3px solid var(--primary);object-fit:cover;margin-bottom:10px}
     .prof-rank-badge{display:inline-block;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:900;text-transform:uppercase;margin-bottom:10px;color:#000;letter-spacing:1px}
-    .prof-bio{font-size:14px;color:#ccc;margin-bottom:20px;font-style:italic;line-height:1.4;padding:0 15px}
+    .prof-bio{font-size:14px;color:#ccc;margin-bottom:14px;font-style:italic;line-height:1.4;padding:0 15px}
+    .prof-status{
+      font-size:12px;
+      font-weight:900;
+      color:var(--danger); /* ✅ الأحمر */
+      margin:-4px 0 14px;
+    }
     .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
     .stat-box{background:#222;padding:15px;border-radius:12px;border:1px solid var(--border)}
     .info-list{text-align:left;background:#1a1a1a;padding:15px;border-radius:16px;border:1px solid var(--border)}
@@ -182,6 +203,22 @@
     .bg-circle.selected{border-color:#fff;transform:scale(1.1)}
     .upload-tools{display:flex;gap:10px;align-items:center}
     .tool-btn{width:45px;height:45px;border-radius:50%;background:#222;border:1px solid var(--border);display:grid;place-items:center;color:#fff;cursor:pointer;flex-shrink:0}
+
+    /* ✅ Inbox list UI */
+    .thread-item{
+      display:flex;gap:10px;align-items:center;
+      padding:12px;border-radius:14px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.05);
+      margin-bottom:10px;
+      cursor:pointer;
+    }
+    .thread-item:active{transform:scale(.99)}
+    .thread-avatar{width:44px;height:44px;border-radius:50%;object-fit:cover;border:1px solid rgba(255,255,255,.18)}
+    .thread-meta{flex:1;min-width:0}
+    .thread-name{font-weight:900;font-size:13px;color:#fff;display:flex;align-items:center;gap:8px}
+    .thread-preview{font-size:11px;color:rgba(255,255,255,.62);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .thread-time{font-size:10px;color:rgba(255,255,255,.45);font-weight:900}
 
     :root{--maxW:1100px}
     #mainScroll{scrollbar-gutter:stable}
@@ -306,7 +343,15 @@
     <div id="app">
       <div class="topbar">
         <div class="brand">HypeZone</div>
-        <div class="user-badge" id="topRightBadge"></div>
+
+        <!-- ✅ ADDED: Inbox button + existing badge (no other UI changed) -->
+        <div class="top-actions">
+          <button class="icon-btn" id="inboxBtn" title="Messages" onclick="openInbox()">
+            <span class="badge-dot" id="inboxDot"></span>
+            <svg><use href="#i-chat"></use></svg>
+          </button>
+          <div class="user-badge" id="topRightBadge"></div>
+        </div>
       </div>
 
       <div id="feedView">
@@ -330,6 +375,7 @@
     </div>
   </div>
 
+  <!-- Rooms chat -->
   <div id="chatRoom" class="chat-interface hidden">
     <div class="chat-top">
       <button class="chat-exit" onclick="stopRoomLive();document.getElementById('chatRoom').classList.add('hidden')">
@@ -343,6 +389,27 @@
         <input class="chat-input" id="roomInput" placeholder="Message...">
         <button class="circle-btn" id="roomMic"><svg><use href="#i-mic"></use></svg></button>
         <button class="circle-btn send-btn" onclick="sendRoomMsg()"><svg><use href="#i-send"></use></svg></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ ADDED: Private DM chat -->
+  <div id="dmChat" class="chat-interface hidden" style="z-index:3200">
+    <div class="chat-top">
+      <button class="chat-exit" onclick="stopDMLive();document.getElementById('dmChat').classList.add('hidden')">
+        <svg style="width:28px;height:28px"><use href="#i-exit"></use></svg>
+      </button>
+      <div style="display:flex;flex-direction:column;gap:2px;margin-left:15px">
+        <div style="font-weight:900;font-size:16px;color:#fff" id="dmNameDisplay">User</div>
+        <div class="prof-status" id="dmStatusDisplay" style="margin:0;font-size:11px"> </div>
+      </div>
+    </div>
+    <div class="chat-scroll" id="dmMsgs"></div>
+    <div class="chat-controls">
+      <div class="input-row">
+        <input class="chat-input" id="dmInput" placeholder="Message...">
+        <button class="circle-btn" id="dmMic"><svg><use href="#i-mic"></use></svg></button>
+        <button class="circle-btn send-btn" onclick="sendDMMsg()"><svg><use href="#i-send"></use></svg></button>
       </div>
     </div>
   </div>
@@ -362,6 +429,17 @@
     </div>
   </div>
 
+  <!-- ✅ ADDED: Inbox modal (messages list) -->
+  <div id="inboxModal" class="modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Messages</h3>
+        <button class="close-btn" onclick="closeModal('inboxModal')">✕</button>
+      </div>
+      <div class="scroll-content" id="inboxList"></div>
+    </div>
+  </div>
+
   <div id="profileModal" class="modal">
     <div class="modal-card">
       <div class="modal-header">
@@ -371,8 +449,16 @@
       <div class="prof-view">
         <img id="vpImg" class="prof-lg" alt="Profile photo">
         <h2 id="vpName">Name</h2>
+
+        <!-- ✅ ADDED: Online/Last seen (red) -->
+        <div class="prof-status" id="vpStatus"> </div>
+
         <div id="vpRankBadge" class="prof-rank-badge">ROOKIE</div>
         <div class="prof-bio" id="vpBio"></div>
+
+        <!-- ✅ ADDED: Contact button (shows only when viewing other user) -->
+        <button id="contactBtn" class="btn-primary" style="margin:0 0 12px;display:none" onclick="contactFromProfile()">Message</button>
+
         <div class="stat-grid">
           <div class="stat-box">
             <div style="font-size:20px;font-weight:800;color:var(--viby)" id="vpScore">0</div>
@@ -462,18 +548,13 @@
     </div>
   </div>
 
-  <!-- ✅ Mic Permission Modal (same design system) -->
   <div id="micPermModal" class="modal" style="z-index:3605">
     <div class="modal-card">
       <div class="modal-header">
-        <!-- ✅ CHANGED: English only -->
         <h3 style="color:#fff">Microphone permission needed</h3>
         <button class="close-btn" onclick="closeModal('micPermModal')">✕</button>
       </div>
-      <div class="scroll-content" id="micPermBody" style="color:rgba(255,255,255,.82);line-height:1.7;font-size:13px">
-        <!-- injected -->
-      </div>
-      <!-- ✅ CHANGED: English only -->
+      <div class="scroll-content" id="micPermBody" style="color:rgba(255,255,255,.82);line-height:1.7;font-size:13px"></div>
       <button class="btn-primary" onclick="closeModal('micPermModal')" style="margin-top:4px">OK</button>
     </div>
   </div>
@@ -501,6 +582,19 @@
   <script>
     const sb=supabase.createClient("https://tujdnvnrizgqroaozsqp.supabase.co","sb_publishable_WyigevxmzR2gLtbog2Ztfg_8pdmSwop",{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:"pkce"}});
     let session,currentBg,currentPostId,currentRoomKey=null,currentRoomLabel=null,roomSub=null,currentPlayingBtn=null,myProfile={},isEditing=!1,currentEditingUser=null,seenRoomMsgIds=new Set,roomProfileCache={},profileRequired=!1,roomPollTimer=null,lastRoomCreatedAt=null;
+
+    // ✅ DM state
+    let currentDMUserId=null;
+    let currentDMThreadId=null;
+    let dmSub=null;
+    let dmPollTimer=null;
+    let lastDMCAt=null;
+    let seenDMMsgIds=new Set();
+
+    // ✅ presence heartbeat
+    let presenceTimer=null;
+    let dmInboxBadgeTimer=null;
+
     const globalAudio=document.getElementById("globalAudio");
     const TIKTOK_URL="https://www.tiktok.com/@hypezone.ma";
     const AD_IMAGE="https://i.postimg.cc/rwTFC8C7/Tik-Tok.png";
@@ -509,13 +603,18 @@
     let hzRecorder=null;
     let hzStream=null;
     let hzChunks=[];
-    let hzRecordingTarget=null; // "room" | "comment"
+    let hzRecordingTarget=null; // "room" | "comment" | "dm"
     let hzIsUploading=false;
 
     // ✅ CHANGE THIS IF YOU WANT A DEDICATED BUCKET NAME
-    // NOTE: this uses the existing "post_images" bucket (so it works without creating a new bucket).
     const AUDIO_BUCKET="post_images";
     const AUDIO_FOLDER="audio";
+
+    // ✅ TABLE NAMES (you must create these in Supabase)
+    // 1) dm_messages: id(uuid), thread_id(text), sender_id(uuid), receiver_id(uuid), content(text), audio_url(text), created_at(timestamp)
+    // 2) user_presence: user_id(uuid primary key), is_online(bool), last_seen(timestamp)
+    const TBL_DM="dm_messages";
+    const TBL_PRESENCE="user_presence";
 
     const cities={
       rabat:{name:"Rabat",hoods:["Agdal","Hassan","Hay Riad","Ocean","Medina","Souissi","Yacoub Al Mansour","Akkari","Kammra","Temara","Skhirat"]},
@@ -569,6 +668,13 @@
       if(profileRequired){openMandatorySetup(); return false}
       if(!myProfile||!myProfile.id){openMandatorySetup(); return false}
       return true
+    }
+
+    // ✅ DM thread id (deterministic)
+    function dmThreadId(a,b){
+      const x=String(a||"");
+      const y=String(b||"");
+      return (x<y) ? `${x}_${y}` : `${y}_${x}`;
     }
 
     function renderTopRight(){
@@ -880,21 +986,9 @@
       loadPostComments();
     }
 
-    async function loadPostComments(){
-      const e=document.getElementById("postCommentsList");
-      e.innerHTML="Loading...";
-      const {data}=await sb.from("comments").select("*, profiles(*)").eq("post_id",currentPostId).order("created_at");
-      e.innerHTML="";
-      (data||[]).forEach(c=>{
-        /* ✅ CHANGED: audio player includes time label */
-        const visual=c.audio_url
-          ?`<div class="audio-player" onclick="playAudio('${c.audio_url}', this)"><div class="audio-btn"><svg style="width:14px;height:14px;fill:#000;stroke:none"><use href="#i-play"></use></svg></div><div class="audio-wave"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div><span class="audio-text">Voice</span><span class="audio-time">0:00</span></div>`
-          :`<div class="c-text">${escapeHtml(c.text_content)}</div>`;
-        e.innerHTML+=`<div class="comment-item"><img class="c-avatar" src="${c.profiles.avatar_url}" onclick="openProfile('${c.profiles.id}')"><div class="c-content"><div class="c-bubble"><div class="c-header"><span class="c-user" onclick="openProfile('${c.profiles.id}')">${c.profiles.username}</span><span class="c-time">${timeAgo(c.created_at)}</span></div>${visual}</div></div></div>`;
-      });
-    }
-
-    /* ✅ CHANGED: audio logic (end/stop + time display) */
+    /* ✅ FIX: audio duration تظهر مباشرة بدون ضغط
+       - نحمّل metadata لكل audio-player بعد الرندر ونكتب المدة على طول */
+    const _durCache = new Map(); // url -> seconds
     function fmtTime(sec){
       sec = Math.max(0, Math.floor(sec || 0));
       const m = Math.floor(sec / 60);
@@ -910,6 +1004,69 @@
       }else{
         t.textContent = fmtTime(current);
       }
+    }
+    function hydrateAudioDurations(root){
+      const wrap = root || document;
+      const items = [...wrap.querySelectorAll(".audio-player[data-audio]")];
+      if(!items.length) return;
+
+      items.forEach(el=>{
+        const url = el.getAttribute("data-audio");
+        if(!url) return;
+
+        // already loaded
+        if(_durCache.has(url)){
+          setPlayerTime(el, 0, _durCache.get(url));
+          return;
+        }
+
+        // show placeholder quickly
+        setPlayerTime(el, 0, 0);
+
+        try{
+          const a = new Audio();
+          a.preload = "metadata";
+          a.crossOrigin = "anonymous";
+          a.src = url;
+
+          a.onloadedmetadata = () => {
+            const d = (a.duration && isFinite(a.duration)) ? a.duration : 0;
+            if(d>0){
+              _durCache.set(url, d);
+              setPlayerTime(el, 0, d);
+            } else {
+              setPlayerTime(el, 0, 0);
+            }
+            // cleanup
+            a.src = "";
+          };
+
+          a.onerror = () => {
+            // fallback: leave 0:00 if CORS blocks metadata
+            a.src = "";
+          };
+        }catch(e){}
+      });
+    }
+
+    async function loadPostComments(){
+      const e=document.getElementById("postCommentsList");
+      e.innerHTML="Loading...";
+      const {data}=await sb.from("comments").select("*, profiles(*)").eq("post_id",currentPostId).order("created_at");
+      e.innerHTML="";
+      (data||[]).forEach(c=>{
+        const visual=c.audio_url
+          ?`<div class="audio-player" data-audio="${c.audio_url}" onclick="playAudio('${c.audio_url}', this)">
+              <div class="audio-btn"><svg style="width:14px;height:14px;fill:#000;stroke:none"><use href="#i-play"></use></svg></div>
+              <div class="audio-wave"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
+              <span class="audio-text">Voice</span><span class="audio-time">0:00</span>
+            </div>`
+          :`<div class="c-text">${escapeHtml(c.text_content)}</div>`;
+        e.innerHTML+=`<div class="comment-item"><img class="c-avatar" src="${c.profiles.avatar_url}" onclick="openProfile('${c.profiles.id}')"><div class="c-content"><div class="c-bubble"><div class="c-header"><span class="c-user" onclick="openProfile('${c.profiles.id}')">${c.profiles.username}</span><span class="c-time">${timeAgo(c.created_at)}</span></div>${visual}</div></div></div>`;
+      });
+
+      // ✅ preload durations now
+      hydrateAudioDurations(e);
     }
 
     function playAudio(url,el){
@@ -944,6 +1101,7 @@
         el.classList.add("playing");
         el.querySelector(".audio-btn").innerHTML='<svg style="width:14px;height:14px;fill:#000;stroke:none"><use href="#i-pause"></use></svg>';
         el.querySelector(".audio-text").innerText="Playing";
+        // duration should already be cached, but keep safe:
         setPlayerTime(el, 0, globalAudio.duration);
       }).catch(()=>{
         resetPlayerUI(el);
@@ -957,7 +1115,8 @@
       if(btn) btn.innerHTML='<svg style="width:14px;height:14px;fill:#000;stroke:none"><use href="#i-play"></use></svg>';
       const txt=el.querySelector(".audio-text");
       if(txt) txt.innerText="Voice";
-      const dur=(globalAudio && isFinite(globalAudio.duration)) ? globalAudio.duration : 0;
+      const url = el.getAttribute("data-audio");
+      const dur = url && _durCache.has(url) ? _durCache.get(url) : ((globalAudio && isFinite(globalAudio.duration)) ? globalAudio.duration : 0);
       setPlayerTime(el, 0, dur);
     }
 
@@ -1012,6 +1171,56 @@
       loadFeed();
     }
 
+    // ✅ presence helpers
+    async function upsertPresence(isOnline){
+      if(!session || !session.user) return;
+      try{
+        await sb.from(TBL_PRESENCE).upsert({
+          user_id: session.user.id,
+          is_online: !!isOnline,
+          last_seen: new Date().toISOString()
+        });
+      }catch(e){}
+    }
+    function startPresence(){
+      stopPresence();
+      if(!session || !session.user) return;
+
+      // mark online immediately + heartbeat
+      upsertPresence(true);
+      presenceTimer=setInterval(()=>upsertPresence(true), 25000);
+
+      // on exit mark offline
+      window.addEventListener("beforeunload", ()=>{ try{ upsertPresence(false); }catch(e){} }, {once:true});
+      window.addEventListener("pagehide", ()=>{ try{ upsertPresence(false); }catch(e){} }, {once:true});
+      document.addEventListener("visibilitychange", ()=>{
+        if(!session || !session.user) return;
+        if(document.hidden) upsertPresence(false);
+        else upsertPresence(true);
+      }, {passive:true});
+    }
+    function stopPresence(){
+      if(presenceTimer){clearInterval(presenceTimer); presenceTimer=null;}
+    }
+    async function fetchPresence(userId){
+      try{
+        const {data}=await sb.from(TBL_PRESENCE).select("*").eq("user_id", userId).maybeSingle();
+        return data||null;
+      }catch(e){ return null; }
+    }
+    function presenceLabel(p){
+      if(p && p.is_online) return "Active Now";
+      if(p && p.last_seen) return "Last seen " + timeAgo(p.last_seen);
+      return "Last seen";
+    }
+
+    // ✅ Contact button from profile
+    function contactFromProfile(){
+      if(!currentEditingUser || !currentEditingUser.id) return;
+      closeModal("profileModal");
+      openDM(currentEditingUser.id);
+    }
+
     async function openProfile(id){
       if(!requireAuth()) return;
       if(!requireProfile()) return;
@@ -1019,9 +1228,15 @@
       modal.style.display="flex";
       const {data:p}=await sb.from("profiles").select("*").eq("id",id).single();
       currentEditingUser=p;
+
       const {count:postsCount}=await sb.from("posts").select("*",{count:"exact",head:true}).eq("user_id",id);
       const r=getRank(p.vibe_score||0);
       const loc=profileLoc(p);
+
+      // presence
+      const pres = await fetchPresence(id);
+      document.getElementById("vpStatus").innerText = presenceLabel(pres);
+
       document.getElementById("vpImg").src=p.avatar_url||"";
       document.getElementById("vpName").innerText=p.username||"";
       document.getElementById("vpRankBadge").innerText=r.name;
@@ -1034,7 +1249,11 @@
       document.getElementById("vpAge").innerText=p.age||"-";
       document.getElementById("vpGender").innerText=p.gender||"-";
       document.getElementById("vpInterests").innerText=p.interests||"-";
-      document.getElementById("editProfileBtn").style.display=session.user.id===id?"block":"none";
+
+      // ✅ show edit if mine, else show contact
+      const isMine = session.user.id===id;
+      document.getElementById("editProfileBtn").style.display=isMine?"block":"none";
+      document.getElementById("contactBtn").style.display=!isMine?"block":"none";
     }
 
     function stopRoomLive(){
@@ -1054,12 +1273,18 @@
       const n=document.getElementById("chatMsgs");
       const me=session&&session.user&&msg.user_id===session.user.id;
       const u=prof||{username:"User",avatar_url:""};
-      /* ✅ CHANGED: audio player includes time label */
       const body=msg.audio_url
-        ?`<div class="audio-player" onclick="playAudio('${msg.audio_url}', this)"><div class="audio-btn"><svg style="width:14px;height:14px;fill:#000;stroke:none"><use href="#i-play"></use></svg></div><div class="audio-wave"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div><span class="audio-text">Voice</span><span class="audio-time">0:00</span></div>`
+        ?`<div class="audio-player" data-audio="${msg.audio_url}" onclick="playAudio('${msg.audio_url}', this)">
+            <div class="audio-btn"><svg style="width:14px;height:14px;fill:#000;stroke:none"><use href="#i-play"></use></svg></div>
+            <div class="audio-wave"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
+            <span class="audio-text">Voice</span><span class="audio-time">0:00</span>
+          </div>`
         :`<div class="msg-content">${escapeHtml(msg.content||"")}</div>`;
       n.insertAdjacentHTML("beforeend",`<div class="msg-row ${me?"me":""}">${me?"":`<img class="msg-img" src="${u.avatar_url||""}" onclick="openProfile('${msg.user_id}')">`}<div class="msg-box">${me?"":`<span class="msg-user">${u.username||"User"}</span>`}${body}<span class="msg-time">${formatChatTime(msg.created_at)}</span></div></div>`);
       n.scrollTop=n.scrollHeight;
+
+      // ✅ preload duration for this message audio immediately
+      hydrateAudioDurations(n);
     }
 
     async function handleNewRoomMessage(row){
@@ -1128,6 +1353,8 @@
       const last=rows[rows.length-1];
       lastRoomCreatedAt=last?last.created_at:null;
       box.scrollTop=box.scrollHeight;
+
+      hydrateAudioDurations(box);
     }
 
     async function sendRoomMsg(){
@@ -1147,7 +1374,6 @@
       }
     }
 
-    // ✅ COMMENTS SEND (text) + required for audio flow
     async function sendPostComment(){
       const text=(document.getElementById("commentInput").value||"").trim();
       if(!text || !currentPostId) return;
@@ -1157,6 +1383,266 @@
       const {error}=await sb.from("comments").insert({post_id:currentPostId,user_id:session.user.id,text_content:text});
       if(error) return alert(error.message);
       loadPostComments();
+    }
+
+    // =========================
+    // ✅ DM (Private messages)
+    // =========================
+    function stopDMLive(){
+      if(dmSub){sb.removeChannel(dmSub);dmSub=null}
+      if(dmPollTimer){clearInterval(dmPollTimer);dmPollTimer=null}
+      lastDMCAt=null;
+      currentDMUserId=null;
+      currentDMThreadId=null;
+      seenDMMsgIds=new Set();
+    }
+
+    async function openDM(otherUserId){
+      if(!requireAuth()) return;
+      if(!requireProfile()) return;
+
+      currentDMUserId=otherUserId;
+      currentDMThreadId=dmThreadId(session.user.id, otherUserId);
+
+      document.getElementById("dmChat").classList.remove("hidden");
+
+      // header
+      const {data:prof}=await sb.from("profiles").select("id,username,avatar_url").eq("id", otherUserId).maybeSingle();
+      document.getElementById("dmNameDisplay").innerText = (prof && prof.username) ? prof.username : "User";
+
+      const pres = await fetchPresence(otherUserId);
+      document.getElementById("dmStatusDisplay").innerText = presenceLabel(pres);
+
+      seenDMMsgIds=new Set();
+      lastDMCAt=null;
+      await loadDMMessages();
+      await subscribeDM(currentDMThreadId);
+    }
+
+    function renderDMMessage(row, otherProfile){
+      const box=document.getElementById("dmMsgs");
+      const me = row.sender_id===session.user.id;
+      const u = otherProfile || {username:"User", avatar_url:""};
+      const body=row.audio_url
+        ?`<div class="audio-player" data-audio="${row.audio_url}" onclick="playAudio('${row.audio_url}', this)">
+            <div class="audio-btn"><svg style="width:14px;height:14px;fill:#000;stroke:none"><use href="#i-play"></use></svg></div>
+            <div class="audio-wave"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
+            <span class="audio-text">Voice</span><span class="audio-time">0:00</span>
+          </div>`
+        :`<div class="msg-content">${escapeHtml(row.content||"")}</div>`;
+
+      box.insertAdjacentHTML("beforeend",
+        `<div class="msg-row ${me?"me":""}">
+          ${me?"":`<img class="msg-img" src="${u.avatar_url||""}" onclick="openProfile('${u.id}')">`}
+          <div class="msg-box">
+            ${me?"":`<span class="msg-user">${u.username||"User"}</span>`}
+            ${body}
+            <span class="msg-time">${formatChatTime(row.created_at)}</span>
+          </div>
+        </div>`
+      );
+      box.scrollTop=box.scrollHeight;
+      hydrateAudioDurations(box);
+    }
+
+    async function loadDMMessages(){
+      const box=document.getElementById("dmMsgs");
+      box.innerHTML="Loading...";
+
+      // other profile
+      const {data:otherP}=await sb.from("profiles").select("id, username, avatar_url").eq("id", currentDMUserId).maybeSingle();
+
+      const {data:rows}=await sb.from(TBL_DM)
+        .select("*")
+        .eq("thread_id", currentDMThreadId)
+        .order("created_at",{ascending:true});
+
+      box.innerHTML="";
+      (rows||[]).forEach(r=>{
+        if(r.id) seenDMMsgIds.add(r.id);
+        renderDMMessage(r, otherP);
+      });
+
+      const last=(rows||[])[(rows||[]).length-1];
+      lastDMCAt = last ? last.created_at : null;
+      box.scrollTop=box.scrollHeight;
+
+      hydrateAudioDurations(box);
+    }
+
+    async function handleNewDM(row){
+      if(!row || !row.id) return;
+      if(row.thread_id!==currentDMThreadId) return;
+      if(seenDMMsgIds.has(row.id)) return;
+      seenDMMsgIds.add(row.id);
+      lastDMCAt = row.created_at || lastDMCAt;
+
+      const {data:otherP}=await sb.from("profiles").select("id, username, avatar_url").eq("id", currentDMUserId).maybeSingle();
+      renderDMMessage(row, otherP);
+    }
+
+    async function subscribeDM(threadId){
+      stopDMLive(); // ensures old channels closed, but keep current variables -> so re-set after
+      // restore variables:
+      currentDMThreadId = threadId;
+
+      dmSub=sb.channel("dm:"+threadId)
+        .on("postgres_changes",{event:"INSERT",schema:"public",table:TBL_DM,filter:`thread_id=eq.${threadId}`},payload=>{handleNewDM(payload.new)})
+        .subscribe();
+
+      dmPollTimer=setInterval(async ()=>{
+        if(!currentDMThreadId) return;
+        const since=lastDMCAt||new Date(0).toISOString();
+        const {data:rows}=await sb.from(TBL_DM)
+          .select("*")
+          .eq("thread_id", currentDMThreadId)
+          .gt("created_at", since)
+          .order("created_at",{ascending:true});
+
+        if(!rows||!rows.length) return;
+        const fresh=rows.filter(r=>r.id && !seenDMMsgIds.has(r.id));
+        if(!fresh.length) return;
+
+        const {data:otherP}=await sb.from("profiles").select("id, username, avatar_url").eq("id", currentDMUserId).maybeSingle();
+        fresh.forEach(r=>{
+          seenDMMsgIds.add(r.id);
+          lastDMCAt = r.created_at || lastDMCAt;
+          renderDMMessage(r, otherP);
+        });
+      },900);
+    }
+
+    async function sendDMMsg(){
+      const text=(document.getElementById("dmInput").value||"").trim();
+      if(!text || !currentDMUserId || !currentDMThreadId) return;
+      if(!requireAuth()) return;
+      if(!requireProfile()) return;
+
+      document.getElementById("dmInput").value="";
+
+      const payload={
+        thread_id: currentDMThreadId,
+        sender_id: session.user.id,
+        receiver_id: currentDMUserId,
+        content: text,
+        audio_url: null
+      };
+
+      const {data:row,error}=await sb.from(TBL_DM).insert(payload).select("*").single();
+      if(error) return;
+
+      // render immediately if needed
+      if(row && row.id && !seenDMMsgIds.has(row.id)){
+        seenDMMsgIds.add(row.id);
+        lastDMCAt=row.created_at||lastDMCAt;
+        const {data:otherP}=await sb.from("profiles").select("id, username, avatar_url").eq("id", currentDMUserId).maybeSingle();
+        renderDMMessage(row, otherP);
+      }
+    }
+
+    // ✅ Inbox list (group messages by other user)
+    async function openInbox(){
+      if(!requireAuth()) return;
+      if(!requireProfile()) return;
+
+      document.getElementById("inboxModal").style.display="flex";
+      await loadInbox();
+    }
+
+    async function loadInbox(){
+      const box=document.getElementById("inboxList");
+      box.innerHTML="Loading...";
+
+      const uid = session.user.id;
+
+      const {data:rows, error}=await sb.from(TBL_DM)
+        .select("*")
+        .or(`sender_id.eq.${uid},receiver_id.eq.${uid}`)
+        .order("created_at",{ascending:false})
+        .limit(300);
+
+      if(error){
+        box.innerHTML="<div style='color:#666'>Inbox unavailable (create dm_messages table first).</div>";
+        return;
+      }
+
+      const msgs = rows||[];
+      if(!msgs.length){
+        box.innerHTML="<div style='text-align:center;color:#666'>No messages yet.</div>";
+        return;
+      }
+
+      // group by thread, take latest message
+      const latestByThread=new Map();
+      msgs.forEach(m=>{
+        if(!m.thread_id) return;
+        if(!latestByThread.has(m.thread_id)) latestByThread.set(m.thread_id, m);
+      });
+
+      const threads=[...latestByThread.values()];
+
+      // collect other ids
+      const otherIds=[...new Set(threads.map(t=>{
+        const other = (t.sender_id===uid) ? t.receiver_id : t.sender_id;
+        return other;
+      }).filter(Boolean))];
+
+      let profMap={};
+      if(otherIds.length){
+        const {data:plist}=await sb.from("profiles").select("id, username, avatar_url").in("id", otherIds);
+        (plist||[]).forEach(p=>{profMap[p.id]=p});
+      }
+
+      box.innerHTML="";
+      threads.forEach(t=>{
+        const otherId = (t.sender_id===uid) ? t.receiver_id : t.sender_id;
+        const p = profMap[otherId] || {id:otherId, username:"User", avatar_url:""};
+        const preview = t.audio_url ? "Voice message" : (t.content||"");
+        box.innerHTML +=
+          `<div class="thread-item" onclick="closeModal('inboxModal');openDM('${otherId}')">
+            <img class="thread-avatar" src="${p.avatar_url||""}" alt="">
+            <div class="thread-meta">
+              <div class="thread-name">${p.username||"User"}</div>
+              <div class="thread-preview">${escapeHtml(preview)}</div>
+            </div>
+            <div class="thread-time">${timeAgo(t.created_at)}</div>
+          </div>`;
+      });
+
+      // clear badge dot when inbox opened
+      const dot=document.getElementById("inboxDot");
+      if(dot) dot.style.display="none";
+    }
+
+    // ✅ lightweight badge polling (shows red dot if any new msg in last 30s)
+    async function startInboxBadge(){
+      stopInboxBadge();
+      if(!session || !session.user) return;
+      const uid=session.user.id;
+
+      let lastCheck=new Date().toISOString();
+
+      dmInboxBadgeTimer=setInterval(async ()=>{
+        try{
+          const since = lastCheck;
+          lastCheck = new Date().toISOString();
+
+          const {data}=await sb.from(TBL_DM)
+            .select("id,receiver_id,created_at")
+            .eq("receiver_id", uid)
+            .gt("created_at", since)
+            .order("created_at",{ascending:false})
+            .limit(1);
+
+          if(data && data.length){
+            const dot=document.getElementById("inboxDot");
+            if(dot) dot.style.display="block";
+          }
+        }catch(e){}
+      }, 2500);
+    }
+    function stopInboxBadge(){
+      if(dmInboxBadgeTimer){clearInterval(dmInboxBadgeTimer); dmInboxBadgeTimer=null;}
     }
 
     // =========================
@@ -1175,7 +1661,6 @@
       return {ua,isAndroid,isIOS,isChrome,isEdge,isSafari,isFirefox,isWindows,isMac};
     }
 
-    /* ✅ CHANGED: English only */
     function micHelpHtml(){
       const i=uaInfo();
       const httpsTip=`<div style="margin-top:10px;color:rgba(255,255,255,.72)"><b>Important:</b> Recording requires <b>HTTPS</b> (not http) and you must tap the mic button inside the page (user gesture).</div>`;
@@ -1240,7 +1725,7 @@
         "audio/webm",
         "audio/ogg;codecs=opus",
         "audio/ogg",
-        "audio/mp4" // safari may ignore, recorder support varies
+        "audio/mp4"
       ];
       for(const t of candidates){
         try{ if(window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(t)) return t; }catch(e){}
@@ -1256,7 +1741,6 @@
     }
 
     async function ensureMicAllowedOrPrompt(){
-      // Basic pre-check: if Permissions API exists, detect denied fast (not all browsers support "microphone")
       try{
         if(navigator.permissions && navigator.permissions.query){
           const st=await navigator.permissions.query({name:"microphone"});
@@ -1273,6 +1757,7 @@
 
       if(target==="room" && !currentRoomKey) return;
       if(target==="comment" && !currentPostId) return;
+      if(target==="dm" && (!currentDMUserId || !currentDMThreadId)) return;
 
       if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
         showMicPermModal();
@@ -1286,7 +1771,6 @@
       }
 
       try{
-        // getUserMedia MUST be triggered by user gesture (click) -> this function is called directly from click handler
         hzStream=await navigator.mediaDevices.getUserMedia({audio:true});
       }catch(err){
         showMicPermModal();
@@ -1299,7 +1783,6 @@
         hzRecordingTarget=target;
         hzRecorder=new MediaRecorder(hzStream, mime?{mimeType:mime}:{});
       }catch(err){
-        // If MediaRecorder fails (iOS older), show modal
         stopTracksSafe(hzStream); hzStream=null;
         showMicPermModal();
         return;
@@ -1313,7 +1796,6 @@
           hzChunks=[];
           await uploadAndSendAudio(blob,type,target,btnEl);
         }catch(e){
-          // fail silently with alert
           alert("Failed to send audio. Try again.");
         }finally{
           if(btnEl) btnEl.classList.remove("recording");
@@ -1357,19 +1839,16 @@
       if(hzIsUploading) return;
       hzIsUploading=true;
 
-      // small UX: show "sending" via title swap
       const prevTitle=btnEl ? btnEl.title : "";
       if(btnEl) btnEl.title="Sending...";
 
       const ext=extFromMime(mime);
       const key=`${AUDIO_FOLDER}/${session.user.id}-${Date.now()}-${Math.floor(Math.random()*1e6)}.${ext}`;
 
-      // Upload
       const {error:upErr}=await sb.storage.from(AUDIO_BUCKET).upload(key, blob, { upsert:true, contentType:mime||"audio/webm" });
       if(upErr){
         hzIsUploading=false;
         if(btnEl) btnEl.title=prevTitle||"";
-        // If upload blocked by bucket policy / mime type, show clearer alert
         alert("Audio upload failed. Check Storage policies / bucket permissions.");
         return;
       }
@@ -1383,7 +1862,6 @@
         return;
       }
 
-      // Send to DB
       if(target==="room"){
         const {data:row,error}=await sb.from("room_chats")
           .insert({room_name:currentRoomKey,user_id:session.user.id,content:"",audio_url:audioUrl})
@@ -1408,25 +1886,44 @@
           return;
         }
         loadPostComments();
+      }else if(target==="dm"){
+        const payload={
+          thread_id: currentDMThreadId,
+          sender_id: session.user.id,
+          receiver_id: currentDMUserId,
+          content: "",
+          audio_url: audioUrl
+        };
+        const {data:row,error}=await sb.from(TBL_DM).insert(payload).select("*").single();
+        if(error){
+          hzIsUploading=false;
+          if(btnEl) btnEl.title=prevTitle||"";
+          alert("Failed to send audio DM.");
+          return;
+        }
+        if(row && row.id && !seenDMMsgIds.has(row.id)){
+          seenDMMsgIds.add(row.id);
+          lastDMCAt=row.created_at||lastDMCAt;
+          const {data:otherP}=await sb.from("profiles").select("id, username, avatar_url").eq("id", currentDMUserId).maybeSingle();
+          renderDMMessage(row, otherP);
+        }
       }
 
       hzIsUploading=false;
       if(btnEl) btnEl.title=prevTitle||"";
     }
 
-    // ✅ Hook mic buttons (toggle: start/stop)
     function setupMicButtons(){
       const roomBtn=document.getElementById("roomMic");
       const cmtBtn=document.getElementById("commentMicBtn");
+      const dmBtn=document.getElementById("dmMic");
 
       if(roomBtn){
         roomBtn.addEventListener("click", async ()=>{
           if(hzIsUploading) return;
-          // if currently recording for room -> stop, else start room
           if(hzRecorder && hzRecordingTarget==="room") stopRecording(roomBtn);
           else{
-            // if recording other target, stop it first
-            if(hzRecorder) stopRecording(hzRecordingTarget==="comment"?document.getElementById("commentMicBtn"):roomBtn);
+            if(hzRecorder) stopRecording(hzRecordingTarget==="comment"?document.getElementById("commentMicBtn"):(hzRecordingTarget==="dm"?document.getElementById("dmMic"):roomBtn));
             await startRecording("room",roomBtn);
           }
         },{passive:true});
@@ -1437,8 +1934,19 @@
           if(hzIsUploading) return;
           if(hzRecorder && hzRecordingTarget==="comment") stopRecording(cmtBtn);
           else{
-            if(hzRecorder) stopRecording(hzRecordingTarget==="room"?document.getElementById("roomMic"):cmtBtn);
+            if(hzRecorder) stopRecording(hzRecordingTarget==="room"?document.getElementById("roomMic"):(hzRecordingTarget==="dm"?document.getElementById("dmMic"):cmtBtn));
             await startRecording("comment",cmtBtn);
+          }
+        },{passive:true});
+      }
+
+      if(dmBtn){
+        dmBtn.addEventListener("click", async ()=>{
+          if(hzIsUploading) return;
+          if(hzRecorder && hzRecordingTarget==="dm") stopRecording(dmBtn);
+          else{
+            if(hzRecorder) stopRecording(hzRecordingTarget==="room"?document.getElementById("roomMic"):(hzRecordingTarget==="comment"?document.getElementById("commentMicBtn"):dmBtn));
+            await startRecording("dm",dmBtn);
           }
         },{passive:true});
       }
@@ -1578,13 +2086,29 @@
       renderSetupHoods();
       renderTopRight();
       loadFeed();
+
       await handleOAuthRedirect();
+
       const {data}=await sb.auth.getSession();
-      if(data.session){session=data.session; await checkProfile();}
+      if(data.session){
+        session=data.session;
+        await checkProfile();
+        startPresence();
+        startInboxBadge();
+      }
+
       renderTopRight();
+
       sb.auth.onAuthStateChange(async (evt)=>{
         if(evt==="SIGNED_OUT"){
-          session=null; myProfile={}; profileRequired=false; stopRoomLive(); renderTopRight(); loadFeed();
+          try{ await upsertPresence(false); }catch(e){}
+          stopPresence();
+          stopInboxBadge();
+          session=null; myProfile={}; profileRequired=false;
+          stopRoomLive();
+          stopDMLive();
+          renderTopRight();
+          loadFeed();
         }
         if(evt==="SIGNED_IN"){
           const {data:sess}=await sb.auth.getSession();
@@ -1593,16 +2117,14 @@
           await checkProfile();
           renderTopRight();
           loadFeed();
+          startPresence();
+          startInboxBadge();
         }
       });
 
-      // ✅ attach mic handlers after DOM is ready
       setupMicButtons();
-
       showSplashThenStart();
     }
-
-    function showLoginGate(){document.getElementById("loginGate").style.display="flex"}
 
     init();
   </script>
