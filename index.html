@@ -1346,6 +1346,66 @@
     function stopPresence(){
       if(presenceTimer){clearInterval(presenceTimer); presenceTimer=null;}
     }
+
+    // ✅ Realtime recover (fix: tab switch causes websocket 101 + stuck Loading)
+    // Browsers may suspend the WebSocket when the tab/app is backgrounded (BFCache / throttling),
+    // leaving Realtime in a half-open state. On resume, we force a clean reconnect and re-subscribe.
+    let rtRecovering=false;
+
+    function _rtState(){
+      try{
+        if(sb && sb.realtime && typeof sb.realtime.connectionState==="function"){
+          return String(sb.realtime.connectionState()||"").toLowerCase();
+        }
+      }catch(e){}
+      return "";
+    }
+
+    async function recoverRealtime(reason){
+      if(rtRecovering) return;
+      rtRecovering=true;
+      try{
+        // If we aren't logged in, Realtime is not required; just bail.
+        // (Presence/inbox polling uses HTTP and still works.)
+        const needRT = (!!currentRoomKey && !document.getElementById("chatRoom").classList.contains("hidden"))
+                    || (!!currentDMThreadId && !document.getElementById("dmChat").classList.contains("hidden"));
+        if(!needRT){
+          rtRecovering=false;
+          return;
+        }
+
+        // Force disconnect/connect (safe even if already connected)
+        try{ sb && sb.realtime && sb.realtime.disconnect && sb.realtime.disconnect(); }catch(e){}
+        try{ sb && sb.realtime && sb.realtime.connect && sb.realtime.connect(); }catch(e){}
+
+        // Re-subscribe active channels (this also refreshes polling timers)
+        if(currentRoomKey && !document.getElementById("chatRoom").classList.contains("hidden")){
+          try{ await subscribeRoom(currentRoomKey); }catch(e){}
+        }
+        if(currentDMThreadId && !document.getElementById("dmChat").classList.contains("hidden")){
+          try{ await subscribeDM(currentDMThreadId); }catch(e){}
+        }
+      }finally{
+        setTimeout(()=>{rtRecovering=false;}, 1200);
+      }
+    }
+
+    function setupLifecycleReconnect(){
+      // When coming back to the tab/app, recover realtime immediately.
+      document.addEventListener("visibilitychange", ()=>{
+        if(!document.hidden) recoverRealtime("visibility");
+      }, {passive:true});
+
+      window.addEventListener("focus", ()=>recoverRealtime("focus"), {passive:true});
+      window.addEventListener("online", ()=>recoverRealtime("online"), {passive:true});
+
+      // BFCache restore (common on mobile + some desktop flows)
+      window.addEventListener("pageshow", (e)=>{
+        if(e && e.persisted) recoverRealtime("bfcache");
+        else recoverRealtime("pageshow");
+      }, {passive:true});
+    }
+
     async function fetchPresence(userId){
       try{
         const {data}=await sb.from(TBL_PRESENCE).select("*").eq("user_id", userId).maybeSingle();
@@ -2357,6 +2417,7 @@
       });
 
       setupMicButtons();
+      setupLifecycleReconnect();
       showSplashThenStart();
 
       // ✅ proactive heal (desktop + mobile)
