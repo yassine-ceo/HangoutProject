@@ -125,6 +125,19 @@
     .audio-player.playing .audio-text{color:var(--primary)}
     @keyframes soundWave{0%{height:4px}100%{height:16px}}
 
+    /* ✅ ADDED ONLY: audio time label */
+    .audio-time{
+      font-size:11px;
+      font-weight:800;
+      color:rgba(255,255,255,.55);
+      margin-left:10px;
+      min-width:44px;
+      text-align:right;
+    }
+    .audio-player.playing .audio-time{
+      color:var(--viby);
+    }
+
     .comment-item{display:flex;gap:10px;margin-bottom:15px;align-items:flex-start}
     .c-avatar{width:34px;height:34px;border-radius:50%;object-fit:cover;cursor:pointer;border:1px solid var(--border)}
     .c-content{flex:1}
@@ -453,13 +466,15 @@
   <div id="micPermModal" class="modal" style="z-index:3605">
     <div class="modal-card">
       <div class="modal-header">
-        <h3 style="color:#fff">لا توجد صلاحية الميكروفون</h3>
+        <!-- ✅ CHANGED: English only -->
+        <h3 style="color:#fff">Microphone permission needed</h3>
         <button class="close-btn" onclick="closeModal('micPermModal')">✕</button>
       </div>
       <div class="scroll-content" id="micPermBody" style="color:rgba(255,255,255,.82);line-height:1.7;font-size:13px">
         <!-- injected -->
       </div>
-      <button class="btn-primary" onclick="closeModal('micPermModal')" style="margin-top:4px">حسناً</button>
+      <!-- ✅ CHANGED: English only -->
+      <button class="btn-primary" onclick="closeModal('micPermModal')" style="margin-top:4px">OK</button>
     </div>
   </div>
 
@@ -871,28 +886,79 @@
       const {data}=await sb.from("comments").select("*, profiles(*)").eq("post_id",currentPostId).order("created_at");
       e.innerHTML="";
       (data||[]).forEach(c=>{
+        /* ✅ CHANGED: audio player includes time label */
         const visual=c.audio_url
-          ?`<div class="audio-player" onclick="playAudio('${c.audio_url}', this)"><div class="audio-btn"><svg style="width:14px;height:14px;fill:#000;stroke:none"><use href="#i-play"></use></svg></div><div class="audio-wave"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div><span class="audio-text">Voice</span></div>`
+          ?`<div class="audio-player" onclick="playAudio('${c.audio_url}', this)"><div class="audio-btn"><svg style="width:14px;height:14px;fill:#000;stroke:none"><use href="#i-play"></use></svg></div><div class="audio-wave"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div><span class="audio-text">Voice</span><span class="audio-time">0:00</span></div>`
           :`<div class="c-text">${escapeHtml(c.text_content)}</div>`;
         e.innerHTML+=`<div class="comment-item"><img class="c-avatar" src="${c.profiles.avatar_url}" onclick="openProfile('${c.profiles.id}')"><div class="c-content"><div class="c-bubble"><div class="c-header"><span class="c-user" onclick="openProfile('${c.profiles.id}')">${c.profiles.username}</span><span class="c-time">${timeAgo(c.created_at)}</span></div>${visual}</div></div></div>`;
       });
     }
 
-    function playAudio(url,el){
-      if(currentPlayingBtn===el && !globalAudio.paused){globalAudio.pause();resetPlayerUI(el);return}
-      if(currentPlayingBtn && currentPlayingBtn!==el) resetPlayerUI(currentPlayingBtn);
-      currentPlayingBtn=el;
-      globalAudio.src=url;
-      globalAudio.play();
-      el.classList.add("playing");
-      el.querySelector(".audio-btn").innerHTML='<svg style="width:14px;height:14px;fill:#000;stroke:none"><use href="#i-pause"></use></svg>';
-      el.querySelector(".audio-text").innerText="Playing...";
+    /* ✅ CHANGED: audio logic (end/stop + time display) */
+    function fmtTime(sec){
+      sec = Math.max(0, Math.floor(sec || 0));
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      return `${m}:${String(s).padStart(2,'0')}`;
     }
-    function resetPlayerUI(el){
+    function setPlayerTime(el, current, duration){
+      if(!el) return;
+      const t = el.querySelector(".audio-time");
+      if(!t) return;
+      if(duration && isFinite(duration)){
+        t.textContent = `${fmtTime(current)} / ${fmtTime(duration)}`;
+      }else{
+        t.textContent = fmtTime(current);
+      }
+    }
+
+    function playAudio(url,el){
+      if(!url || !el) return;
+
+      if(currentPlayingBtn===el && !globalAudio.paused){
+        globalAudio.pause();
+        resetPlayerUI(el);
+        return;
+      }
+      if(currentPlayingBtn && currentPlayingBtn!==el) resetPlayerUI(currentPlayingBtn);
+
+      currentPlayingBtn=el;
+
+      globalAudio.onloadedmetadata=()=>{ setPlayerTime(el, 0, globalAudio.duration); };
+      globalAudio.ontimeupdate=()=>{
+        if(currentPlayingBtn===el){
+          setPlayerTime(el, globalAudio.currentTime, globalAudio.duration);
+        }
+      };
+      globalAudio.onended=()=>{
+        if(currentPlayingBtn){
+          resetPlayerUI(currentPlayingBtn, true);
+          currentPlayingBtn=null;
+        }
+      };
+
+      globalAudio.src=url;
+      globalAudio.currentTime=0;
+
+      globalAudio.play().then(()=>{
+        el.classList.add("playing");
+        el.querySelector(".audio-btn").innerHTML='<svg style="width:14px;height:14px;fill:#000;stroke:none"><use href="#i-pause"></use></svg>';
+        el.querySelector(".audio-text").innerText="Playing";
+        setPlayerTime(el, 0, globalAudio.duration);
+      }).catch(()=>{
+        resetPlayerUI(el);
+      });
+    }
+
+    function resetPlayerUI(el, ended=false){
       if(!el) return;
       el.classList.remove("playing");
-      el.querySelector(".audio-btn").innerHTML='<svg style="width:14px;height:14px;fill:#000;stroke:none"><use href="#i-play"></use></svg>';
-      el.querySelector(".audio-text").innerText="Play Voice";
+      const btn=el.querySelector(".audio-btn");
+      if(btn) btn.innerHTML='<svg style="width:14px;height:14px;fill:#000;stroke:none"><use href="#i-play"></use></svg>';
+      const txt=el.querySelector(".audio-text");
+      if(txt) txt.innerText="Voice";
+      const dur=(globalAudio && isFinite(globalAudio.duration)) ? globalAudio.duration : 0;
+      setPlayerTime(el, 0, dur);
     }
 
     function previewFile(){
@@ -988,8 +1054,9 @@
       const n=document.getElementById("chatMsgs");
       const me=session&&session.user&&msg.user_id===session.user.id;
       const u=prof||{username:"User",avatar_url:""};
+      /* ✅ CHANGED: audio player includes time label */
       const body=msg.audio_url
-        ?`<div class="audio-player" onclick="playAudio('${msg.audio_url}', this)"><div class="audio-btn"><svg style="width:14px;height:14px;fill:#000;stroke:none"><use href="#i-play"></use></svg></div><div class="audio-wave"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div><span class="audio-text">Voice</span></div>`
+        ?`<div class="audio-player" onclick="playAudio('${msg.audio_url}', this)"><div class="audio-btn"><svg style="width:14px;height:14px;fill:#000;stroke:none"><use href="#i-play"></use></svg></div><div class="audio-wave"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div><span class="audio-text">Voice</span><span class="audio-time">0:00</span></div>`
         :`<div class="msg-content">${escapeHtml(msg.content||"")}</div>`;
       n.insertAdjacentHTML("beforeend",`<div class="msg-row ${me?"me":""}">${me?"":`<img class="msg-img" src="${u.avatar_url||""}" onclick="openProfile('${msg.user_id}')">`}<div class="msg-box">${me?"":`<span class="msg-user">${u.username||"User"}</span>`}${body}<span class="msg-time">${formatChatTime(msg.created_at)}</span></div></div>`);
       n.scrollTop=n.scrollHeight;
@@ -1108,53 +1175,51 @@
       return {ua,isAndroid,isIOS,isChrome,isEdge,isSafari,isFirefox,isWindows,isMac};
     }
 
+    /* ✅ CHANGED: English only */
     function micHelpHtml(){
       const i=uaInfo();
-      const httpsTip=`<div style="margin-top:10px;color:rgba(255,255,255,.72)"><b>مهم:</b> التسجيل يحتاج تشغيل الموقع على <b>HTTPS</b> (وليس http) + الضغط على زر الميكروفون داخل الصفحة (User Gesture).</div>`;
-      let html=`<div style="font-size:13px">لا يمكن إرسال الصوت لأن المتصفح لا يملك صلاحية استخدام الميكروفون أو تم رفضها.</div>`;
+      const httpsTip=`<div style="margin-top:10px;color:rgba(255,255,255,.72)"><b>Important:</b> Recording requires <b>HTTPS</b> (not http) and you must tap the mic button inside the page (user gesture).</div>`;
+      let html=`<div style="font-size:13px">You can’t send voice because the browser doesn’t have microphone permission (blocked or denied).</div>`;
 
       if(i.isAndroid && i.isChrome){
-        html+=`<div style="margin-top:10px"><b>Android - Chrome</b><br>
-        1) افتح الموقع<br>
-        2) اضغط على رمز القفل بجانب الرابط<br>
+        html+=`<div style="margin-top:10px"><b>Android — Chrome</b><br>
+        1) Open the website<br>
+        2) Tap the lock icon next to the URL<br>
         3) Permissions / Site settings<br>
         4) Microphone = <b>Allow</b><br>
-        5) أعد تحميل الصفحة</div>`;
+        5) Reload the page</div>`;
       } else if(i.isIOS && i.isSafari){
-        html+=`<div style="margin-top:10px"><b>iPhone / iPad - Safari</b><br>
-        1) Settings (إعدادات الجهاز) → Safari<br>
-        2) Microphone → <b>Allow</b> (أو فعّل الوصول للميكروفون)<br>
-        3) داخل Safari: افتح الموقع واضغط زر الميكروفون مرة أخرى<br>
-        4) إذا ظهر طلب إذن اختر <b>Allow</b></div>`;
+        html+=`<div style="margin-top:10px"><b>iPhone / iPad — Safari</b><br>
+        1) iOS Settings → Safari<br>
+        2) Microphone → <b>Allow</b><br>
+        3) Return to Safari and tap the mic again<br>
+        4) If prompted, choose <b>Allow</b></div>`;
       } else if(i.isWindows && i.isEdge){
-        html+=`<div style="margin-top:10px"><b>Windows - Microsoft Edge</b><br>
-        1) افتح الموقع<br>
-        2) اضغط أيقونة القفل بجانب الرابط<br>
-        3) Microphone = <b>Allow</b><br>
-        4) أو: Settings → Cookies and site permissions → Microphone → اسم الموقع → Allow<br>
-        5) أعد تحميل الصفحة</div>`;
+        html+=`<div style="margin-top:10px"><b>Windows — Microsoft Edge</b><br>
+        1) Click the lock icon next to the URL<br>
+        2) Microphone = <b>Allow</b><br>
+        3) Reload the page</div>`;
       } else if(i.isWindows && i.isChrome){
-        html+=`<div style="margin-top:10px"><b>Windows - Chrome</b><br>
-        1) اضغط القفل بجانب الرابط<br>
+        html+=`<div style="margin-top:10px"><b>Windows — Chrome</b><br>
+        1) Click the lock icon next to the URL<br>
         2) Site settings<br>
         3) Microphone = <b>Allow</b><br>
         4) Reload</div>`;
       } else if(i.isMac && i.isSafari){
-        html+=`<div style="margin-top:10px"><b>macOS - Safari</b><br>
+        html+=`<div style="margin-top:10px"><b>macOS — Safari</b><br>
         1) Safari → Settings → Websites → Microphone<br>
-        2) اختر موقعك: <b>Allow</b><br>
+        2) For this site: <b>Allow</b><br>
         3) Reload</div>`;
       } else if(i.isFirefox){
         html+=`<div style="margin-top:10px"><b>Firefox</b><br>
-        1) افتح الموقع<br>
-        2) اضغط أيقونة القفل/المعلومات بجانب الرابط<br>
-        3) Permissions → Microphone → <b>Allow</b><br>
-        4) Reload</div>`;
+        1) Click the lock/info icon near the URL<br>
+        2) Permissions → Microphone → <b>Allow</b><br>
+        3) Reload</div>`;
       } else {
-        html+=`<div style="margin-top:10px"><b>خطوات عامة</b><br>
-        1) اضغط القفل بجانب الرابط<br>
-        2) فعّل Microphone = Allow<br>
-        3) أعد تحميل الصفحة</div>`;
+        html+=`<div style="margin-top:10px"><b>General steps</b><br>
+        1) Open site permissions (lock icon near the URL)<br>
+        2) Set Microphone to <b>Allow</b><br>
+        3) Reload the page</div>`;
       }
 
       html+=httpsTip;
