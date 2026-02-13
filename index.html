@@ -581,6 +581,292 @@
 
   <script>
     const sb=supabase.createClient("https://tujdnvnrizgqroaozsqp.supabase.co","sb_publishable_WyigevxmzR2gLtbog2Ztfg_8pdmSwop",{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:"pkce"}});
+
+    /* =========================
+       ✅ Connection Guard Layer (Supabase Realtime + Fetch Timeout)
+       - fixes half-open/stalled WS after tab suspension
+       - prevents fetch hanging forever (AbortController + timeout)
+       - safely resets realtime + re-subscribes without duplicates
+       - stops intervals before re-init (roomPollTimer/dmPollTimer/presenceTimer/dmInboxBadgeTimer)
+       ========================= */
+    (function(){
+      // --- Tunables (safe defaults) ---
+      const __HZ_FETCH_TIMEOUT_MS = 20000;     // default timeout for any fetch (incl. supabase internal)
+      const __HZ_HEALTH_TIMEOUT_MS = 6500;     // quick health check timeout on resume
+      const __HZ_MIN_SUSPEND_MS = 1200;        // treat as "suspended" if hidden this long
+      const __HZ_RESUME_DEBOUNCE_MS = 400;     // debounce resume storm
+      const __HZ_WATCHDOG_INTERVAL_MS = 25000; // periodic health check while visible
+
+      // --- Internal state ---
+      let __hzHiddenAt = null;
+      let __hzResumeTimer = null;
+      let __hzRecovering = false;
+      let __hzWatchdogTimer = null;
+
+      // Track inflight fetches we created so we can abort them during recovery
+      const __hzInflight = new Set();
+
+      // =========================
+      // 1) Global fetch timeout wrapper (covers Supabase REST too)
+      // =========================
+      const __hzOriginalFetch = window.fetch ? window.fetch.bind(window) : null;
+
+      function __hzAbortableFetch(input, init){
+        if(!__hzOriginalFetch) return Promise.reject(new Error("fetch is not available"));
+
+        const __init = init ? Object.assign({}, init) : {};
+        const userSignal = __init.signal;
+
+        const ctrl = new AbortController();
+        const timeoutId = setTimeout(() => ctrl.abort(new DOMException("FetchTimeout", "AbortError")), __HZ_FETCH_TIMEOUT_MS);
+
+        // If caller provided a signal, propagate abort to our controller (so timeout still works)
+        if(userSignal){
+          if(userSignal.aborted){
+            clearTimeout(timeoutId);
+            ctrl.abort(userSignal.reason || new DOMException("Aborted", "AbortError"));
+          } else {
+            const onAbort = () => {
+              try{ ctrl.abort(userSignal.reason || new DOMException("Aborted", "AbortError")); }catch(e){}
+              try{ userSignal.removeEventListener("abort", onAbort); }catch(e){}
+            };
+            try{ userSignal.addEventListener("abort", onAbort, {once:true}); }catch(e){}
+          }
+        }
+
+        __init.signal = ctrl.signal;
+
+        // Keep reference for mass-abort on recovery
+        __hzInflight.add(ctrl);
+
+        return __hzOriginalFetch(input, __init)
+          .finally(() => {
+            clearTimeout(timeoutId);
+            __hzInflight.delete(ctrl);
+          });
+      }
+
+      // Patch only once
+      if(__hzOriginalFetch && !window.__HZ_FETCH_PATCHED__){
+        window.fetch = __hzAbortableFetch;
+        window.__HZ_FETCH_PATCHED__ = true;
+      }
+
+      function __hzAbortAllInflight(){
+        // Abort anything that could be “hung” during half-open socket / stalled network
+        __hzInflight.forEach(ctrl => { try{ ctrl.abort(new DOMException("Recovering", "AbortError")); }catch(e){} });
+        __hzInflight.clear();
+      }
+
+      // =========================
+      // 2) Helpers
+      // =========================
+      function __hzSleep(ms){ return new Promise(r => setTimeout(r, ms)); }
+
+      function __hzWithTimeout(promise, ms, label){
+        let t;
+        const timeout = new Promise((_, rej) => {
+          t = setTimeout(() => rej(new Error(label || "Timeout")), ms);
+        });
+        return Promise.race([promise, timeout]).finally(() => clearTimeout(t));
+      }
+
+      function __hzIsVisible(){
+        return document.visibilityState === "visible" && !document.hidden;
+      }
+
+      // Determine if user is currently “inside” room chat or DM chat (without changing app logic)
+      function __hzRoomActive(){
+        try{
+          const el = document.getElementById("chatRoom");
+          return !!(el && !el.classList.contains("hidden") && currentRoomKey);
+        }catch(e){ return false; }
+      }
+      function __hzDMActive(){
+        try{
+          const el = document.getElementById("dmChat");
+          return !!(el && !el.classList.contains("hidden") && currentDMThreadId && currentDMUserId);
+        }catch(e){ return false; }
+      }
+
+      // Supabase realtime hard reset (safe even if already disconnected)
+      async function __hzResetRealtime(){
+        try{
+          // Remove existing channels to avoid duplicates after reconnect
+          try{ if(roomSub){ sb.removeChannel(roomSub); roomSub=null; } }catch(e){}
+          try{ if(dmSub){ sb.removeChannel(dmSub); dmSub=null; } }catch(e){}
+
+          // Stop any polling timers before reconnect
+          try{ if(roomPollTimer){ clearInterval(roomPollTimer); roomPollTimer=null; } }catch(e){}
+          try{ if(dmPollTimer){ clearInterval(dmPollTimer); dmPollTimer=null; } }catch(e){}
+
+          // Force close websocket
+          try{ if(sb && sb.realtime && typeof sb.realtime.disconnect === "function"){ sb.realtime.disconnect(); } }catch(e){}
+          // Small delay to ensure socket actually tears down
+          await __hzSleep(120);
+          try{ if(sb && sb.realtime && typeof sb.realtime.connect === "function"){ sb.realtime.connect(); } }catch(e){}
+        }catch(e){}
+      }
+
+      // Re-arm subscriptions without duplicates (uses your existing functions exactly كما هي)
+      async function __hzResubscribe(){
+        // Room
+        try{
+          if(__hzRoomActive()){
+            // subscribeRoom already calls stopRoomLive() which clears roomSub + timer safely
+            await subscribeRoom(currentRoomKey);
+          }
+        }catch(e){}
+
+        // DM
+        try{
+          if(__hzDMActive()){
+            // subscribeDM already calls stopDMChannelOnly() which prevents duplicates
+            await subscribeDM(currentDMThreadId);
+          }
+        }catch(e){}
+      }
+
+      // Restart presence + badge (your functions already stop duplicates)
+      function __hzRestartPresenceAndBadge(){
+        try{ if(session && session.user){ startPresence(); startInboxBadge(); } }catch(e){}
+      }
+
+      // Quick health check: if it hangs/throws -> we recover
+      async function __hzHealthCheck(){
+        // Use auth.getSession (no SQL changes, and minimal)
+        if(!sb || !sb.auth || typeof sb.auth.getSession !== "function") return true;
+        try{
+          await __hzWithTimeout(sb.auth.getSession(), __HZ_HEALTH_TIMEOUT_MS, "AuthHealthTimeout");
+          return true;
+        }catch(e){
+          return false;
+        }
+      }
+
+      // =========================
+      // 3) Recovery Orchestrator
+      // =========================
+      async function __hzRecover(reason){
+        if(__hzRecovering) return;
+        __hzRecovering = true;
+
+        try{
+          // 1) Abort hung fetches immediately so UI won't stay "Loading" forever
+          __hzAbortAllInflight();
+
+          // 2) Stop timers that can pile up
+          try{ stopPresence(); }catch(e){}
+          try{ stopInboxBadge(); }catch(e){}
+          // Room timers/channels are handled in __hzResetRealtime + subscribeRoom
+          // DM timers/channels are handled in __hzResetRealtime + subscribeDM
+
+          // 3) Force reset realtime socket (fix half-open / stalled WS)
+          await __hzResetRealtime();
+
+          // 4) Refresh session reference safely (your app uses `session` global)
+          try{
+            const {data} = await sb.auth.getSession();
+            if(data && data.session) session = data.session;
+          }catch(e){}
+
+          // 5) Re-subscribe to active contexts (no duplicates)
+          await __hzResubscribe();
+
+          // 6) Restart presence/badge if logged in
+          __hzRestartPresenceAndBadge();
+
+          // 7) Optional: “nudge” UI without changing logic (safe)
+          // If user returned and feed was stuck because of a hung request, re-render top right + reload feed.
+          // This does not change SQL nor structure; it just re-triggers existing flows.
+          try{ renderTopRight(); }catch(e){}
+          try{ loadFeed(); }catch(e){}
+        } finally {
+          __hzRecovering = false;
+        }
+      }
+
+      // =========================
+      // 4) Resume handling (visibility/focus/online)
+      // =========================
+      function __hzScheduleResumeCheck(){
+        if(__hzResumeTimer) clearTimeout(__hzResumeTimer);
+        __hzResumeTimer = setTimeout(async () => {
+          if(!__hzIsVisible()) return;
+
+          // If we were hidden for a short while, the WS can become half-open: do a health check
+          const ok = await __hzHealthCheck();
+          if(!ok){
+            await __hzRecover("healthcheck_failed");
+          }else{
+            // Even if health passes, Realtime can still be stalled after suspension.
+            // We “lightly” reset realtime ONLY if there is an active subscription context.
+            if(__hzRoomActive() || __hzDMActive()){
+              // Quick reconnect to eliminate half-open pending state
+              await __hzResetRealtime();
+              await __hzResubscribe();
+            }
+            // Ensure presence reflects active state
+            try{ if(session && session.user) upsertPresence(true); }catch(e){}
+          }
+        }, __HZ_RESUME_DEBOUNCE_MS);
+      }
+
+      document.addEventListener("visibilitychange", () => {
+        if(document.hidden){
+          __hzHiddenAt = Date.now();
+          // (لا نغلق الاتصال فوراً هنا، فقط نسجل وقت الإخفاء)
+          return;
+        }
+
+        // Became visible again
+        const hiddenMs = __hzHiddenAt ? (Date.now() - __hzHiddenAt) : 0;
+        __hzHiddenAt = null;
+
+        if(hiddenMs >= __HZ_MIN_SUSPEND_MS){
+          __hzScheduleResumeCheck();
+        }
+      }, {passive:true});
+
+      window.addEventListener("focus", () => {
+        if(__hzIsVisible()) __hzScheduleResumeCheck();
+      }, {passive:true});
+
+      window.addEventListener("online", () => {
+        // Network came back: reset + resubscribe
+        __hzRecover("online");
+      }, {passive:true});
+
+      // If the browser freezes/hibernates timers, watchdog still helps once active again
+      function __hzStartWatchdog(){
+        if(__hzWatchdogTimer) clearInterval(__hzWatchdogTimer);
+        __hzWatchdogTimer = setInterval(async () => {
+          if(!__hzIsVisible()) return;
+          // Only care if app is “interactive” (session exists or live views open)
+          const needs = !!(session && session.user) || __hzRoomActive() || __hzDMActive();
+          if(!needs) return;
+
+          const ok = await __hzHealthCheck();
+          if(!ok) await __hzRecover("watchdog");
+        }, __HZ_WATCHDOG_INTERVAL_MS);
+      }
+      __hzStartWatchdog();
+
+      // =========================
+      // 5) Auto-recover on hung/aborted promise cascades
+      // =========================
+      window.addEventListener("unhandledrejection", (ev) => {
+        const r = ev && ev.reason;
+        const msg = (r && (r.message || r.toString())) || "";
+        // If fetch timed out / aborted / network error, do a controlled recovery.
+        if(/FetchTimeout/i.test(msg) || /AbortError/i.test(msg) || /NetworkError/i.test(msg)){
+          // avoid infinite loops
+          __hzRecover("unhandledrejection");
+        }
+      });
+
+    })();
+
     let session,currentBg,currentPostId,currentRoomKey=null,currentRoomLabel=null,roomSub=null,currentPlayingBtn=null,myProfile={},isEditing=!1,currentEditingUser=null,seenRoomMsgIds=new Set,roomProfileCache={},profileRequired=!1,roomPollTimer=null,lastRoomCreatedAt=null;
 
     // ✅ DM state
