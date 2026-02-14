@@ -580,186 +580,140 @@
   </div>
 
   <script>
-    /* =========================
-       ✅ HZ Pre-Patch: fetch timeout BEFORE Supabase client creation
-       (ensures supabase-js captures the patched fetch)
-       ========================= */
-    (function(){
-      if(window.__HZ_FETCH_PATCHED__) return;
-      const __orig = window.fetch ? window.fetch.bind(window) : null;
-      if(!__orig) return;
-      const __TIMEOUT_MS = 20000;
-      const __inflight = new Set();
-      window.__HZ_ABORT_ALL_FETCH__ = function(){
-        __inflight.forEach(c=>{try{c.abort(new DOMException("Recovering","AbortError"));}catch(e){}});
-        __inflight.clear();
-      };
-      window.fetch = function(input, init){
-        const _init = init ? Object.assign({}, init) : {};
-        const userSignal = _init.signal;
-        const ctrl = new AbortController();
-        const t = setTimeout(()=>ctrl.abort(new DOMException("FetchTimeout","AbortError")), __TIMEOUT_MS);
-
-        if(userSignal){
-          if(userSignal.aborted){
-            clearTimeout(t);
-            try{ ctrl.abort(userSignal.reason || new DOMException("Aborted","AbortError")); }catch(e){}
-          } else {
-            const onAbort = ()=>{ try{ ctrl.abort(userSignal.reason || new DOMException("Aborted","AbortError")); }catch(e){}; try{ userSignal.removeEventListener("abort", onAbort); }catch(e){} };
-            try{ userSignal.addEventListener("abort", onAbort, {once:true}); }catch(e){}
-          }
-        }
-
-        _init.signal = ctrl.signal;
-        __inflight.add(ctrl);
-        return __orig(input, _init).finally(()=>{ clearTimeout(t); __inflight.delete(ctrl); });
-      };
-      window.__HZ_FETCH_PATCHED__ = true;
-    })();
-
     const sb=supabase.createClient("https://tujdnvnrizgqroaozsqp.supabase.co","sb_publishable_WyigevxmzR2gLtbog2Ztfg_8pdmSwop",{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:"pkce"}});
-    // =========================
-    // ✅ HZ Connection Guard V4 (deterministic: full recover on every resume)
-    // =========================
-    window.__HZ_SB_URL__="https://tujdnvnrizgqroaozsqp.supabase.co";
-    window.__HZ_SB_KEY__="sb_publishable_WyigevxmzR2gLtbog2Ztfg_8pdmSwop";
-    window.__HZ_SB_OPTS__={auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:"pkce"}};
+
+    /* =========================
+       SILENT HARD RELOAD (100% stable)
+       - Saves UI state then reloads on resume/BFCache to recover from frozen JS/WebSocket
+       - Restores view, scroll, open room/DM (best-effort) after reload
+       ========================= */
 
     (function(){
-      const __MIN_HIDDEN_MS = 200;      // treat any hide as suspension (deterministic)
-      const __DEBOUNCE_MS = 120;
-      let __hiddenAt = null;
-      let __t = null;
-      let __recovering = false;
 
-      function __isVisible(){ return document.visibilityState==="visible" && !document.hidden; }
-      function __sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+      let resumeTriggered = false;
+      let wasHidden = false;
 
-      function __stopTimers(){
-        try{ if(roomPollTimer){ clearInterval(roomPollTimer); roomPollTimer=null; } }catch(e){}
-        try{ if(dmPollTimer){ clearInterval(dmPollTimer); dmPollTimer=null; } }catch(e){}
-        try{ stopPresence(); }catch(e){}
-        try{ stopInboxBadge(); }catch(e){}
-      }
-
-      function __removeChannels(){
-        try{ if(roomSub){ sb.removeChannel(roomSub); roomSub=null; } }catch(e){}
-        try{ if(dmSub){ sb.removeChannel(dmSub); dmSub=null; } }catch(e){}
-      }
-
-      function __roomActive(){
+      function saveAppState(){
         try{
-          const el=document.getElementById("chatRoom");
-          return !!(el && !el.classList.contains("hidden") && currentRoomKey);
-        }catch(e){ return false; }
-      }
-      function __dmActive(){
-        try{
-          const el=document.getElementById("dmChat");
-          return !!(el && !el.classList.contains("hidden") && currentDMThreadId && currentDMUserId);
-        }catch(e){ return false; }
-      }
-
-      async function __rebuildClientInternals(){
-        // Build a fresh client, then swap internals into the existing const `sb`
-        const __fresh = supabase.createClient(window.__HZ_SB_URL__, window.__HZ_SB_KEY__, window.__HZ_SB_OPTS__);
-        // Swap REST (PostgREST) so future from()/rpc() use fresh fetch + clean state
-        try{ if(__fresh.rest) sb.rest = __fresh.rest; }catch(e){}
-        try{ if(__fresh.storage) sb.storage = __fresh.storage; }catch(e){}
-        // Swap realtime to guarantee a brand-new websocket stack
-        try{ if(__fresh.realtime) sb.realtime = __fresh.realtime; }catch(e){}
-        // Re-bind auth token into realtime (if available)
-        try{
-          const {data} = await sb.auth.getSession();
-          if(data && data.session){
-            session = data.session;
-            try{
-              if(sb.realtime && typeof sb.realtime.setAuth === "function"){
-                sb.realtime.setAuth(data.session.access_token);
-              }
-            }catch(e){}
-          }
+          const mainScroll = document.getElementById("mainScroll");
+          const roomsHidden = document.getElementById("roomsView").classList.contains("hidden");
+          const state = {
+            view: roomsHidden ? "feed" : "rooms",
+            roomOpen: !!(currentRoomKey),
+            roomKey: currentRoomKey || null,
+            roomLabel: currentRoomLabel || null,
+            dmOpen: !!(currentDMThreadId),
+            dmUserId: currentDMUserId || null,
+            dmThreadId: currentDMThreadId || null,
+            chatRoomVisible: !!(document.getElementById("chatRoom") && !document.getElementById("chatRoom").classList.contains("hidden")),
+            dmChatVisible: !!(document.getElementById("dmChat") && !document.getElementById("dmChat").classList.contains("hidden")),
+            scrollY: mainScroll ? (mainScroll.scrollTop || 0) : (window.scrollY || 0),
+            ts: Date.now()
+          };
+          sessionStorage.setItem("hz_resume_state", JSON.stringify(state));
         }catch(e){}
       }
 
-      async function __recover(reason){
-        if(__recovering) return;
-        __recovering = true;
+      function restoreAppState(){
         try{
-          // Abort any stuck fetches (patched pre-creation)
-          try{ window.__HZ_ABORT_ALL_FETCH__ && window.__HZ_ABORT_ALL_FETCH__(); }catch(e){}
+          const raw = sessionStorage.getItem("hz_resume_state");
+          if(!raw) return;
 
-          __stopTimers();
-          __removeChannels();
+          let state = null;
+          try{ state = JSON.parse(raw); }catch(e){ state = null; }
+          sessionStorage.removeItem("hz_resume_state");
+          if(!state) return;
 
-          // Force close old websocket if any
-          try{ if(sb.realtime && typeof sb.realtime.disconnect==="function") sb.realtime.disconnect(); }catch(e){}
-          await __sleep(80);
+          // Restore view (best-effort, no rename / no logic change)
+          try{
+            if(state.view === "rooms"){
+              switchView("rooms", document.getElementById("dockRooms"));
+            }else{
+              switchView("feed", document.getElementById("dockHome"));
+            }
+          }catch(e){}
 
-          // Hard rebuild internals (REST + Realtime) in-place
-          await __rebuildClientInternals();
+          // Restore scroll
+          setTimeout(()=>{
+            try{
+              const ms = document.getElementById("mainScroll");
+              if(ms) ms.scrollTop = state.scrollY || 0;
+            }catch(e){}
+          }, 250);
 
-          // Connect realtime fresh
-          try{ if(sb.realtime && typeof sb.realtime.connect==="function") sb.realtime.connect(); }catch(e){}
-          await __sleep(80);
+          // Restore room / DM (best-effort: only if user is still logged in & profile ok)
+          // We do not change any SQL or logic; just call existing functions.
+          setTimeout(async ()=>{
+            try{
+              const { data } = await sb.auth.getSession();
+              if(data && data.session){
+                session = data.session;
+              }
+            }catch(e){}
 
-          // Re-subscribe to active contexts deterministically (no duplicates because we removed channels)
-          try{ if(__roomActive()) await subscribeRoom(currentRoomKey); }catch(e){}
-          try{ if(__dmActive()) await subscribeDM(currentDMThreadId); }catch(e){}
+            // Room
+            try{
+              if(state.roomOpen && state.roomKey){
+                currentRoomKey = state.roomKey;
+                currentRoomLabel = state.roomLabel || currentRoomLabel;
+                if(state.chatRoomVisible){
+                  document.getElementById("chatRoom").classList.remove("hidden");
+                }
+                await subscribeRoom(state.roomKey);
+              }
+            }catch(e){}
 
-          // Restart presence/badge if logged-in
-          try{ if(session && session.user){ startPresence(); startInboxBadge(); } }catch(e){}
-
-          // Nudge UI using existing flows
-          try{ renderTopRight(); }catch(e){}
-          try{ loadFeed(); }catch(e){}
-        } finally {
-          __recovering = false;
-        }
+            // DM
+            try{
+              if(state.dmOpen && state.dmThreadId){
+                currentDMThreadId = state.dmThreadId;
+                currentDMUserId = state.dmUserId || currentDMUserId;
+                if(state.dmChatVisible){
+                  document.getElementById("dmChat").classList.remove("hidden");
+                }
+                await subscribeDM(state.dmThreadId);
+              }
+            }catch(e){}
+          }, 450);
+        }catch(e){}
       }
 
-      function __scheduleRecover(trigger){
-        if(__t) clearTimeout(__t);
-        __t = setTimeout(()=>{
-          if(!__isVisible()) return;
-          __recover(trigger);
-        }, __DEBOUNCE_MS);
+      function hardReload(){
+        if(resumeTriggered) return;
+        resumeTriggered = true;
+        saveAppState();
+        // 100% deterministic recovery from frozen tab: reload
+        location.reload();
       }
 
+      // Resume triggers
       document.addEventListener("visibilitychange", ()=>{
-        if(document.hidden){
-          __hiddenAt = Date.now();
+        if(document.visibilityState === "hidden"){
+          wasHidden = true;
           return;
         }
-        const dt = __hiddenAt ? (Date.now()-__hiddenAt) : 0;
-        __hiddenAt = null;
-        if(dt >= __MIN_HIDDEN_MS) __scheduleRecover("visibility");
-      }, {passive:true});
-
-      // BFCache / iOS safari reliability
-      window.addEventListener("pageshow", (e)=>{
-        // If restored from bfcache or after suspension, always recover
-        __scheduleRecover(e && e.persisted ? "pageshow_persisted" : "pageshow");
-      }, {passive:true});
-
-      window.addEventListener("pagehide", ()=>{
-        // On iOS, pagehide is when the page is about to be frozen; pre-teardown to avoid half-open
-        try{ __stopTimers(); }catch(e){}
-        try{ __removeChannels(); }catch(e){}
-        try{ if(sb.realtime && typeof sb.realtime.disconnect==="function") sb.realtime.disconnect(); }catch(e){}
-      }, {passive:true});
-
-      window.addEventListener("focus", ()=>{ if(__isVisible()) __scheduleRecover("focus"); }, {passive:true});
-      window.addEventListener("online", ()=>{ __scheduleRecover("online"); }, {passive:true});
-
-      // If anything times out/aborts, recover immediately so UI doesn't stick on Loading
-      window.addEventListener("unhandledrejection", (ev)=>{
-        const r = ev && ev.reason;
-        const msg = (r && (r.message || r.toString())) || "";
-        if(/FetchTimeout/i.test(msg) || /AbortError/i.test(msg) || /NetworkError/i.test(msg)){
-          __scheduleRecover("unhandledrejection");
+        if(document.visibilityState === "visible" && wasHidden){
+          hardReload();
         }
-      });
+      }, {passive:true});
+
+      // BFCache restore
+      window.addEventListener("pageshow", (e)=>{
+        if(e && e.persisted){
+          hardReload();
+        }
+      }, {passive:true});
+
+      // Network changes
+      window.addEventListener("online", ()=>{
+        if(!document.hidden) hardReload();
+      }, {passive:true});
+
+      // Restore after reload
+      window.addEventListener("load", ()=>{
+        restoreAppState();
+      }, {passive:true});
+
     })();
 
 
