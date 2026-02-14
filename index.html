@@ -141,7 +141,16 @@
     .audio-text{font-size:11px;font-weight:700;color:#aaa;margin-left:5px}
     .audio-player.playing .audio-text{color:var(--primary)}
     @keyframes soundWave{0%{height:4px}100%{height:16px}}
-    .audio-time{font-size:11px;font-weight:800;color:rgba(255,255,255,.55);margin-left:10px;min-width:68px;text-align:right}
+
+    /* ✅ audio time label */
+    .audio-time{
+      font-size:11px;
+      font-weight:800;
+      color:rgba(255,255,255,.55);
+      margin-left:10px;
+      min-width:68px;
+      text-align:right;
+    }
     .audio-player.playing .audio-time{color:var(--viby)}
 
     .comment-item{display:flex;gap:10px;margin-bottom:15px;align-items:flex-start}
@@ -176,7 +185,12 @@
     .prof-lg{width:100px;height:100px;border-radius:50%;border:3px solid var(--primary);object-fit:cover;margin-bottom:10px}
     .prof-rank-badge{display:inline-block;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:900;text-transform:uppercase;margin-bottom:10px;color:#000;letter-spacing:1px}
     .prof-bio{font-size:14px;color:#ccc;margin-bottom:14px;font-style:italic;line-height:1.4;padding:0 15px}
-    .prof-status{font-size:12px;font-weight:900;color:var(--danger);margin:-4px 0 14px}
+    .prof-status{
+      font-size:12px;
+      font-weight:900;
+      color:var(--danger); /* ✅ الأحمر */
+      margin:-4px 0 14px;
+    }
     .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
     .stat-box{background:#222;padding:15px;border-radius:12px;border:1px solid var(--border)}
     .info-list{text-align:left;background:#1a1a1a;padding:15px;border-radius:16px;border:1px solid var(--border)}
@@ -190,7 +204,15 @@
     .upload-tools{display:flex;gap:10px;align-items:center}
     .tool-btn{width:45px;height:45px;border-radius:50%;background:#222;border:1px solid var(--border);display:grid;place-items:center;color:#fff;cursor:pointer;flex-shrink:0}
 
-    .thread-item{display:flex;gap:10px;align-items:center;padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);margin-bottom:10px;cursor:pointer}
+    /* ✅ Inbox list UI */
+    .thread-item{
+      display:flex;gap:10px;align-items:center;
+      padding:12px;border-radius:14px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.05);
+      margin-bottom:10px;
+      cursor:pointer;
+    }
     .thread-item:active{transform:scale(.99)}
     .thread-avatar{width:44px;height:44px;border-radius:50%;object-fit:cover;border:1px solid rgba(255,255,255,.18)}
     .thread-meta{flex:1;min-width:0}
@@ -321,6 +343,8 @@
     <div id="app">
       <div class="topbar">
         <div class="brand">HypeZone</div>
+
+        <!-- ✅ ADDED: Inbox button + existing badge (no other UI changed) -->
         <div class="top-actions">
           <button class="icon-btn" id="inboxBtn" title="Messages" onclick="openInbox()">
             <span class="badge-dot" id="inboxDot"></span>
@@ -369,7 +393,7 @@
     </div>
   </div>
 
-  <!-- Private DM chat -->
+  <!-- ✅ ADDED: Private DM chat -->
   <div id="dmChat" class="chat-interface hidden" style="z-index:3200">
     <div class="chat-top">
       <button class="chat-exit" onclick="stopDMLive();document.getElementById('dmChat').classList.add('hidden')">
@@ -405,7 +429,7 @@
     </div>
   </div>
 
-  <!-- Inbox modal (messages list) -->
+  <!-- ✅ ADDED: Inbox modal (messages list) -->
   <div id="inboxModal" class="modal">
     <div class="modal-card">
       <div class="modal-header">
@@ -425,10 +449,16 @@
       <div class="prof-view">
         <img id="vpImg" class="prof-lg" alt="Profile photo">
         <h2 id="vpName">Name</h2>
+
+        <!-- ✅ ADDED: Online/Last seen (red) -->
         <div class="prof-status" id="vpStatus"> </div>
+
         <div id="vpRankBadge" class="prof-rank-badge">ROOKIE</div>
         <div class="prof-bio" id="vpBio"></div>
+
+        <!-- ✅ ADDED: Contact button (shows only when viewing other user) -->
         <button id="contactBtn" class="btn-primary" style="margin:0 0 12px;display:none" onclick="contactFromProfile()">Message</button>
+
         <div class="stat-grid">
           <div class="stat-box">
             <div style="font-size:20px;font-weight:800;color:var(--viby)" id="vpScore">0</div>
@@ -549,9 +579,264 @@
     </div>
   </div>
 
-  <!-- السكريبت الرئيسي (الأصلي) -->
   <script>
     const sb=supabase.createClient("https://tujdnvnrizgqroaozsqp.supabase.co","sb_publishable_WyigevxmzR2gLtbog2Ztfg_8pdmSwop",{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:"pkce"}});
+
+/* =========================
+   ✅ Connection Guard Layer v3 (Hot-swap Supabase client + hard WS reset + fetch timeout)
+   - Fixes half-open/stalled WS after tab suspension by rebuilding client internals
+   - Ensures all REST calls have timeout/abort (even if library captured fetch early) via client global.fetch
+   - Preserves existing app API: NO renames, NO SQL changes, NO logic refactor
+   ========================= */
+(function(){
+  // --------- Config ---------
+  const __HZ_FETCH_TIMEOUT_MS = 20000;
+  const __HZ_RESUME_DEBOUNCE_MS = 350;
+  const __HZ_SUSPEND_MS = 900;
+  const __HZ_WATCHDOG_MS = 25000;
+  const __HZ_HEALTH_TIMEOUT_MS = 6500;
+
+  // Capture the original project params from the already-created client
+  const __HZ_URL = sb && sb.supabaseUrl ? sb.supabaseUrl : "https://tujdnvnrizgqroaozsqp.supabase.co";
+  const __HZ_KEY = sb && sb.supabaseKey ? sb.supabaseKey : "sb_publishable_WyigevxmzR2gLtbog2Ztfg_8pdmSwop";
+
+  // --------- Global abortable fetch ---------
+  const __hzNativeFetch = window.fetch ? window.fetch.bind(window) : null;
+  const __hzInflightCtrls = new Set();
+
+  function __hzAbortableFetch(input, init){
+    if(!__hzNativeFetch) return Promise.reject(new Error("fetch is not available"));
+    const _init = init ? Object.assign({}, init) : {};
+    const userSignal = _init.signal;
+
+    const ctrl = new AbortController();
+    const to = setTimeout(() => {
+      try{ ctrl.abort(new DOMException("FetchTimeout", "AbortError")); }catch(e){}
+    }, __HZ_FETCH_TIMEOUT_MS);
+
+    if(userSignal){
+      if(userSignal.aborted){
+        clearTimeout(to);
+        try{ ctrl.abort(userSignal.reason || new DOMException("Aborted", "AbortError")); }catch(e){}
+      } else {
+        const onAbort = () => {
+          try{ ctrl.abort(userSignal.reason || new DOMException("Aborted", "AbortError")); }catch(e){}
+          try{ userSignal.removeEventListener("abort", onAbort); }catch(e){}
+        };
+        try{ userSignal.addEventListener("abort", onAbort, {once:true}); }catch(e){}
+      }
+    }
+
+    _init.signal = ctrl.signal;
+    __hzInflightCtrls.add(ctrl);
+
+    return __hzNativeFetch(input, _init).finally(() => {
+      clearTimeout(to);
+      __hzInflightCtrls.delete(ctrl);
+    });
+  }
+
+  function __hzAbortAll(){
+    __hzInflightCtrls.forEach(c => { try{ c.abort(new DOMException("Recovering", "AbortError")); }catch(e){} });
+    __hzInflightCtrls.clear();
+  }
+
+  // --------- Persist & re-attach auth listeners ---------
+  const __hzAuthListeners = [];
+  if(sb && sb.auth && typeof sb.auth.onAuthStateChange === "function" && !sb.auth.__HZ_PATCHED__){
+    const __origOn = sb.auth.onAuthStateChange.bind(sb.auth);
+    sb.auth.onAuthStateChange = function(cb){
+      try{ if(typeof cb === "function") __hzAuthListeners.push(cb); }catch(e){}
+      return __origOn(cb);
+    };
+    sb.auth.__HZ_PATCHED__ = true;
+  }
+
+  // --------- Helpers ---------
+  let __hzHiddenAt = null;
+  let __hzResumeTimer = null;
+  let __hzRecovering = false;
+  let __hzWatchdogTimer = null;
+
+  function __hzVisible(){ return document.visibilityState === "visible" && !document.hidden; }
+  function __hzSleep(ms){ return new Promise(r => setTimeout(r, ms)); }
+  function __hzRaceTimeout(p, ms, label){
+    let t; 
+    const timeout = new Promise((_, rej) => { t=setTimeout(() => rej(new Error(label||"Timeout")), ms); });
+    return Promise.race([p, timeout]).finally(() => clearTimeout(t));
+  }
+
+  function __hzRoomActive(){
+    try{
+      const el=document.getElementById("chatRoom");
+      return !!(el && !el.classList.contains("hidden") && currentRoomKey);
+    }catch(e){ return false; }
+  }
+  function __hzDMActive(){
+    try{
+      const el=document.getElementById("dmChat");
+      return !!(el && !el.classList.contains("hidden") && currentDMThreadId && currentDMUserId);
+    }catch(e){ return false; }
+  }
+
+  async function __hzHealth(){
+    try{
+      if(!sb || !sb.auth || typeof sb.auth.getSession !== "function") return true;
+      await __hzRaceTimeout(sb.auth.getSession(), __HZ_HEALTH_TIMEOUT_MS, "AuthHealthTimeout");
+      return true;
+    }catch(e){ return false; }
+  }
+
+  // --------- Hot-swap: rebuild a fresh client and graft it into existing `sb` (const-safe) ---------
+  function __hzBuildFreshClient(){
+    return supabase.createClient(__HZ_URL, __HZ_KEY, {
+      auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:"pkce"},
+      global:{ fetch: __hzAbortableFetch } // ✅ ensure timeout works for all supabase internals
+    });
+  }
+
+  async function __hzHotSwapClient(){
+    const fresh = __hzBuildFreshClient();
+
+    // Preserve auth listeners: re-register them on the new auth instance
+    try{
+      if(fresh && fresh.auth && typeof fresh.auth.onAuthStateChange === "function"){
+        __hzAuthListeners.forEach(cb => { try{ fresh.auth.onAuthStateChange(cb); }catch(e){} });
+      }
+    }catch(e){}
+
+    // If we have a session already, bind auth token to realtime explicitly
+    try{
+      const {data} = await fresh.auth.getSession();
+      if(data && data.session && fresh.realtime && typeof fresh.realtime.setAuth === "function"){
+        try{ fresh.realtime.setAuth(data.session.access_token); }catch(e){}
+      }
+    }catch(e){}
+
+    // Graft fresh internals into existing `sb` without renaming sb itself
+    try{
+      sb.auth = fresh.auth;
+      sb.realtime = fresh.realtime;
+      sb.storage = fresh.storage;
+      sb.functions = fresh.functions;
+      sb.rest = fresh.rest;
+
+      sb.from = fresh.from.bind(fresh);
+      sb.rpc = fresh.rpc.bind(fresh);
+      sb.channel = fresh.channel.bind(fresh);
+      sb.removeChannel = fresh.removeChannel.bind(fresh);
+      sb.removeAllChannels = fresh.removeAllChannels.bind(fresh);
+      sb.getChannels = fresh.getChannels.bind(fresh);
+    }catch(e){}
+  }
+
+  // --------- Controlled recovery pipeline ---------
+  async function __hzRecover(reason){
+    if(__hzRecovering) return;
+    __hzRecovering = true;
+
+    try{
+      // 1) Abort any hung in-flight requests
+      __hzAbortAll();
+
+      // 2) Stop timers to avoid duplicates
+      try{ if(roomPollTimer){ clearInterval(roomPollTimer); roomPollTimer=null; } }catch(e){}
+      try{ if(dmPollTimer){ clearInterval(dmPollTimer); dmPollTimer=null; } }catch(e){}
+      try{ stopPresence(); }catch(e){}
+      try{ stopInboxBadge(); }catch(e){}
+
+      // 3) Remove channels safely
+      try{ stopRoomLive(); }catch(e){}
+      try{ stopDMLive(); }catch(e){}
+
+      // 4) Hard rebuild client internals (kills half-open WS completely)
+      await __hzHotSwapClient();
+
+      // 5) Reconnect realtime aggressively
+      try{
+        if(sb && sb.realtime){
+          try{ if(typeof sb.realtime.disconnect==="function") sb.realtime.disconnect(); }catch(e){}
+          await __hzSleep(120);
+          try{ if(typeof sb.realtime.connect==="function") sb.realtime.connect(); }catch(e){}
+        }
+      }catch(e){}
+
+      // 6) Refresh global session reference (existing code uses `session`)
+      try{
+        const {data} = await sb.auth.getSession();
+        if(data && data.session) session = data.session;
+      }catch(e){}
+
+      // 7) Re-arm presence + inbox badge
+      try{ if(session && session.user){ startPresence(); startInboxBadge(); } }catch(e){}
+
+      // 8) Re-subscribe ONLY if user is in those views (no duplicates)
+      try{
+        if(__hzRoomActive()) await subscribeRoom(currentRoomKey);
+      }catch(e){}
+      try{
+        if(__hzDMActive()) await subscribeDM(currentDMThreadId);
+      }catch(e){}
+
+      // 9) Nudge UI by reusing existing functions (no reload, no SQL change)
+      try{ renderTopRight(); }catch(e){}
+      try{ loadFeed(); }catch(e){}
+    } finally {
+      __hzRecovering = false;
+    }
+  }
+
+  function __hzSchedule(){
+    if(__hzResumeTimer) clearTimeout(__hzResumeTimer);
+    __hzResumeTimer = setTimeout(async ()=>{
+      if(!__hzVisible()) return;
+
+      // Even if auth is OK, realtime may be half-open; we decide based on health + active context
+      const ok = await __hzHealth();
+      if(!ok){
+        await __hzRecover("health_failed");
+      } else {
+        // If any live view is open, we still force recovery to guarantee socket freshness
+        if(__hzRoomActive() || __hzDMActive()){
+          await __hzRecover("resume_live_view");
+        }
+      }
+    }, __HZ_RESUME_DEBOUNCE_MS);
+  }
+
+  // Visibility-based resume detection
+  document.addEventListener("visibilitychange", ()=>{
+    if(document.hidden){
+      __hzHiddenAt = Date.now();
+      return;
+    }
+    const hiddenMs = __hzHiddenAt ? (Date.now()-__hzHiddenAt) : 0;
+    __hzHiddenAt = null;
+    if(hiddenMs >= __HZ_SUSPEND_MS) __hzSchedule();
+  }, {passive:true});
+
+  window.addEventListener("focus", ()=>{ if(__hzVisible()) __hzSchedule(); }, {passive:true});
+  window.addEventListener("online", ()=>{ __hzRecover("online"); }, {passive:true});
+
+  // Watchdog: if tab is visible but connection stalls later, recover
+  __hzWatchdogTimer = setInterval(async ()=>{
+    if(!__hzVisible()) return;
+    const needs = !!(session && session.user) || __hzRoomActive() || __hzDMActive();
+    if(!needs) return;
+    const ok = await __hzHealth();
+    if(!ok) await __hzRecover("watchdog");
+  }, __HZ_WATCHDOG_MS);
+
+  // If a promise chain dies due to abort/network, do controlled recover
+  window.addEventListener("unhandledrejection", (ev)=>{
+    const r = ev && ev.reason;
+    const msg = (r && (r.message || r.toString())) || "";
+    if(/FetchTimeout/i.test(msg) || /AbortError/i.test(msg) || /NetworkError/i.test(msg)){
+      __hzRecover("unhandledrejection");
+    }
+  });
+
+})();
     let session,currentBg,currentPostId,currentRoomKey=null,currentRoomLabel=null,roomSub=null,currentPlayingBtn=null,myProfile={},isEditing=!1,currentEditingUser=null,seenRoomMsgIds=new Set,roomProfileCache={},profileRequired=!1,roomPollTimer=null,lastRoomCreatedAt=null;
 
     // ✅ DM state
@@ -582,7 +867,7 @@
     const AUDIO_FOLDER="audio";
 
     // ✅ TABLE NAMES (you must create these in Supabase)
-    // 1) dm_messages: id(uuid), thread_id(text), sender_id(uuid), receiver_id(text), content(text), audio_url(text), created_at(timestamp)
+    // 1) dm_messages: id(uuid), thread_id(text), sender_id(uuid), receiver_id(uuid), content(text), audio_url(text), created_at(timestamp)
     // 2) user_presence: user_id(uuid primary key), is_online(bool), last_seen(timestamp)
     const TBL_DM="dm_messages";
     const TBL_PRESENCE="user_presence";
@@ -2105,254 +2390,5 @@
 
     init();
   </script>
-
-  <!-- ==================== CONNECTION MANAGER (إدارة اتصال WebSocket) ==================== -->
-  <!-- هذا الكود يحل مشكلة تجمد WebSocket بعد العودة من الخلفية دون تغيير أي شيء في الكود الأصلي -->
-  <script>
-    (function() {
-      // متغيرات الحالة
-      let connectionHealthy = true;
-      let reconnecting = false;
-      let reconnectAttempts = 0;
-      const MAX_RECONNECT_ATTEMPTS = 5;
-      const RECONNECT_DELAY = 1500;
-
-      // تخزين آخر حالة معروفة للقنوات والمؤقتات
-      let lastRoomKey = null;
-      let lastRoomLabel = null;
-      let lastDMThreadId = null;
-      let lastDMUserId = null;
-
-      // دالة لإيقاف جميع القنوات والمؤقتات بأمان (بدون مسح المتغيرات)
-      function safeStopAllChannelsAndTimers() {
-        console.log('[ConnectionManager] Stopping all channels and timers');
-        
-        // حفظ آخر القيم قبل الإيقاف
-        if (typeof currentRoomKey !== 'undefined' && currentRoomKey) lastRoomKey = currentRoomKey;
-        if (typeof currentRoomLabel !== 'undefined' && currentRoomLabel) lastRoomLabel = currentRoomLabel;
-        if (typeof currentDMThreadId !== 'undefined' && currentDMThreadId) lastDMThreadId = currentDMThreadId;
-        if (typeof currentDMUserId !== 'undefined' && currentDMUserId) lastDMUserId = currentDMUserId;
-
-        // إيقاف جميع المؤقتات
-        if (typeof roomPollTimer !== 'undefined' && roomPollTimer) {
-          clearInterval(roomPollTimer);
-          roomPollTimer = null;
-        }
-        if (typeof dmPollTimer !== 'undefined' && dmPollTimer) {
-          clearInterval(dmPollTimer);
-          dmPollTimer = null;
-        }
-        if (typeof presenceTimer !== 'undefined' && presenceTimer) {
-          clearInterval(presenceTimer);
-          presenceTimer = null;
-        }
-        if (typeof dmInboxBadgeTimer !== 'undefined' && dmInboxBadgeTimer) {
-          clearInterval(dmInboxBadgeTimer);
-          dmInboxBadgeTimer = null;
-        }
-
-        // إزالة القنوات من Supabase
-        if (typeof roomSub !== 'undefined' && roomSub) {
-          try { sb.removeChannel(roomSub); } catch(e) {}
-          roomSub = null;
-        }
-        if (typeof dmSub !== 'undefined' && dmSub) {
-          try { sb.removeChannel(dmSub); } catch(e) {}
-          dmSub = null;
-        }
-      }
-
-      // دالة لإعادة تشغيل القنوات والمؤقتات حسب الحالة الحالية
-      async function safeRestoreSubscriptionsAndTimers() {
-        console.log('[ConnectionManager] Restoring subscriptions and timers');
-        
-        // إعادة تشغيل presence heartbeat إذا كان المستخدم مسجل الدخول
-        if (typeof session !== 'undefined' && session && session.user) {
-          if (typeof startPresence === 'function') startPresence();
-          if (typeof startInboxBadge === 'function') startInboxBadge();
-        }
-
-        // إعادة تشغيل القناة العامة للغرفة إذا كنا داخل غرفة
-        if (lastRoomKey && typeof openRoom === 'function') {
-          // استخدم lastRoomKey مباشرة لفتح الغرفة من جديد مع الحفاظ على المتغيرات
-          currentRoomKey = lastRoomKey;
-          currentRoomLabel = lastRoomLabel;
-          await loadRoomMsgs(); // إعادة تحميل الرسائل
-          await subscribeRoom(lastRoomKey); // إعادة الاشتراك
-        }
-
-        // إعادة تشغيل الدردشة الخاصة إذا كنا داخل DM
-        if (lastDMThreadId && lastDMUserId && typeof subscribeDM === 'function') {
-          currentDMThreadId = lastDMThreadId;
-          currentDMUserId = lastDMUserId;
-          await loadDMMessages(); // إعادة تحميل الرسائل
-          await subscribeDM(lastDMThreadId); // إعادة الاشتراك
-        }
-
-        // إعادة تشغيل أي عمليات أخرى (مثل التحميل التلقائي للفيسبوك غير ضروري)
-      }
-
-      // دالة للتحقق من صحة الاتصال عبر استعلام بسيط مع timeout
-      async function pingSupabase() {
-        try {
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 ثوان مهلة
-          
-          const { error } = await sb.from('profiles').select('id').limit(1).abortSignal(controller.signal);
-          clearTimeout(timeoutId);
-          
-          if (error) throw error;
-          return true;
-        } catch (err) {
-          console.warn('[ConnectionManager] Ping failed:', err);
-          return false;
-        }
-      }
-
-      // دالة إعادة الاتصال الرئيسية
-      async function attemptReconnect() {
-        if (reconnecting) return;
-        reconnecting = true;
-        reconnectAttempts++;
-
-        console.log(`[ConnectionManager] Reconnect attempt #${reconnectAttempts}`);
-
-        // إيقاف كل شيء أولاً
-        safeStopAllChannelsAndTimers();
-
-        // محاولة ping
-        const isAlive = await pingSupabase();
-        if (!isAlive) {
-          console.warn('[ConnectionManager] Supabase not responding, waiting...');
-          if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
-            reconnecting = false;
-            setTimeout(attemptReconnect, RECONNECT_DELAY * reconnectAttempts);
-          } else {
-            console.error('[ConnectionManager] Max reconnect attempts reached, please refresh manually');
-            reconnecting = false;
-          }
-          return;
-        }
-
-        // إعادة التشغيل
-        try {
-          await safeRestoreSubscriptionsAndTimers();
-          connectionHealthy = true;
-          reconnectAttempts = 0;
-          console.log('[ConnectionManager] Reconnect successful');
-        } catch (err) {
-          console.error('[ConnectionManager] Reconnect failed:', err);
-          if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
-            setTimeout(attemptReconnect, RECONNECT_DELAY * reconnectAttempts);
-          } else {
-            console.error('[ConnectionManager] Max reconnect attempts reached');
-          }
-        } finally {
-          reconnecting = false;
-        }
-      }
-
-      // معالج تغيير الرؤية (عند العودة من الخلفية)
-      function onVisibilityChange() {
-        if (document.visibilityState === 'visible') {
-          console.log('[ConnectionManager] Tab became visible, checking connection');
-          // تأخير بسيط للسماح للمتصفح باستئناف الاتصالات
-          setTimeout(() => {
-            // إذا كان هناك أي قناة أو مؤقت وكانت session موجودة، نختبر الاتصال
-            if ((typeof roomSub !== 'undefined' && roomSub) || 
-                (typeof dmSub !== 'undefined' && dmSub) ||
-                (typeof session !== 'undefined' && session)) {
-              // إذا لم يكن الاتصال صحيًا أو كان هناك اشتراك قديم، نعيد الاتصال
-              if (!connectionHealthy || reconnectAttempts > 0) {
-                attemptReconnect();
-              } else {
-                // حتى لو كان يبدو سليماً، قد يكون الـ WebSocket عالقاً، لذا نعيد ping
-                pingSupabase().then(ok => {
-                  if (!ok) attemptReconnect();
-                });
-              }
-            }
-          }, 300);
-        }
-      }
-
-      // معالج عودة الإنترنت
-      function onOnline() {
-        console.log('[ConnectionManager] Internet connection restored');
-        attemptReconnect();
-      }
-
-      // معالج فقدان الإنترنت
-      function onOffline() {
-        console.log('[ConnectionManager] Internet connection lost');
-        connectionHealthy = false;
-      }
-
-      // دالة لمراقبة صحة الـ WebSocket بشكل دوري (كل 30 ثانية)
-      function startHealthCheck() {
-        setInterval(() => {
-          if (document.visibilityState === 'visible' && 
-              (typeof roomSub !== 'undefined' && roomSub || typeof dmSub !== 'undefined' && dmSub || typeof session !== 'undefined' && session)) {
-            pingSupabase().then(ok => {
-              if (!ok) {
-                console.warn('[ConnectionManager] Health check failed, reconnecting...');
-                attemptReconnect();
-              } else {
-                connectionHealthy = true;
-              }
-            });
-          }
-        }, 30000);
-      }
-
-      // تسجيل المستمعين
-      document.addEventListener('visibilitychange', onVisibilityChange);
-      window.addEventListener('online', onOnline);
-      window.addEventListener('offline', onOffline);
-
-      // بدء الفحص الدوري
-      startHealthCheck();
-
-      // إضافة خطافات للدوال الأصلية لتحديث last* عند فتح غرفة أو DM
-      // نستخدم Proxy على الدوال الأصلية (بدون تعديلها) عبر overwriting ولكن بحذر
-      const originalOpenRoom = window.openRoom;
-      if (originalOpenRoom) {
-        window.openRoom = function(cityKey, hood) {
-          lastRoomKey = roomKey(cityKey, hood);
-          lastRoomLabel = cityInHoodLabel(cityKey, hood);
-          return originalOpenRoom.call(this, cityKey, hood);
-        };
-      }
-
-      const originalOpenDM = window.openDM;
-      if (originalOpenDM) {
-        window.openDM = function(otherUserId) {
-          lastDMUserId = otherUserId;
-          lastDMThreadId = dmThreadId(session?.user?.id, otherUserId);
-          return originalOpenDM.call(this, otherUserId);
-        };
-      }
-
-      // حفظ القيم عند فتح DM من الدوال الأخرى (مثل contactFromProfile)
-      // نراقب المتغيرات نفسها عبر setInterval خفيف (بديل عن الـ Proxy)
-      setInterval(() => {
-        if (typeof currentRoomKey !== 'undefined' && currentRoomKey && currentRoomKey !== lastRoomKey) {
-          lastRoomKey = currentRoomKey;
-        }
-        if (typeof currentRoomLabel !== 'undefined' && currentRoomLabel && currentRoomLabel !== lastRoomLabel) {
-          lastRoomLabel = currentRoomLabel;
-        }
-        if (typeof currentDMThreadId !== 'undefined' && currentDMThreadId && currentDMThreadId !== lastDMThreadId) {
-          lastDMThreadId = currentDMThreadId;
-        }
-        if (typeof currentDMUserId !== 'undefined' && currentDMUserId && currentDMUserId !== lastDMUserId) {
-          lastDMUserId = currentDMUserId;
-        }
-      }, 1000);
-
-      console.log('[ConnectionManager] Initialized');
-    })();
-  </script>
-  <!-- ==================== نهاية مدير الاتصال ==================== -->
 </body>
 </html>
