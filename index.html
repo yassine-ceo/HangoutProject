@@ -580,263 +580,189 @@
   </div>
 
   <script>
+    /* =========================
+       ✅ HZ Pre-Patch: fetch timeout BEFORE Supabase client creation
+       (ensures supabase-js captures the patched fetch)
+       ========================= */
+    (function(){
+      if(window.__HZ_FETCH_PATCHED__) return;
+      const __orig = window.fetch ? window.fetch.bind(window) : null;
+      if(!__orig) return;
+      const __TIMEOUT_MS = 20000;
+      const __inflight = new Set();
+      window.__HZ_ABORT_ALL_FETCH__ = function(){
+        __inflight.forEach(c=>{try{c.abort(new DOMException("Recovering","AbortError"));}catch(e){}});
+        __inflight.clear();
+      };
+      window.fetch = function(input, init){
+        const _init = init ? Object.assign({}, init) : {};
+        const userSignal = _init.signal;
+        const ctrl = new AbortController();
+        const t = setTimeout(()=>ctrl.abort(new DOMException("FetchTimeout","AbortError")), __TIMEOUT_MS);
+
+        if(userSignal){
+          if(userSignal.aborted){
+            clearTimeout(t);
+            try{ ctrl.abort(userSignal.reason || new DOMException("Aborted","AbortError")); }catch(e){}
+          } else {
+            const onAbort = ()=>{ try{ ctrl.abort(userSignal.reason || new DOMException("Aborted","AbortError")); }catch(e){}; try{ userSignal.removeEventListener("abort", onAbort); }catch(e){} };
+            try{ userSignal.addEventListener("abort", onAbort, {once:true}); }catch(e){}
+          }
+        }
+
+        _init.signal = ctrl.signal;
+        __inflight.add(ctrl);
+        return __orig(input, _init).finally(()=>{ clearTimeout(t); __inflight.delete(ctrl); });
+      };
+      window.__HZ_FETCH_PATCHED__ = true;
+    })();
+
     const sb=supabase.createClient("https://tujdnvnrizgqroaozsqp.supabase.co","sb_publishable_WyigevxmzR2gLtbog2Ztfg_8pdmSwop",{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:"pkce"}});
+    // =========================
+    // ✅ HZ Connection Guard V4 (deterministic: full recover on every resume)
+    // =========================
+    window.__HZ_SB_URL__="https://tujdnvnrizgqroaozsqp.supabase.co";
+    window.__HZ_SB_KEY__="sb_publishable_WyigevxmzR2gLtbog2Ztfg_8pdmSwop";
+    window.__HZ_SB_OPTS__={auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:"pkce"}};
 
-/* =========================
-   ✅ Connection Guard Layer v3 (Hot-swap Supabase client + hard WS reset + fetch timeout)
-   - Fixes half-open/stalled WS after tab suspension by rebuilding client internals
-   - Ensures all REST calls have timeout/abort (even if library captured fetch early) via client global.fetch
-   - Preserves existing app API: NO renames, NO SQL changes, NO logic refactor
-   ========================= */
-(function(){
-  // --------- Config ---------
-  const __HZ_FETCH_TIMEOUT_MS = 20000;
-  const __HZ_RESUME_DEBOUNCE_MS = 350;
-  const __HZ_SUSPEND_MS = 900;
-  const __HZ_WATCHDOG_MS = 25000;
-  const __HZ_HEALTH_TIMEOUT_MS = 6500;
+    (function(){
+      const __MIN_HIDDEN_MS = 200;      // treat any hide as suspension (deterministic)
+      const __DEBOUNCE_MS = 120;
+      let __hiddenAt = null;
+      let __t = null;
+      let __recovering = false;
 
-  // Capture the original project params from the already-created client
-  const __HZ_URL = sb && sb.supabaseUrl ? sb.supabaseUrl : "https://tujdnvnrizgqroaozsqp.supabase.co";
-  const __HZ_KEY = sb && sb.supabaseKey ? sb.supabaseKey : "sb_publishable_WyigevxmzR2gLtbog2Ztfg_8pdmSwop";
+      function __isVisible(){ return document.visibilityState==="visible" && !document.hidden; }
+      function __sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
 
-  // --------- Global abortable fetch ---------
-  const __hzNativeFetch = window.fetch ? window.fetch.bind(window) : null;
-  const __hzInflightCtrls = new Set();
-
-  function __hzAbortableFetch(input, init){
-    if(!__hzNativeFetch) return Promise.reject(new Error("fetch is not available"));
-    const _init = init ? Object.assign({}, init) : {};
-    const userSignal = _init.signal;
-
-    const ctrl = new AbortController();
-    const to = setTimeout(() => {
-      try{ ctrl.abort(new DOMException("FetchTimeout", "AbortError")); }catch(e){}
-    }, __HZ_FETCH_TIMEOUT_MS);
-
-    if(userSignal){
-      if(userSignal.aborted){
-        clearTimeout(to);
-        try{ ctrl.abort(userSignal.reason || new DOMException("Aborted", "AbortError")); }catch(e){}
-      } else {
-        const onAbort = () => {
-          try{ ctrl.abort(userSignal.reason || new DOMException("Aborted", "AbortError")); }catch(e){}
-          try{ userSignal.removeEventListener("abort", onAbort); }catch(e){}
-        };
-        try{ userSignal.addEventListener("abort", onAbort, {once:true}); }catch(e){}
+      function __stopTimers(){
+        try{ if(roomPollTimer){ clearInterval(roomPollTimer); roomPollTimer=null; } }catch(e){}
+        try{ if(dmPollTimer){ clearInterval(dmPollTimer); dmPollTimer=null; } }catch(e){}
+        try{ stopPresence(); }catch(e){}
+        try{ stopInboxBadge(); }catch(e){}
       }
-    }
 
-    _init.signal = ctrl.signal;
-    __hzInflightCtrls.add(ctrl);
-
-    return __hzNativeFetch(input, _init).finally(() => {
-      clearTimeout(to);
-      __hzInflightCtrls.delete(ctrl);
-    });
-  }
-
-  function __hzAbortAll(){
-    __hzInflightCtrls.forEach(c => { try{ c.abort(new DOMException("Recovering", "AbortError")); }catch(e){} });
-    __hzInflightCtrls.clear();
-  }
-
-  // --------- Persist & re-attach auth listeners ---------
-  const __hzAuthListeners = [];
-  if(sb && sb.auth && typeof sb.auth.onAuthStateChange === "function" && !sb.auth.__HZ_PATCHED__){
-    const __origOn = sb.auth.onAuthStateChange.bind(sb.auth);
-    sb.auth.onAuthStateChange = function(cb){
-      try{ if(typeof cb === "function") __hzAuthListeners.push(cb); }catch(e){}
-      return __origOn(cb);
-    };
-    sb.auth.__HZ_PATCHED__ = true;
-  }
-
-  // --------- Helpers ---------
-  let __hzHiddenAt = null;
-  let __hzResumeTimer = null;
-  let __hzRecovering = false;
-  let __hzWatchdogTimer = null;
-
-  function __hzVisible(){ return document.visibilityState === "visible" && !document.hidden; }
-  function __hzSleep(ms){ return new Promise(r => setTimeout(r, ms)); }
-  function __hzRaceTimeout(p, ms, label){
-    let t; 
-    const timeout = new Promise((_, rej) => { t=setTimeout(() => rej(new Error(label||"Timeout")), ms); });
-    return Promise.race([p, timeout]).finally(() => clearTimeout(t));
-  }
-
-  function __hzRoomActive(){
-    try{
-      const el=document.getElementById("chatRoom");
-      return !!(el && !el.classList.contains("hidden") && currentRoomKey);
-    }catch(e){ return false; }
-  }
-  function __hzDMActive(){
-    try{
-      const el=document.getElementById("dmChat");
-      return !!(el && !el.classList.contains("hidden") && currentDMThreadId && currentDMUserId);
-    }catch(e){ return false; }
-  }
-
-  async function __hzHealth(){
-    try{
-      if(!sb || !sb.auth || typeof sb.auth.getSession !== "function") return true;
-      await __hzRaceTimeout(sb.auth.getSession(), __HZ_HEALTH_TIMEOUT_MS, "AuthHealthTimeout");
-      return true;
-    }catch(e){ return false; }
-  }
-
-  // --------- Hot-swap: rebuild a fresh client and graft it into existing `sb` (const-safe) ---------
-  function __hzBuildFreshClient(){
-    return supabase.createClient(__HZ_URL, __HZ_KEY, {
-      auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:"pkce"},
-      global:{ fetch: __hzAbortableFetch } // ✅ ensure timeout works for all supabase internals
-    });
-  }
-
-  async function __hzHotSwapClient(){
-    const fresh = __hzBuildFreshClient();
-
-    // Preserve auth listeners: re-register them on the new auth instance
-    try{
-      if(fresh && fresh.auth && typeof fresh.auth.onAuthStateChange === "function"){
-        __hzAuthListeners.forEach(cb => { try{ fresh.auth.onAuthStateChange(cb); }catch(e){} });
+      function __removeChannels(){
+        try{ if(roomSub){ sb.removeChannel(roomSub); roomSub=null; } }catch(e){}
+        try{ if(dmSub){ sb.removeChannel(dmSub); dmSub=null; } }catch(e){}
       }
-    }catch(e){}
 
-    // If we have a session already, bind auth token to realtime explicitly
-    try{
-      const {data} = await fresh.auth.getSession();
-      if(data && data.session && fresh.realtime && typeof fresh.realtime.setAuth === "function"){
-        try{ fresh.realtime.setAuth(data.session.access_token); }catch(e){}
+      function __roomActive(){
+        try{
+          const el=document.getElementById("chatRoom");
+          return !!(el && !el.classList.contains("hidden") && currentRoomKey);
+        }catch(e){ return false; }
       }
-    }catch(e){}
+      function __dmActive(){
+        try{
+          const el=document.getElementById("dmChat");
+          return !!(el && !el.classList.contains("hidden") && currentDMThreadId && currentDMUserId);
+        }catch(e){ return false; }
+      }
 
-    // Graft fresh internals into existing `sb` without renaming sb itself
-    try{
-      sb.auth = fresh.auth;
-      sb.realtime = fresh.realtime;
-      sb.storage = fresh.storage;
-      sb.functions = fresh.functions;
-      sb.rest = fresh.rest;
+      async function __rebuildClientInternals(){
+        // Build a fresh client, then swap internals into the existing const `sb`
+        const __fresh = supabase.createClient(window.__HZ_SB_URL__, window.__HZ_SB_KEY__, window.__HZ_SB_OPTS__);
+        // Swap REST (PostgREST) so future from()/rpc() use fresh fetch + clean state
+        try{ if(__fresh.rest) sb.rest = __fresh.rest; }catch(e){}
+        try{ if(__fresh.storage) sb.storage = __fresh.storage; }catch(e){}
+        // Swap realtime to guarantee a brand-new websocket stack
+        try{ if(__fresh.realtime) sb.realtime = __fresh.realtime; }catch(e){}
+        // Re-bind auth token into realtime (if available)
+        try{
+          const {data} = await sb.auth.getSession();
+          if(data && data.session){
+            session = data.session;
+            try{
+              if(sb.realtime && typeof sb.realtime.setAuth === "function"){
+                sb.realtime.setAuth(data.session.access_token);
+              }
+            }catch(e){}
+          }
+        }catch(e){}
+      }
 
-      sb.from = fresh.from.bind(fresh);
-      sb.rpc = fresh.rpc.bind(fresh);
-      sb.channel = fresh.channel.bind(fresh);
-      sb.removeChannel = fresh.removeChannel.bind(fresh);
-      sb.removeAllChannels = fresh.removeAllChannels.bind(fresh);
-      sb.getChannels = fresh.getChannels.bind(fresh);
-    }catch(e){}
-  }
+      async function __recover(reason){
+        if(__recovering) return;
+        __recovering = true;
+        try{
+          // Abort any stuck fetches (patched pre-creation)
+          try{ window.__HZ_ABORT_ALL_FETCH__ && window.__HZ_ABORT_ALL_FETCH__(); }catch(e){}
 
-  // --------- Controlled recovery pipeline ---------
-  async function __hzRecover(reason){
-    if(__hzRecovering) return;
-    __hzRecovering = true;
+          __stopTimers();
+          __removeChannels();
 
-    try{
-      // 1) Abort any hung in-flight requests
-      __hzAbortAll();
+          // Force close old websocket if any
+          try{ if(sb.realtime && typeof sb.realtime.disconnect==="function") sb.realtime.disconnect(); }catch(e){}
+          await __sleep(80);
 
-      // 2) Stop timers to avoid duplicates
-      try{ if(roomPollTimer){ clearInterval(roomPollTimer); roomPollTimer=null; } }catch(e){}
-      try{ if(dmPollTimer){ clearInterval(dmPollTimer); dmPollTimer=null; } }catch(e){}
-      try{ stopPresence(); }catch(e){}
-      try{ stopInboxBadge(); }catch(e){}
+          // Hard rebuild internals (REST + Realtime) in-place
+          await __rebuildClientInternals();
 
-      // 3) Remove channels safely
-      try{ stopRoomLive(); }catch(e){}
-      try{ stopDMLive(); }catch(e){}
+          // Connect realtime fresh
+          try{ if(sb.realtime && typeof sb.realtime.connect==="function") sb.realtime.connect(); }catch(e){}
+          await __sleep(80);
 
-      // 4) Hard rebuild client internals (kills half-open WS completely)
-      await __hzHotSwapClient();
+          // Re-subscribe to active contexts deterministically (no duplicates because we removed channels)
+          try{ if(__roomActive()) await subscribeRoom(currentRoomKey); }catch(e){}
+          try{ if(__dmActive()) await subscribeDM(currentDMThreadId); }catch(e){}
 
-      // 5) Reconnect realtime aggressively
-      try{
-        if(sb && sb.realtime){
-          try{ if(typeof sb.realtime.disconnect==="function") sb.realtime.disconnect(); }catch(e){}
-          await __hzSleep(120);
-          try{ if(typeof sb.realtime.connect==="function") sb.realtime.connect(); }catch(e){}
-        }
-      }catch(e){}
+          // Restart presence/badge if logged-in
+          try{ if(session && session.user){ startPresence(); startInboxBadge(); } }catch(e){}
 
-      // 6) Refresh global session reference (existing code uses `session`)
-      try{
-        const {data} = await sb.auth.getSession();
-        if(data && data.session) session = data.session;
-      }catch(e){}
-
-      // 7) Re-arm presence + inbox badge
-      try{ if(session && session.user){ startPresence(); startInboxBadge(); } }catch(e){}
-
-      // 8) Re-subscribe ONLY if user is in those views (no duplicates)
-      try{
-        if(__hzRoomActive()) await subscribeRoom(currentRoomKey);
-      }catch(e){}
-      try{
-        if(__hzDMActive()) await subscribeDM(currentDMThreadId);
-      }catch(e){}
-
-      // 9) Nudge UI by reusing existing functions (no reload, no SQL change)
-      try{ renderTopRight(); }catch(e){}
-      try{ loadFeed(); }catch(e){}
-    } finally {
-      __hzRecovering = false;
-    }
-  }
-
-  function __hzSchedule(){
-    if(__hzResumeTimer) clearTimeout(__hzResumeTimer);
-    __hzResumeTimer = setTimeout(async ()=>{
-      if(!__hzVisible()) return;
-
-      // Even if auth is OK, realtime may be half-open; we decide based on health + active context
-      const ok = await __hzHealth();
-      if(!ok){
-        await __hzRecover("health_failed");
-      } else {
-        // If any live view is open, we still force recovery to guarantee socket freshness
-        if(__hzRoomActive() || __hzDMActive()){
-          await __hzRecover("resume_live_view");
+          // Nudge UI using existing flows
+          try{ renderTopRight(); }catch(e){}
+          try{ loadFeed(); }catch(e){}
+        } finally {
+          __recovering = false;
         }
       }
-    }, __HZ_RESUME_DEBOUNCE_MS);
-  }
 
-  // Visibility-based resume detection
-  document.addEventListener("visibilitychange", ()=>{
-    if(document.hidden){
-      __hzHiddenAt = Date.now();
-      return;
-    }
-    const hiddenMs = __hzHiddenAt ? (Date.now()-__hzHiddenAt) : 0;
-    __hzHiddenAt = null;
-    if(hiddenMs >= __HZ_SUSPEND_MS) __hzSchedule();
-  }, {passive:true});
+      function __scheduleRecover(trigger){
+        if(__t) clearTimeout(__t);
+        __t = setTimeout(()=>{
+          if(!__isVisible()) return;
+          __recover(trigger);
+        }, __DEBOUNCE_MS);
+      }
 
-  window.addEventListener("focus", ()=>{ if(__hzVisible()) __hzSchedule(); }, {passive:true});
-  window.addEventListener("online", ()=>{ __hzRecover("online"); }, {passive:true});
+      document.addEventListener("visibilitychange", ()=>{
+        if(document.hidden){
+          __hiddenAt = Date.now();
+          return;
+        }
+        const dt = __hiddenAt ? (Date.now()-__hiddenAt) : 0;
+        __hiddenAt = null;
+        if(dt >= __MIN_HIDDEN_MS) __scheduleRecover("visibility");
+      }, {passive:true});
 
-  // Watchdog: if tab is visible but connection stalls later, recover
-  __hzWatchdogTimer = setInterval(async ()=>{
-    if(!__hzVisible()) return;
-    const needs = !!(session && session.user) || __hzRoomActive() || __hzDMActive();
-    if(!needs) return;
-    const ok = await __hzHealth();
-    if(!ok) await __hzRecover("watchdog");
-  }, __HZ_WATCHDOG_MS);
+      // BFCache / iOS safari reliability
+      window.addEventListener("pageshow", (e)=>{
+        // If restored from bfcache or after suspension, always recover
+        __scheduleRecover(e && e.persisted ? "pageshow_persisted" : "pageshow");
+      }, {passive:true});
 
-  // If a promise chain dies due to abort/network, do controlled recover
-  window.addEventListener("unhandledrejection", (ev)=>{
-    const r = ev && ev.reason;
-    const msg = (r && (r.message || r.toString())) || "";
-    if(/FetchTimeout/i.test(msg) || /AbortError/i.test(msg) || /NetworkError/i.test(msg)){
-      __hzRecover("unhandledrejection");
-    }
-  });
+      window.addEventListener("pagehide", ()=>{
+        // On iOS, pagehide is when the page is about to be frozen; pre-teardown to avoid half-open
+        try{ __stopTimers(); }catch(e){}
+        try{ __removeChannels(); }catch(e){}
+        try{ if(sb.realtime && typeof sb.realtime.disconnect==="function") sb.realtime.disconnect(); }catch(e){}
+      }, {passive:true});
 
-})();
+      window.addEventListener("focus", ()=>{ if(__isVisible()) __scheduleRecover("focus"); }, {passive:true});
+      window.addEventListener("online", ()=>{ __scheduleRecover("online"); }, {passive:true});
+
+      // If anything times out/aborts, recover immediately so UI doesn't stick on Loading
+      window.addEventListener("unhandledrejection", (ev)=>{
+        const r = ev && ev.reason;
+        const msg = (r && (r.message || r.toString())) || "";
+        if(/FetchTimeout/i.test(msg) || /AbortError/i.test(msg) || /NetworkError/i.test(msg)){
+          __scheduleRecover("unhandledrejection");
+        }
+      });
+    })();
+
+
     let session,currentBg,currentPostId,currentRoomKey=null,currentRoomLabel=null,roomSub=null,currentPlayingBtn=null,myProfile={},isEditing=!1,currentEditingUser=null,seenRoomMsgIds=new Set,roomProfileCache={},profileRequired=!1,roomPollTimer=null,lastRoomCreatedAt=null;
 
     // ✅ DM state
