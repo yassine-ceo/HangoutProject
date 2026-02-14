@@ -68,6 +68,36 @@
       display:none;
     }
 
+    .badge-count{
+      position:absolute;top:5px;right:5px;
+      min-width:16px;height:16px;padding:0 4px;
+      border-radius:999px;
+      background:var(--danger);
+      border:2px solid #000;
+      color:#fff;
+      font-size:10px;
+      font-weight:900;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      line-height:1;
+    }
+    .thread-badge{
+      min-width:18px;height:18px;padding:0 5px;
+      border-radius:999px;
+      background:var(--danger);
+      border:2px solid #000;
+      color:#fff;
+      font-size:10px;
+      font-weight:900;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      line-height:1;
+      margin-left:8px;
+      flex-shrink:0;
+    }
+
     .user-badge{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.08);padding:7px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.12);cursor:pointer;backdrop-filter:blur(12px)}
     .user-badge .badge-icon{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:rgba(0,210,255,.12);border:1px solid rgba(0,210,255,.35);color:var(--primary)}
     .user-badge img{width:30px;height:30px;border-radius:50%;border:1px solid var(--primary);object-fit:cover}
@@ -337,6 +367,8 @@
   </svg>
 
   <audio id="globalAudio"></audio>
+  <audio id="sendSfx" preload="auto" src="https://k.top4top.io/m_36972gwsb0.mp3"></audio>
+  <audio id="recvSfx" preload="auto" src="https://j.top4top.io/m_3697roivn0.mp3"></audio>
 
   <div id="mainScroll">
     <div id="app">
@@ -345,7 +377,7 @@
 
         <div class="top-actions">
           <button class="icon-btn" id="inboxBtn" title="Messages" onclick="openInbox()">
-            <span class="badge-dot" id="inboxDot"></span>
+            <span class="badge-count" id="inboxBadge"></span>
             <svg><use href="#i-chat"></use></svg>
           </button>
           <div class="user-badge" id="topRightBadge"></div>
@@ -574,6 +606,82 @@
 
   <script>
     const sb=supabase.createClient("https://tujdnvnrizgqroaozsqp.supabase.co","sb_publishable_WyigevxmzR2gLtbog2Ztfg_8pdmSwop",{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:"pkce"}});
+
+    // ===== DM sound + unread counters (WhatsApp-style) =====
+    const SEND_SFX_URL = "https://k.top4top.io/m_36972gwsb0.mp3";
+    const RECV_SFX_URL = "https://j.top4top.io/m_3697roivn0.mp3";
+
+    function playSfx(kind){
+      try{
+        const el = document.getElementById(kind==="send" ? "sendSfx" : "recvSfx");
+        if(!el) return;
+        if(kind==="send" && (!el.src || !el.src.includes("m_36972gwsb0.mp3"))) el.src = SEND_SFX_URL;
+        if(kind==="recv" && (!el.src || !el.src.includes("m_3697roivn0.mp3"))) el.src = RECV_SFX_URL;
+        el.currentTime = 0;
+        const p = el.play();
+        if(p && typeof p.catch === "function") p.catch(()=>{});
+      }catch(e){}
+    }
+
+    // Unread per DM thread stored locally (no DB changes required)
+    const UNREAD_KEY = "hz_dm_unread_v1";
+    function getUnreadMap(){
+      try{
+        const raw = localStorage.getItem(UNREAD_KEY);
+        const obj = raw ? JSON.parse(raw) : {};
+        return (obj && typeof obj==="object") ? obj : {};
+      }catch(e){ return {}; }
+    }
+    function setUnreadMap(map){
+      try{ localStorage.setItem(UNREAD_KEY, JSON.stringify(map||{})); }catch(e){}
+    }
+    function countUnreadThreads(map){
+      let c=0;
+      Object.keys(map||{}).forEach(k=>{ if((map[k]||0)>0) c++; });
+      return c;
+    }
+    function updateInboxBadgeUI(){
+      const badge = document.getElementById("inboxBadge");
+      if(!badge) return;
+      const map = getUnreadMap();
+      const n = countUnreadThreads(map);
+      if(n<=0){
+        badge.style.display="none";
+        badge.textContent="";
+        return;
+      }
+      badge.style.display="inline-flex";
+      badge.textContent = (n>9) ? "9+" : String(n);
+    }
+    function incUnread(threadId){
+      if(!threadId) return;
+
+      // Don't count messages for the currently open DM thread (user is reading it)
+      try{
+        const dmVisible = document.getElementById("dmChat") && !document.getElementById("dmChat").classList.contains("hidden");
+        if(dmVisible && currentDMThreadId && threadId===currentDMThreadId){
+          updateInboxBadgeUI();
+          return;
+        }
+      }catch(e){}
+
+      const map = getUnreadMap();
+      map[threadId] = (map[threadId]||0) + 1;
+      setUnreadMap(map);
+      updateInboxBadgeUI();
+    }
+    function clearUnread(threadId){
+      if(!threadId) return;
+      const map = getUnreadMap();
+      if(map[threadId]){
+        delete map[threadId];
+        setUnreadMap(map);
+      }
+      updateInboxBadgeUI();
+    }
+
+    // Global realtime inbox watcher (DM only)
+    let dmInboxSub = null;
 
     (function(){
       let resumeTriggered = false;
@@ -1512,6 +1620,7 @@
           seenRoomMsgIds.add(row.id);
           lastRoomCreatedAt=row.created_at||lastRoomCreatedAt;
           renderOneMessage(row,myProfile&&myProfile.id?{id:myProfile.id,username:myProfile.username,avatar_url:myProfile.avatar_url}:{username:"Me",avatar_url:""});
+        playSfx("send");
         }
       }
     }
@@ -1546,6 +1655,9 @@
 
       currentDMUserId=otherUserId;
       currentDMThreadId=dmThreadId(session.user.id, otherUserId);
+
+      // mark this thread as read
+      clearUnread(currentDMThreadId);
 
       document.getElementById("dmChat").classList.remove("hidden");
 
@@ -1619,6 +1731,10 @@
 
       const {data:otherP}=await sb.from("profiles").select("id, username, avatar_url").eq("id", currentDMUserId).maybeSingle();
       renderDMMessage(row, otherP);
+        playSfx("send");
+
+      // Receive sound only for messages coming from the other user (DM only)
+      if(row.sender_id!==session.user.id) playSfx("recv");
     }
 
     async function subscribeDM(threadId){
@@ -1737,46 +1853,50 @@
           `<div class="thread-item" onclick="closeModal('inboxModal');openDM('${otherId}')">
             <img class="thread-avatar" src="${p.avatar_url||""}" alt="">
             <div class="thread-meta">
-              <div class="thread-name">${p.username||"User"}</div>
+              <div class="thread-name">${p.username||"User"}${(function(){const um=getUnreadMap();const n=um[t.thread_id]||0;return n>0?`<span class=\"thread-badge\">${n>99?"99+":n}</span>`:"";})()}</div>
               <div class="thread-preview">${escapeHtml(preview)}</div>
             </div>
             <div class="thread-time">${timeAgo(t.created_at)}</div>
           </div>`;
       });
 
-      const dot=document.getElementById("inboxDot");
-      if(dot) dot.style.display="none";
+      updateInboxBadgeUI();
     }
-
     async function startInboxBadge(){
       stopInboxBadge();
       if(!session || !session.user) return;
       const uid=session.user.id;
 
-      let lastCheck=new Date().toISOString();
+      updateInboxBadgeUI();
 
-      dmInboxBadgeTimer=setInterval(async ()=>{
-        try{
-          const since = lastCheck;
-          lastCheck = new Date().toISOString();
+      dmInboxSub = sb.channel("dm_inbox:"+uid)
+        .on("postgres_changes",
+          {event:"INSERT",schema:"public",table:TBL_DM,filter:`receiver_id=eq.${uid}`},
+          (payload)=>{
+            const row = payload && payload.new;
+            if(!row) return;
+            incUnread(row.thread_id);
 
-          const {data}=await sb.from(TBL_DM)
-            .select("id,receiver_id,created_at")
-            .eq("receiver_id", uid)
-            .gt("created_at", since)
-            .order("created_at",{ascending:false})
-            .limit(1);
-
-          if(data && data.length){
-            const dot=document.getElementById("inboxDot");
-            if(dot) dot.style.display="block";
+            // Avoid double sound when the DM thread is currently open (handleNewDM will play it)
+            try{
+              const dmVisible = document.getElementById("dmChat") && !document.getElementById("dmChat").classList.contains("hidden");
+              if(!(dmVisible && currentDMThreadId && row.thread_id===currentDMThreadId)){
+                playSfx("recv");
+              }
+            }catch(e){ playSfx("recv"); }
           }
+        )
+        .subscribe();
+    }
+
         }catch(e){}
       }, 2500);
     }
     function stopInboxBadge(){
-      if(dmInboxBadgeTimer){clearInterval(dmInboxBadgeTimer); dmInboxBadgeTimer=null;}
+      if(dmInboxSub){ sb.removeChannel(dmInboxSub); dmInboxSub=null; }
+      if(dmInboxBadgeTimer){clearInterval(dmInboxBadgeTimer); dmInboxBadgeTimer=null;} // legacy
     }
+
 
     function uaInfo(){
       const ua=navigator.userAgent||"";
@@ -2003,6 +2123,7 @@
           seenRoomMsgIds.add(row.id);
           lastRoomCreatedAt=row.created_at||lastRoomCreatedAt;
           renderOneMessage(row,myProfile&&myProfile.id?{id:myProfile.id,username:myProfile.username,avatar_url:myProfile.avatar_url}:{username:"Me",avatar_url:""});
+        playSfx("send");
         }
       }else if(target==="comment"){
         const {error}=await sb.from("comments").insert({post_id:currentPostId,user_id:session.user.id,text_content:"",audio_url:audioUrl});
