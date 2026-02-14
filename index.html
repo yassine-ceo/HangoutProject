@@ -1560,15 +1560,22 @@ document.addEventListener("click", unlockAudioOnce, {once:true, passive:true});
       hydrateAudioDurations(n);
     }
 
-    async function handleNewRoomMessage(row){
-      if(!row || !row.id) return;
-      if(row.room_name!==currentRoomKey) return;
-      if(seenRoomMsgIds.has(row.id)) return;
-      seenRoomMsgIds.add(row.id);
-      lastRoomCreatedAt=row.created_at||lastRoomCreatedAt;
-      const prof=await fetchProfileMini(row.user_id);
-      renderOneMessage(row,prof);
-    }
+   async function handleNewRoomMessage(row) {
+  if (!row || !row.id) return;
+  if (row.room_name !== currentRoomKey) return;
+  if (seenRoomMsgIds.has(row.id)) return;
+  
+  seenRoomMsgIds.add(row.id);
+  lastRoomCreatedAt = row.created_at || lastRoomCreatedAt;
+  
+  const prof = await fetchProfileMini(row.user_id);
+  renderOneMessage(row, prof);
+  
+  // ✅ تشغيل صوت الاستلام إذا الرسالة ليست منك
+  if (session && session.user && row.user_id !== session.user.id) {
+    playSnd(sndRecv);
+  }
+}
 
     async function subscribeRoom(roomName){
       stopRoomLive();
