@@ -659,26 +659,59 @@
 
             // Room
             try{
-              if(state.roomOpen && state.roomKey){
-                currentRoomKey = state.roomKey;
-                currentRoomLabel = state.roomLabel || currentRoomLabel;
-                if(state.chatRoomVisible){
-                  document.getElementById("chatRoom").classList.remove("hidden");
-                }
-                await subscribeRoom(state.roomKey);
-              }
+              if (state.roomOpen && state.roomKey) {
+  currentRoomKey = state.roomKey;
+  
+  // ✅ restore label deterministically
+  currentRoomLabel = state.roomLabel || (function() {
+    try {
+      const parts = String(state.roomKey || "").split("|");
+      if (parts.length >= 2) {
+        const ck = parts[0] || "rabat";
+        const hood = parts[1] || "Agdal";
+        return cityInHoodLabel(ck, hood);
+      }
+    } catch (e) {}
+    return currentRoomLabel || "Room";
+  })();
+  
+  // ✅ update header text (this was missing)
+  try { document.getElementById("roomNameDisplay").innerText = currentRoomLabel; } catch (e) {}
+  
+  if (state.chatRoomVisible) {
+    document.getElementById("chatRoom").classList.remove("hidden");
+  }
+  await subscribeRoom(state.roomKey);
+}
             }catch(e){}
 
             // DM
             try{
-              if(state.dmOpen && state.dmThreadId){
-                currentDMThreadId = state.dmThreadId;
-                currentDMUserId = state.dmUserId || currentDMUserId;
-                if(state.dmChatVisible){
-                  document.getElementById("dmChat").classList.remove("hidden");
-                }
-                await subscribeDM(state.dmThreadId);
-              }
+              if (state.dmOpen && state.dmThreadId) {
+  currentDMThreadId = state.dmThreadId;
+  currentDMUserId = state.dmUserId || currentDMUserId;
+  
+  // ✅ restore DM header (name + presence)
+  try {
+    const { data: prof } = await sb.from("profiles")
+      .select("id,username,avatar_url")
+      .eq("id", currentDMUserId)
+      .maybeSingle();
+    
+    document.getElementById("dmNameDisplay").innerText =
+      (prof && prof.username) ? prof.username : "User";
+    
+    const pres = await fetchPresence(currentDMUserId);
+    document.getElementById("dmStatusDisplay").innerText = presenceLabel(pres);
+  } catch (e) {
+    try { document.getElementById("dmNameDisplay").innerText = "User"; } catch (_) {}
+  }
+  
+  if (state.dmChatVisible) {
+    document.getElementById("dmChat").classList.remove("hidden");
+  }
+  await subscribeDM(state.dmThreadId);
+}
             }catch(e){}
           }, 450);
         }catch(e){}
