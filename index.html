@@ -1544,21 +1544,27 @@ document.addEventListener("click", unlockAudioOnce, {once:true, passive:true});
       return {id:userId,username:"User",avatar_url:""}
     }
 
-    function renderOneMessage(msg,prof){
-      const n=document.getElementById("chatMsgs");
-      const me=session&&session.user&&msg.user_id===session.user.id;
-      const u=prof||{username:"User",avatar_url:""};
-      const body=msg.audio_url
-        ?`<div class="audio-player" data-audio="${msg.audio_url}" onclick="playAudio('${msg.audio_url}', this)">
-            <div class="audio-btn"><svg style="width:14px;height:14px;fill:#000;stroke:none"><use href="#i-play"></use></svg></div>
-            <div class="audio-wave"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
-            <span class="audio-text">Voice</span><span class="audio-time">0:00</span>
-          </div>`
-        :`<div class="msg-content">${escapeHtml(msg.content||"")}</div>`;
-      n.insertAdjacentHTML("beforeend",`<div class="msg-row ${me?"me":""}">${me?"":`<img class="msg-img" src="${u.avatar_url||""}" onclick="openProfile('${msg.user_id}')">`}<div class="msg-box">${me?"":`<span class="msg-user">${u.username||"User"}</span>`}${body}<span class="msg-time">${formatChatTime(msg.created_at)}</span></div></div>`);
-      n.scrollTop=n.scrollHeight;
-      hydrateAudioDurations(n);
-    }
+    function renderOneMessage(msg, prof) {
+  // ✅ صوت الاستلام (يخدم مع realtime + polling)
+  const myId = session?.user?.id;
+  if (myId && msg?.user_id && msg.user_id !== myId) {
+    playSnd(sndRecv);
+  }
+  
+  const n = document.getElementById("chatMsgs");
+  const me = session && session.user && msg.user_id === session.user.id;
+  const u = prof || { username: "User", avatar_url: "" };
+  const body = msg.audio_url ?
+    `<div class="audio-player" data-audio="${msg.audio_url}" onclick="playAudio('${msg.audio_url}', this)">
+        <div class="audio-btn"><svg style="width:14px;height:14px;fill:#000;stroke:none"><use href="#i-play"></use></svg></div>
+        <div class="audio-wave"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
+        <span class="audio-text">Voice</span><span class="audio-time">0:00</span>
+      </div>` :
+    `<div class="msg-content">${escapeHtml(msg.content||"")}</div>`;
+  n.insertAdjacentHTML("beforeend", `<div class="msg-row ${me?"me":""}">${me?"":`<img class="msg-img" src="${u.avatar_url||""}" onclick="openProfile('${msg.user_id}')">`}<div class="msg-box">${me?"":`<span class="msg-user">${u.username||"User"}</span>`}${body}<span class="msg-time">${formatChatTime(msg.created_at)}</span></div></div>`);
+  n.scrollTop = n.scrollHeight;
+  hydrateAudioDurations(n);
+}
 
    async function handleNewRoomMessage(row) {
   if (!row || !row.id) return;
@@ -1570,6 +1576,8 @@ document.addEventListener("click", unlockAudioOnce, {once:true, passive:true});
   
   const prof = await fetchProfileMini(row.user_id);
   renderOneMessage(row, prof);
+  
+  
   
   // ✅ تشغيل صوت الاستلام إذا الرسالة ليست منك
   if (session && session.user && row.user_id !== session.user.id) {
