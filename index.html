@@ -635,20 +635,19 @@
 
           // Restore scroll
           setTimeout(() => {
-  try {
-    window.scrollTo(0, 0); // reset browser scroll first
-    const ms = document.getElementById("mainScroll");
-    if (ms) {
-      ms.scrollTop = 0;
-      requestAnimationFrame(() => {
-        ms.scrollTop = state.scrollY || 0;
-      });
-    }
-  } catch (e) {}
-}, 150);
+            try {
+              window.scrollTo(0, 0);
+              const ms = document.getElementById("mainScroll");
+              if (ms) {
+                ms.scrollTop = 0;
+                requestAnimationFrame(() => {
+                  ms.scrollTop = state.scrollY || 0;
+                });
+              }
+            } catch (e) {}
+          }, 150);
 
           // Restore room / DM (best-effort: only if user is still logged in & profile ok)
-          // We do not change any SQL or logic; just call existing functions.
           setTimeout(async ()=>{
             try{
               const { data } = await sb.auth.getSession();
@@ -660,70 +659,64 @@
             // Room
             try{
               if (state.roomOpen && state.roomKey) {
-  currentRoomKey = state.roomKey;
-  
-  // ✅ restore label deterministically
-  currentRoomLabel = state.roomLabel || (function() {
-    try {
-      const parts = String(state.roomKey || "").split("|");
-      if (parts.length >= 2) {
-        const ck = parts[0] || "rabat";
-        const hood = parts[1] || "Agdal";
-        return cityInHoodLabel(ck, hood);
-      }
-    } catch (e) {}
-    return currentRoomLabel || "Room";
-  })();
-  
-  // ✅ update header text (this was missing)
-  try { document.getElementById("roomNameDisplay").innerText = currentRoomLabel; } catch (e) {}
-  
-  if (state.chatRoomVisible) {
-    document.getElementById("chatRoom").classList.remove("hidden");
-  }
-  await subscribeRoom(state.roomKey);
-}
+                currentRoomKey = state.roomKey;
+
+                currentRoomLabel = state.roomLabel || (function() {
+                  try {
+                    const parts = String(state.roomKey || "").split("|");
+                    if (parts.length >= 2) {
+                      const ck = parts[0] || "rabat";
+                      const hood = parts[1] || "Agdal";
+                      return cityInHoodLabel(ck, hood);
+                    }
+                  } catch (e) {}
+                  return currentRoomLabel || "Room";
+                })();
+
+                try { document.getElementById("roomNameDisplay").innerText = currentRoomLabel; } catch (e) {}
+
+                if (state.chatRoomVisible) {
+                  document.getElementById("chatRoom").classList.remove("hidden");
+                }
+                await subscribeRoom(state.roomKey);
+              }
             }catch(e){}
 
             // DM
             try{
               if (state.dmOpen && state.dmThreadId) {
-  currentDMThreadId = state.dmThreadId;
-  currentDMUserId = state.dmUserId || currentDMUserId;
-  
-  // ✅ restore DM header (name + presence)
-  try {
-    const { data: prof } = await sb.from("profiles")
-      .select("id,username,avatar_url")
-      .eq("id", currentDMUserId)
-      .maybeSingle();
-    
-    document.getElementById("dmNameDisplay").innerText =
-      (prof && prof.username) ? prof.username : "User";
-    
-    const pres = await fetchPresence(currentDMUserId);
-    document.getElementById("dmStatusDisplay").innerText = presenceLabel(pres);
-  } catch (e) {
-    try { document.getElementById("dmNameDisplay").innerText = "User"; } catch (_) {}
-  }
-  
-  if (state.dmChatVisible) {
-    document.getElementById("dmChat").classList.remove("hidden");
-  }
-  await subscribeDM(state.dmThreadId);
-}
+                currentDMThreadId = state.dmThreadId;
+                currentDMUserId = state.dmUserId || currentDMUserId;
+
+                // ✅ restore DM header fast (cached if possible)
+                try {
+                  const prof = await hzGetProfileCached(currentDMUserId);
+                  document.getElementById("dmNameDisplay").innerText =
+                    (prof && prof.username) ? prof.username : "User";
+                  const pres = await hzGetPresenceCached(currentDMUserId);
+                  document.getElementById("dmStatusDisplay").innerText = presenceLabel(pres);
+                } catch (e) {
+                  try { document.getElementById("dmNameDisplay").innerText = "User"; } catch (_) {}
+                }
+
+                if (state.dmChatVisible) {
+                  document.getElementById("dmChat").classList.remove("hidden");
+                }
+                await subscribeDM(state.dmThreadId);
+              }
             }catch(e){}
           }, 450);
         }catch(e){}
       }
 
       function hardReload() {
-  if (resumeTriggered) return;
-  resumeTriggered = true;
-  saveAppState();
-  sessionStorage.setItem("hz_silent_reload", "1");
-  location.reload();
-}
+        if (resumeTriggered) return;
+        resumeTriggered = true;
+        saveAppState();
+        sessionStorage.setItem("hz_silent_reload", "1");
+        location.reload();
+      }
+
       // Resume triggers
       document.addEventListener("visibilitychange", ()=>{
         if(document.visibilityState === "hidden"){
@@ -753,7 +746,6 @@
       }, {passive:true});
 
     })();
-
 
     let session,currentBg,currentPostId,currentRoomKey=null,currentRoomLabel=null,roomSub=null,currentPlayingBtn=null,myProfile={},isEditing=!1,currentEditingUser=null,seenRoomMsgIds=new Set,roomProfileCache={},profileRequired=!1,roomPollTimer=null,lastRoomCreatedAt=null;
 
@@ -789,6 +781,81 @@
     // 2) user_presence: user_id(uuid primary key), is_online(bool), last_seen(timestamp)
     const TBL_DM="dm_messages";
     const TBL_PRESENCE="user_presence";
+
+    /* =========================
+       HZ PERF LAYER (Cache + Parallel helpers)
+       - No SQL changes
+       - No renames
+       ========================= */
+    const hzProfMem = new Map();     // userId -> {ts, v}
+    const hzPresMem = new Map();     // userId -> {ts, v}
+    const hzCountMem = new Map();    // key -> {ts, v}
+
+    const HZ_TTL_PROF = 5 * 60 * 1000;   // 5 min
+    const HZ_TTL_PRES = 12 * 1000;       // 12 sec
+    const HZ_TTL_COUNT = 45 * 1000;      // 45 sec
+
+    function hzNow(){ return Date.now(); }
+
+    function hzGetMem(map, key, ttl){
+      const x = map.get(key);
+      if(!x) return null;
+      if(hzNow() - x.ts > ttl){ map.delete(key); return null; }
+      return x.v;
+    }
+    function hzSetMem(map, key, val){
+      map.set(key, {ts: hzNow(), v: val});
+      return val;
+    }
+
+    async function hzGetProfileCached(userId){
+      if(!userId) return null;
+      const cached = hzGetMem(hzProfMem, userId, HZ_TTL_PROF);
+      if(cached) return cached;
+      try{
+        const {data} = await sb.from("profiles")
+          .select("id,username,avatar_url,full_name,gender,interests,bio,neighborhood,city,age,vibe_score")
+          .eq("id", userId)
+          .maybeSingle();
+        return hzSetMem(hzProfMem, userId, data || null);
+      }catch(e){
+        return null;
+      }
+    }
+
+    async function hzGetPresenceCached(userId){
+      if(!userId) return null;
+      const cached = hzGetMem(hzPresMem, userId, HZ_TTL_PRES);
+      if(cached) return cached;
+      try{
+        const {data} = await sb.from(TBL_PRESENCE).select("*").eq("user_id", userId).maybeSingle();
+        return hzSetMem(hzPresMem, userId, data || null);
+      }catch(e){
+        return null;
+      }
+    }
+
+    async function hzGetPostsCountCached(userId){
+      if(!userId) return 0;
+      const key = "postsCount:"+userId;
+      const cached = hzGetMem(hzCountMem, key, HZ_TTL_COUNT);
+      if(cached!=null) return cached;
+      try{
+        const {count} = await sb.from("posts").select("*",{count:"exact",head:true}).eq("user_id", userId);
+        return hzSetMem(hzCountMem, key, count || 0);
+      }catch(e){
+        return 0;
+      }
+    }
+
+    function hzWarmProfileMini(p){
+      try{
+        if(p && p.id){
+          const old = hzGetMem(hzProfMem, p.id, HZ_TTL_PROF);
+          if(!old) hzSetMem(hzProfMem, p.id, p);
+        }
+      }catch(e){}
+    }
 
     const cities={
       rabat:{name:"Rabat",hoods:["Agdal","Hassan","Hay Riad","Ocean","Medina","Souissi","Yacoub Al Mansour","Akkari","Kammra","Temara","Skhirat"]},
@@ -908,27 +975,26 @@
     }
 
     function showSplashThenStart() {
-  
-  const silent = sessionStorage.getItem("hz_silent_reload") === "1";
-  if (silent) {
-    sessionStorage.removeItem("hz_silent_reload");
-    lockTourScroll(false);
-    return; // لا تعرض splash أثناء silent reload
-  }
-  
-  const splash = document.getElementById("splash");
-  splash.style.display = "flex";
-  lockTourScroll(true);
-  typeSplash();
-  setTimeout(() => {
-    splash.style.display = "none";
-    const first = localStorage.getItem("hz_tour_v2") !== "1";
-    if (first) {
-      buildTourSteps();
-      startTour();
-    } else lockTourScroll(false);
-  }, 1500)
-}
+      const silent = sessionStorage.getItem("hz_silent_reload") === "1";
+      if (silent) {
+        sessionStorage.removeItem("hz_silent_reload");
+        lockTourScroll(false);
+        return;
+      }
+
+      const splash = document.getElementById("splash");
+      splash.style.display = "flex";
+      lockTourScroll(true);
+      typeSplash();
+      setTimeout(() => {
+        splash.style.display = "none";
+        const first = localStorage.getItem("hz_tour_v2") !== "1";
+        if (first) {
+          buildTourSteps();
+          startTour();
+        } else lockTourScroll(false);
+      }, 1500)
+    }
 
     async function handleOAuthRedirect(){
       const url=new URL(window.location.href);
@@ -1111,6 +1177,9 @@
       const {error}=await sb.from("profiles").upsert(payload);
       if(error){btn.disabled=false;btn.textContent="Save Profile";return alert(error.message);}
 
+      // ✅ warm cache immediately
+      hzWarmProfileMini(payload);
+
       profileRequired=false;
       isEditing=false;
       document.getElementById("setupModal").style.display="none";
@@ -1126,6 +1195,7 @@
       if(data && data.id && data.username && data.avatar_url && data.full_name && data.gender && data.interests && data.neighborhood){
         myProfile=data;
         profileRequired=false;
+        hzWarmProfileMini({id:data.id, username:data.username, avatar_url:data.avatar_url});
       }else{
         myProfile=data||{};
         profileRequired=true;
@@ -1146,6 +1216,10 @@
         const u=p.profiles, r=getRank(u.vibe_score||0), isMine=session&&session.user&&session.user.id===u.id;
         const loc=profileLoc(u);
         const locLabel=loc.cityName+" in "+loc.hood;
+
+        // ✅ warm cache from feed profiles
+        hzWarmProfileMini({id:u.id, username:u.username, avatar_url:u.avatar_url});
+
         const visual=p.background_style
           ?`<div class="post-visual" style="background:${p.background_style}"><div class="bg-text">${escapeHtml(p.caption)}</div></div>`
           :`<div class="post-visual"><img src="${p.image_url}"><div class="img-caption">${escapeHtml(p.caption)}</div></div>`;
@@ -1168,8 +1242,7 @@
       loadPostComments();
     }
 
-    /* ✅ FIX: audio duration تظهر مباشرة بدون ضغط
-       - نحمّل metadata لكل audio-player بعد الرندر ونكتب المدة على طول */
+    /* ✅ FIX: audio duration تظهر مباشرة بدون ضغط */
     const _durCache = new Map(); // url -> seconds
     function fmtTime(sec){
       sec = Math.max(0, Math.floor(sec || 0));
@@ -1196,13 +1269,11 @@
         const url = el.getAttribute("data-audio");
         if(!url) return;
 
-        // already loaded
         if(_durCache.has(url)){
           setPlayerTime(el, 0, _durCache.get(url));
           return;
         }
 
-        // show placeholder quickly
         setPlayerTime(el, 0, 0);
 
         try{
@@ -1219,14 +1290,10 @@
             } else {
               setPlayerTime(el, 0, 0);
             }
-            // cleanup
             a.src = "";
           };
 
-          a.onerror = () => {
-            // fallback: leave 0:00 if CORS blocks metadata
-            a.src = "";
-          };
+          a.onerror = () => { a.src = ""; };
         }catch(e){}
       });
     }
@@ -1246,8 +1313,6 @@
           :`<div class="c-text">${escapeHtml(c.text_content)}</div>`;
         e.innerHTML+=`<div class="comment-item"><img class="c-avatar" src="${c.profiles.avatar_url}" onclick="openProfile('${c.profiles.id}')"><div class="c-content"><div class="c-bubble"><div class="c-header"><span class="c-user" onclick="openProfile('${c.profiles.id}')">${c.profiles.username}</span><span class="c-time">${timeAgo(c.created_at)}</span></div>${visual}</div></div></div>`;
       });
-
-      // ✅ preload durations now
       hydrateAudioDurations(e);
     }
 
@@ -1283,7 +1348,6 @@
         el.classList.add("playing");
         el.querySelector(".audio-btn").innerHTML='<svg style="width:14px;height:14px;fill:#000;stroke:none"><use href="#i-pause"></use></svg>';
         el.querySelector(".audio-text").innerText="Playing";
-        // duration should already be cached, but keep safe:
         setPlayerTime(el, 0, globalAudio.duration);
       }).catch(()=>{
         resetPlayerUI(el);
@@ -1368,11 +1432,9 @@
       stopPresence();
       if(!session || !session.user) return;
 
-      // mark online immediately + heartbeat
       upsertPresence(true);
       presenceTimer=setInterval(()=>upsertPresence(true), 25000);
 
-      // on exit mark offline
       window.addEventListener("beforeunload", ()=>{ try{ upsertPresence(false); }catch(e){} }, {once:true});
       window.addEventListener("pagehide", ()=>{ try{ upsertPresence(false); }catch(e){} }, {once:true});
       document.addEventListener("visibilitychange", ()=>{
@@ -1403,20 +1465,32 @@
       openDM(currentEditingUser.id);
     }
 
+    // ✅ FAST PROFILE (parallel + cache)
     async function openProfile(id){
       if(!requireAuth()) return;
       if(!requireProfile()) return;
+
       const modal=document.getElementById("profileModal");
       modal.style.display="flex";
-      const {data:p}=await sb.from("profiles").select("*").eq("id",id).single();
+
+      // instant placeholders
+      document.getElementById("vpName").innerText="Loading...";
+      document.getElementById("vpStatus").innerText=" ";
+      document.getElementById("vpBio").innerText=" ";
+      document.getElementById("vpImg").src="";
+
+      const [p, postsCount, pres] = await Promise.all([
+        hzGetProfileCached(id),
+        hzGetPostsCountCached(id),
+        hzGetPresenceCached(id)
+      ]);
+
+      if(!p){ return; }
       currentEditingUser=p;
 
-      const {count:postsCount}=await sb.from("posts").select("*",{count:"exact",head:true}).eq("user_id",id);
       const r=getRank(p.vibe_score||0);
       const loc=profileLoc(p);
 
-      // presence
-      const pres = await fetchPresence(id);
       document.getElementById("vpStatus").innerText = presenceLabel(pres);
 
       document.getElementById("vpImg").src=p.avatar_url||"";
@@ -1432,7 +1506,6 @@
       document.getElementById("vpGender").innerText=p.gender||"-";
       document.getElementById("vpInterests").innerText=p.interests||"-";
 
-      // ✅ show edit if mine, else show contact
       const isMine = session.user.id===id;
       document.getElementById("editProfileBtn").style.display=isMine?"block":"none";
       document.getElementById("contactBtn").style.display=!isMine?"block":"none";
@@ -1444,10 +1517,23 @@
       lastRoomCreatedAt=null;
     }
 
+    // ✅ FAST MINI PROFILE (memory cache first)
     async function fetchProfileMini(userId){
       if(roomProfileCache[userId]) return roomProfileCache[userId];
+
+      const cached = hzGetMem(hzProfMem, userId, HZ_TTL_PROF);
+      if(cached){
+        const mini = {id: cached.id, username: cached.username, avatar_url: cached.avatar_url};
+        roomProfileCache[userId] = mini;
+        return mini;
+      }
+
       const {data}=await sb.from("profiles").select("id, username, avatar_url").eq("id",userId).maybeSingle();
-      if(data){roomProfileCache[userId]=data; return data}
+      if(data){
+        roomProfileCache[userId]=data;
+        hzWarmProfileMini(data);
+        return data;
+      }
       return {id:userId,username:"User",avatar_url:""}
     }
 
@@ -1464,8 +1550,6 @@
         :`<div class="msg-content">${escapeHtml(msg.content||"")}</div>`;
       n.insertAdjacentHTML("beforeend",`<div class="msg-row ${me?"me":""}">${me?"":`<img class="msg-img" src="${u.avatar_url||""}" onclick="openProfile('${msg.user_id}')">`}<div class="msg-box">${me?"":`<span class="msg-user">${u.username||"User"}</span>`}${body}<span class="msg-time">${formatChatTime(msg.created_at)}</span></div></div>`);
       n.scrollTop=n.scrollHeight;
-
-      // ✅ preload duration for this message audio immediately
       hydrateAudioDurations(n);
     }
 
@@ -1495,7 +1579,7 @@
         const ids=[...new Set(fresh.map(r=>r.user_id).filter(Boolean))].filter(id=>!roomProfileCache[id]);
         if(ids.length){
           const {data:plist}=await sb.from("profiles").select("id, username, avatar_url").in("id",ids);
-          (plist||[]).forEach(p=>{roomProfileCache[p.id]=p});
+          (plist||[]).forEach(p=>{roomProfileCache[p.id]=p; hzWarmProfileMini(p);});
         }
         fresh.forEach(r=>{
           seenRoomMsgIds.add(r.id);
@@ -1526,7 +1610,7 @@
       const ids=[...new Set(rows.map(r=>r.user_id))];
       if(ids.length){
         const {data:plist}=await sb.from("profiles").select("id, username, avatar_url").in("id",ids);
-        (plist||[]).forEach(p=>{roomProfileCache[p.id]=p});
+        (plist||[]).forEach(p=>{roomProfileCache[p.id]=p; hzWarmProfileMini(p);});
       }
       rows.forEach(r=>{
         if(r.id) seenRoomMsgIds.add(r.id);
@@ -1535,7 +1619,6 @@
       const last=rows[rows.length-1];
       lastRoomCreatedAt=last?last.created_at:null;
       box.scrollTop=box.scrollHeight;
-
       hydrateAudioDurations(box);
     }
 
@@ -1571,7 +1654,6 @@
     // ✅ DM (Private messages)
     // =========================
 
-    // ✅ FIX: separate "stop channel only" (do NOT clear DM state)
     function stopDMChannelOnly(){
       if(dmSub){sb.removeChannel(dmSub);dmSub=null}
       if(dmPollTimer){clearInterval(dmPollTimer);dmPollTimer=null}
@@ -1585,6 +1667,7 @@
       seenDMMsgIds=new Set();
     }
 
+    // ✅ FAST OPEN DM (parallel + cache)
     async function openDM(otherUserId){
       if(!requireAuth()) return;
       if(!requireProfile()) return;
@@ -1594,12 +1677,16 @@
 
       document.getElementById("dmChat").classList.remove("hidden");
 
-      // header
-      const {data:prof}=await sb.from("profiles").select("id,username,avatar_url").eq("id", otherUserId).maybeSingle();
-      document.getElementById("dmNameDisplay").innerText = (prof && prof.username) ? prof.username : "User";
+      const [prof, pres] = await Promise.all([
+        hzGetProfileCached(otherUserId),
+        hzGetPresenceCached(otherUserId)
+      ]);
 
-      const pres = await fetchPresence(otherUserId);
-      document.getElementById("dmStatusDisplay").innerText = presenceLabel(pres);
+      document.getElementById("dmNameDisplay").innerText =
+        (prof && prof.username) ? prof.username : "User";
+
+      document.getElementById("dmStatusDisplay").innerText =
+        presenceLabel(pres);
 
       seenDMMsgIds=new Set();
       lastDMCAt=null;
@@ -1637,8 +1724,9 @@
       const box=document.getElementById("dmMsgs");
       box.innerHTML="Loading...";
 
-      // other profile
-      const {data:otherP}=await sb.from("profiles").select("id, username, avatar_url").eq("id", currentDMUserId).maybeSingle();
+      // other profile (cached)
+      const otherP = await hzGetProfileCached(currentDMUserId);
+      const miniOther = otherP ? {id:otherP.id, username:otherP.username, avatar_url:otherP.avatar_url} : {id:currentDMUserId, username:"User", avatar_url:""};
 
       const {data:rows}=await sb.from(TBL_DM)
         .select("*")
@@ -1648,13 +1736,12 @@
       box.innerHTML="";
       (rows||[]).forEach(r=>{
         if(r.id) seenDMMsgIds.add(r.id);
-        renderDMMessage(r, otherP);
+        renderDMMessage(r, miniOther);
       });
 
       const last=(rows||[])[(rows||[]).length-1];
       lastDMCAt = last ? last.created_at : null;
       box.scrollTop=box.scrollHeight;
-
       hydrateAudioDurations(box);
     }
 
@@ -1665,12 +1752,12 @@
       seenDMMsgIds.add(row.id);
       lastDMCAt = row.created_at || lastDMCAt;
 
-      const {data:otherP}=await sb.from("profiles").select("id, username, avatar_url").eq("id", currentDMUserId).maybeSingle();
-      renderDMMessage(row, otherP);
+      const otherP = await hzGetProfileCached(currentDMUserId);
+      const miniOther = otherP ? {id:otherP.id, username:otherP.username, avatar_url:otherP.avatar_url} : {id:currentDMUserId, username:"User", avatar_url:""};
+      renderDMMessage(row, miniOther);
     }
 
     async function subscribeDM(threadId){
-      // ✅ FIX: only stop old channel/timer, keep currentDMUserId/currentDMThreadId
       stopDMChannelOnly();
       currentDMThreadId = threadId;
 
@@ -1691,15 +1778,17 @@
         const fresh=rows.filter(r=>r.id && !seenDMMsgIds.has(r.id));
         if(!fresh.length) return;
 
-        const {data:otherP}=await sb.from("profiles").select("id, username, avatar_url").eq("id", currentDMUserId).maybeSingle();
+        const otherP = await hzGetProfileCached(currentDMUserId);
+        const miniOther = otherP ? {id:otherP.id, username:otherP.username, avatar_url:otherP.avatar_url} : {id:currentDMUserId, username:"User", avatar_url:""};
         fresh.forEach(r=>{
           seenDMMsgIds.add(r.id);
           lastDMCAt = r.created_at || lastDMCAt;
-          renderDMMessage(r, otherP);
+          renderDMMessage(r, miniOther);
         });
       },900);
     }
 
+    // ✅ INSTANT SEND (optimistic UI) + then real insert
     async function sendDMMsg(){
       const text=(document.getElementById("dmInput").value||"").trim();
       if(!text || !currentDMUserId || !currentDMThreadId) return;
@@ -1707,6 +1796,22 @@
       if(!requireProfile()) return;
 
       document.getElementById("dmInput").value="";
+
+      // optimistic render
+      try{
+        const otherP = await hzGetProfileCached(currentDMUserId);
+        const miniOther = otherP ? {id:otherP.id, username:otherP.username, avatar_url:otherP.avatar_url} : {id:currentDMUserId, username:"User", avatar_url:""};
+        const tempRow = {
+          id: "tmp_"+Date.now(),
+          thread_id: currentDMThreadId,
+          sender_id: session.user.id,
+          receiver_id: currentDMUserId,
+          content: text,
+          audio_url: null,
+          created_at: new Date().toISOString()
+        };
+        renderDMMessage(tempRow, miniOther);
+      }catch(e){}
 
       const payload={
         thread_id: currentDMThreadId,
@@ -1719,13 +1824,7 @@
       const {data:row,error}=await sb.from(TBL_DM).insert(payload).select("*").single();
       if(error) return;
 
-      // render immediately if needed
-      if(row && row.id && !seenDMMsgIds.has(row.id)){
-        seenDMMsgIds.add(row.id);
-        lastDMCAt=row.created_at||lastDMCAt;
-        const {data:otherP}=await sb.from("profiles").select("id, username, avatar_url").eq("id", currentDMUserId).maybeSingle();
-        renderDMMessage(row, otherP);
-      }
+      if(row && row.id) seenDMMsgIds.add(row.id);
     }
 
     // ✅ Inbox list (group messages by other user)
@@ -1760,7 +1859,6 @@
         return;
       }
 
-      // group by thread, take latest message
       const latestByThread=new Map();
       msgs.forEach(m=>{
         if(!m.thread_id) return;
@@ -1769,7 +1867,6 @@
 
       const threads=[...latestByThread.values()];
 
-      // collect other ids
       const otherIds=[...new Set(threads.map(t=>{
         const other = (t.sender_id===uid) ? t.receiver_id : t.sender_id;
         return other;
@@ -1778,7 +1875,7 @@
       let profMap={};
       if(otherIds.length){
         const {data:plist}=await sb.from("profiles").select("id, username, avatar_url").in("id", otherIds);
-        (plist||[]).forEach(p=>{profMap[p.id]=p});
+        (plist||[]).forEach(p=>{profMap[p.id]=p; hzWarmProfileMini(p);});
       }
 
       box.innerHTML="";
@@ -1797,12 +1894,10 @@
           </div>`;
       });
 
-      // clear badge dot when inbox opened
       const dot=document.getElementById("inboxDot");
       if(dot) dot.style.display="none";
     }
 
-    // ✅ lightweight badge polling (shows red dot if any new msg in last 30s)
     async function startInboxBadge(){
       stopInboxBadge();
       if(!session || !session.user) return;
@@ -2092,8 +2187,9 @@
         if(row && row.id && !seenDMMsgIds.has(row.id)){
           seenDMMsgIds.add(row.id);
           lastDMCAt=row.created_at||lastDMCAt;
-          const {data:otherP}=await sb.from("profiles").select("id, username, avatar_url").eq("id", currentDMUserId).maybeSingle();
-          renderDMMessage(row, otherP);
+          const otherP = await hzGetProfileCached(currentDMUserId);
+          const miniOther = otherP ? {id:otherP.id, username:otherP.username, avatar_url:otherP.avatar_url} : {id:currentDMUserId, username:"User", avatar_url:""};
+          renderDMMessage(row, miniOther);
         }
       }
 
