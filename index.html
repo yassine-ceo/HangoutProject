@@ -734,6 +734,13 @@
     }
 
     function showSplashThenStart(){
+      // ✅ Silent reload check – if hz_silent_reload exists, skip splash entirely
+      if (sessionStorage.getItem("hz_silent_reload") === "1") {
+        sessionStorage.removeItem("hz_silent_reload");
+        lockTourScroll(false); // ensure scroll is unlocked
+        return;
+      }
+
       const splash=document.getElementById("splash");
       splash.style.display="flex";
       lockTourScroll(true);
@@ -2085,6 +2092,92 @@
       const redirectTo=window.location.origin+window.location.pathname;
       await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo,queryParams:{access_type:"offline",prompt:"consent"}}});
     };
+
+    // ========== Stateful Silent Reload ==========
+    function saveAppState() {
+      const state = {
+        view: document.getElementById("feedView").classList.contains("hidden") ? "rooms" : "feed",
+        scrollTop: document.getElementById("mainScroll").scrollTop,
+        roomOpen: !document.getElementById("chatRoom").classList.contains("hidden"),
+        roomKey: currentRoomKey,
+        roomLabel: currentRoomLabel,
+        dmOpen: !document.getElementById("dmChat").classList.contains("hidden"),
+        dmUserId: currentDMUserId,
+        dmThreadId: currentDMThreadId,
+      };
+      sessionStorage.setItem("hz_app_state", JSON.stringify(state));
+      sessionStorage.setItem("hz_silent_reload", "1");
+    }
+
+    function restoreAppState() {
+      const saved = sessionStorage.getItem("hz_app_state");
+      if (!saved) return;
+      try {
+        const state = JSON.parse(saved);
+        // استعادة view
+        if (state.view === "rooms") {
+          document.getElementById("dockRooms").click(); // ينشط الـ view
+        } else {
+          document.getElementById("dockHome").click();
+        }
+        // استعادة scroll
+        setTimeout(() => {
+          document.getElementById("mainScroll").scrollTop = state.scrollTop || 0;
+        }, 100);
+        // استعادة room إذا كان مفتوحاً
+        if (state.roomOpen && state.roomKey) {
+          const parts = state.roomKey.split("|");
+          if (parts.length === 2) {
+            openRoom(parts[0], parts[1]); // هذه الدالة تفتح الشات وتشترك
+          }
+        }
+        // استعادة dm إذا كان مفتوحاً
+        if (state.dmOpen && state.dmUserId && state.dmThreadId) {
+          openDM(state.dmUserId); // هذه تفتح dm وتشترك
+        }
+        sessionStorage.removeItem("hz_app_state");
+      } catch (e) {}
+    }
+
+    // أحداث الرلود الصامت
+    function setupSilentReload() {
+      let reloadTimer = null;
+      const triggerReload = () => {
+        if (reloadTimer) clearTimeout(reloadTimer);
+        reloadTimer = setTimeout(() => {
+          saveAppState();
+          location.reload();
+        }, 200);
+      };
+
+      window.addEventListener("pageshow", (e) => {
+        if (e.persisted) {
+          // إذا كانت الصفحة مستعادة من BFCache
+          triggerReload();
+        }
+      });
+
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible") {
+          // عند العودة من الخلفية
+          triggerReload();
+        }
+      });
+
+      window.addEventListener("online", () => {
+        triggerReload();
+      });
+    }
+
+    // تعديل showSplashThenStart (تم التعديل داخل الدالة الأصلية أعلاه)
+
+    // استدعاء restore بعد التحميل
+    window.addEventListener("load", () => {
+      restoreAppState();
+    });
+
+    // تفعيل silent reload
+    setupSilentReload();
 
     async function init(){
       renderCities();
