@@ -788,6 +788,43 @@
     const sndSend=new Audio(SND_SEND_URL);
     const sndRecv=new Audio(SND_RECV_URL);
     try{ sndSend.preload="auto"; sndRecv.preload="auto"; }catch(e){}
+    // 🔓 Audio Unlock (runs once after first user touch)
+let audioUnlocked = false;
+
+async function unlockAudioOnce(){
+  if(audioUnlocked) return;
+  audioUnlocked = true;
+
+  try{
+    [sndSend, sndRecv].forEach(a=>{
+      try{
+        a.muted = true;
+        a.volume = 0;
+        a.currentTime = 0;
+      }catch(e){}
+    });
+
+    const p1 = sndSend.play();
+    if(p1 && p1.catch) await p1.catch(()=>{});
+    sndSend.pause();
+
+    const p2 = sndRecv.play();
+    if(p2 && p2.catch) await p2.catch(()=>{});
+    sndRecv.pause();
+
+    [sndSend, sndRecv].forEach(a=>{
+      try{
+        a.currentTime = 0;
+        a.muted = false;
+        a.volume = 1;
+      }catch(e){}
+    });
+  }catch(e){}
+}
+
+document.addEventListener("pointerdown", unlockAudioOnce, {once:true, passive:true});
+document.addEventListener("touchstart", unlockAudioOnce, {once:true, passive:true});
+document.addEventListener("click", unlockAudioOnce, {once:true, passive:true});
     function playSnd(a){
       try{ if(!a) return; a.pause(); a.currentTime=0; const p=a.play(); if(p&&p.catch) p.catch(()=>{}); }catch(e){}
     }
