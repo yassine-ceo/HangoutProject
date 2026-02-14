@@ -188,7 +188,7 @@
     .prof-status{
       font-size:12px;
       font-weight:900;
-      color:var(--danger); /* ✅ الأحمر */
+      color:var(--danger);
       margin:-4px 0 14px;
     }
     .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
@@ -204,7 +204,6 @@
     .upload-tools{display:flex;gap:10px;align-items:center}
     .tool-btn{width:45px;height:45px;border-radius:50%;background:#222;border:1px solid var(--border);display:grid;place-items:center;color:#fff;cursor:pointer;flex-shrink:0}
 
-    /* ✅ Inbox list UI */
     .thread-item{
       display:flex;gap:10px;align-items:center;
       padding:12px;border-radius:14px;
@@ -344,7 +343,6 @@
       <div class="topbar">
         <div class="brand">HypeZone</div>
 
-        <!-- ✅ ADDED: Inbox button + existing badge (no other UI changed) -->
         <div class="top-actions">
           <button class="icon-btn" id="inboxBtn" title="Messages" onclick="openInbox()">
             <span class="badge-dot" id="inboxDot"></span>
@@ -375,7 +373,6 @@
     </div>
   </div>
 
-  <!-- Rooms chat -->
   <div id="chatRoom" class="chat-interface hidden">
     <div class="chat-top">
       <button class="chat-exit" onclick="stopRoomLive();document.getElementById('chatRoom').classList.add('hidden')">
@@ -393,7 +390,6 @@
     </div>
   </div>
 
-  <!-- ✅ ADDED: Private DM chat -->
   <div id="dmChat" class="chat-interface hidden" style="z-index:3200">
     <div class="chat-top">
       <button class="chat-exit" onclick="stopDMLive();document.getElementById('dmChat').classList.add('hidden')">
@@ -429,7 +425,6 @@
     </div>
   </div>
 
-  <!-- ✅ ADDED: Inbox modal (messages list) -->
   <div id="inboxModal" class="modal">
     <div class="modal-card">
       <div class="modal-header">
@@ -450,13 +445,11 @@
         <img id="vpImg" class="prof-lg" alt="Profile photo">
         <h2 id="vpName">Name</h2>
 
-        <!-- ✅ ADDED: Online/Last seen (red) -->
         <div class="prof-status" id="vpStatus"> </div>
 
         <div id="vpRankBadge" class="prof-rank-badge">ROOKIE</div>
         <div class="prof-bio" id="vpBio"></div>
 
-        <!-- ✅ ADDED: Contact button (shows only when viewing other user) -->
         <button id="contactBtn" class="btn-primary" style="margin:0 0 12px;display:none" onclick="contactFromProfile()">Message</button>
 
         <div class="stat-grid">
@@ -582,14 +575,7 @@
   <script>
     const sb=supabase.createClient("https://tujdnvnrizgqroaozsqp.supabase.co","sb_publishable_WyigevxmzR2gLtbog2Ztfg_8pdmSwop",{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:"pkce"}});
 
-    /* =========================
-       SILENT HARD RELOAD (100% stable)
-       - Saves UI state then reloads on resume/BFCache to recover from frozen JS/WebSocket
-       - Restores view, scroll, open room/DM (best-effort) after reload
-       ========================= */
-
     (function(){
-
       let resumeTriggered = false;
       let wasHidden = false;
 
@@ -624,7 +610,6 @@
           sessionStorage.removeItem("hz_resume_state");
           if(!state) return;
 
-          // Restore view (best-effort, no rename / no logic change)
           try{
             if(state.view === "rooms"){
               switchView("rooms", document.getElementById("dockRooms"));
@@ -633,7 +618,6 @@
             }
           }catch(e){}
 
-          // Restore scroll
           setTimeout(() => {
             try {
               window.scrollTo(0, 0);
@@ -647,7 +631,6 @@
             } catch (e) {}
           }, 150);
 
-          // Restore room / DM (best-effort: only if user is still logged in & profile ok)
           setTimeout(async ()=>{
             try{
               const { data } = await sb.auth.getSession();
@@ -656,7 +639,6 @@
               }
             }catch(e){}
 
-            // Room
             try{
               if (state.roomOpen && state.roomKey) {
                 currentRoomKey = state.roomKey;
@@ -682,18 +664,21 @@
               }
             }catch(e){}
 
-            // DM
             try{
               if (state.dmOpen && state.dmThreadId) {
                 currentDMThreadId = state.dmThreadId;
                 currentDMUserId = state.dmUserId || currentDMUserId;
 
-                // ✅ restore DM header fast (cached if possible)
                 try {
-                  const prof = await hzGetProfileCached(currentDMUserId);
+                  const { data: prof } = await sb.from("profiles")
+                    .select("id,username,avatar_url")
+                    .eq("id", currentDMUserId)
+                    .maybeSingle();
+
                   document.getElementById("dmNameDisplay").innerText =
                     (prof && prof.username) ? prof.username : "User";
-                  const pres = await hzGetPresenceCached(currentDMUserId);
+
+                  const pres = await fetchPresence(currentDMUserId);
                   document.getElementById("dmStatusDisplay").innerText = presenceLabel(pres);
                 } catch (e) {
                   try { document.getElementById("dmNameDisplay").innerText = "User"; } catch (_) {}
@@ -717,7 +702,6 @@
         location.reload();
       }
 
-      // Resume triggers
       document.addEventListener("visibilitychange", ()=>{
         if(document.visibilityState === "hidden"){
           wasHidden = true;
@@ -728,19 +712,16 @@
         }
       }, {passive:true});
 
-      // BFCache restore
       window.addEventListener("pageshow", (e)=>{
         if(e && e.persisted){
           hardReload();
         }
       }, {passive:true});
 
-      // Network changes
       window.addEventListener("online", ()=>{
         if(!document.hidden) hardReload();
       }, {passive:true});
 
-      // Restore after reload
       window.addEventListener("load", ()=>{
         restoreAppState();
       }, {passive:true});
@@ -749,7 +730,6 @@
 
     let session,currentBg,currentPostId,currentRoomKey=null,currentRoomLabel=null,roomSub=null,currentPlayingBtn=null,myProfile={},isEditing=!1,currentEditingUser=null,seenRoomMsgIds=new Set,roomProfileCache={},profileRequired=!1,roomPollTimer=null,lastRoomCreatedAt=null;
 
-    // ✅ DM state
     let currentDMUserId=null;
     let currentDMThreadId=null;
     let dmSub=null;
@@ -757,7 +737,6 @@
     let lastDMCAt=null;
     let seenDMMsgIds=new Set();
 
-    // ✅ presence heartbeat
     let presenceTimer=null;
     let dmInboxBadgeTimer=null;
 
@@ -765,97 +744,17 @@
     const TIKTOK_URL="https://www.tiktok.com/@hypezone.ma";
     const AD_IMAGE="https://i.postimg.cc/rwTFC8C7/Tik-Tok.png";
 
-    // ✅ AUDIO RECORDER STATE
     let hzRecorder=null;
     let hzStream=null;
     let hzChunks=[];
-    let hzRecordingTarget=null; // "room" | "comment" | "dm"
+    let hzRecordingTarget=null;
     let hzIsUploading=false;
 
-    // ✅ CHANGE THIS IF YOU WANT A DEDICATED BUCKET NAME
     const AUDIO_BUCKET="post_images";
     const AUDIO_FOLDER="audio";
 
-    // ✅ TABLE NAMES (you must create these in Supabase)
-    // 1) dm_messages: id(uuid), thread_id(text), sender_id(uuid), receiver_id(uuid), content(text), audio_url(text), created_at(timestamp)
-    // 2) user_presence: user_id(uuid primary key), is_online(bool), last_seen(timestamp)
     const TBL_DM="dm_messages";
     const TBL_PRESENCE="user_presence";
-
-    /* =========================
-       HZ PERF LAYER (Cache + Parallel helpers)
-       - No SQL changes
-       - No renames
-       ========================= */
-    const hzProfMem = new Map();     // userId -> {ts, v}
-    const hzPresMem = new Map();     // userId -> {ts, v}
-    const hzCountMem = new Map();    // key -> {ts, v}
-
-    const HZ_TTL_PROF = 5 * 60 * 1000;   // 5 min
-    const HZ_TTL_PRES = 12 * 1000;       // 12 sec
-    const HZ_TTL_COUNT = 45 * 1000;      // 45 sec
-
-    function hzNow(){ return Date.now(); }
-
-    function hzGetMem(map, key, ttl){
-      const x = map.get(key);
-      if(!x) return null;
-      if(hzNow() - x.ts > ttl){ map.delete(key); return null; }
-      return x.v;
-    }
-    function hzSetMem(map, key, val){
-      map.set(key, {ts: hzNow(), v: val});
-      return val;
-    }
-
-    async function hzGetProfileCached(userId){
-      if(!userId) return null;
-      const cached = hzGetMem(hzProfMem, userId, HZ_TTL_PROF);
-      if(cached) return cached;
-      try{
-        const {data} = await sb.from("profiles")
-          .select("id,username,avatar_url,full_name,gender,interests,bio,neighborhood,city,age,vibe_score")
-          .eq("id", userId)
-          .maybeSingle();
-        return hzSetMem(hzProfMem, userId, data || null);
-      }catch(e){
-        return null;
-      }
-    }
-
-    async function hzGetPresenceCached(userId){
-      if(!userId) return null;
-      const cached = hzGetMem(hzPresMem, userId, HZ_TTL_PRES);
-      if(cached) return cached;
-      try{
-        const {data} = await sb.from(TBL_PRESENCE).select("*").eq("user_id", userId).maybeSingle();
-        return hzSetMem(hzPresMem, userId, data || null);
-      }catch(e){
-        return null;
-      }
-    }
-
-    async function hzGetPostsCountCached(userId){
-      if(!userId) return 0;
-      const key = "postsCount:"+userId;
-      const cached = hzGetMem(hzCountMem, key, HZ_TTL_COUNT);
-      if(cached!=null) return cached;
-      try{
-        const {count} = await sb.from("posts").select("*",{count:"exact",head:true}).eq("user_id", userId);
-        return hzSetMem(hzCountMem, key, count || 0);
-      }catch(e){
-        return 0;
-      }
-    }
-
-    function hzWarmProfileMini(p){
-      try{
-        if(p && p.id){
-          const old = hzGetMem(hzProfMem, p.id, HZ_TTL_PROF);
-          if(!old) hzSetMem(hzProfMem, p.id, p);
-        }
-      }catch(e){}
-    }
 
     const cities={
       rabat:{name:"Rabat",hoods:["Agdal","Hassan","Hay Riad","Ocean","Medina","Souissi","Yacoub Al Mansour","Akkari","Kammra","Temara","Skhirat"]},
@@ -911,7 +810,6 @@
       return true
     }
 
-    // ✅ DM thread id (deterministic)
     function dmThreadId(a,b){
       const x=String(a||"");
       const y=String(b||"");
@@ -1177,9 +1075,6 @@
       const {error}=await sb.from("profiles").upsert(payload);
       if(error){btn.disabled=false;btn.textContent="Save Profile";return alert(error.message);}
 
-      // ✅ warm cache immediately
-      hzWarmProfileMini(payload);
-
       profileRequired=false;
       isEditing=false;
       document.getElementById("setupModal").style.display="none";
@@ -1195,7 +1090,6 @@
       if(data && data.id && data.username && data.avatar_url && data.full_name && data.gender && data.interests && data.neighborhood){
         myProfile=data;
         profileRequired=false;
-        hzWarmProfileMini({id:data.id, username:data.username, avatar_url:data.avatar_url});
       }else{
         myProfile=data||{};
         profileRequired=true;
@@ -1216,10 +1110,6 @@
         const u=p.profiles, r=getRank(u.vibe_score||0), isMine=session&&session.user&&session.user.id===u.id;
         const loc=profileLoc(u);
         const locLabel=loc.cityName+" in "+loc.hood;
-
-        // ✅ warm cache from feed profiles
-        hzWarmProfileMini({id:u.id, username:u.username, avatar_url:u.avatar_url});
-
         const visual=p.background_style
           ?`<div class="post-visual" style="background:${p.background_style}"><div class="bg-text">${escapeHtml(p.caption)}</div></div>`
           :`<div class="post-visual"><img src="${p.image_url}"><div class="img-caption">${escapeHtml(p.caption)}</div></div>`;
@@ -1242,8 +1132,7 @@
       loadPostComments();
     }
 
-    /* ✅ FIX: audio duration تظهر مباشرة بدون ضغط */
-    const _durCache = new Map(); // url -> seconds
+    const _durCache = new Map();
     function fmtTime(sec){
       sec = Math.max(0, Math.floor(sec || 0));
       const m = Math.floor(sec / 60);
@@ -1313,6 +1202,7 @@
           :`<div class="c-text">${escapeHtml(c.text_content)}</div>`;
         e.innerHTML+=`<div class="comment-item"><img class="c-avatar" src="${c.profiles.avatar_url}" onclick="openProfile('${c.profiles.id}')"><div class="c-content"><div class="c-bubble"><div class="c-header"><span class="c-user" onclick="openProfile('${c.profiles.id}')">${c.profiles.username}</span><span class="c-time">${timeAgo(c.created_at)}</span></div>${visual}</div></div></div>`;
       });
+
       hydrateAudioDurations(e);
     }
 
@@ -1404,9 +1294,15 @@
       loadFeed();
     }
 
+    // ✅ FIXED: Like/Dislike no longer jumps back to first post
     async function vote(postId,type){
       if(!requireAuth()) return;
       if(!requireProfile()) return;
+
+      // ✅ preserve scroll position in #mainScroll
+      const ms = document.getElementById("mainScroll");
+      const savedY = ms ? (ms.scrollTop || 0) : 0;
+
       const {data:existing}=await sb.from("post_votes").select("*").eq("user_id",session.user.id).eq("post_id",postId).maybeSingle();
       if(existing){
         if(existing.vote_type===type) await sb.from("post_votes").delete().eq("id",existing.id);
@@ -1414,10 +1310,18 @@
       }else{
         await sb.from("post_votes").insert({user_id:session.user.id,post_id:postId,vote_type:type});
       }
-      loadFeed();
+
+      await loadFeed();
+
+      // ✅ restore scroll after feed re-render
+      requestAnimationFrame(()=>{
+        try{
+          const ms2 = document.getElementById("mainScroll");
+          if(ms2) ms2.scrollTop = savedY;
+        }catch(e){}
+      });
     }
 
-    // ✅ presence helpers
     async function upsertPresence(isOnline){
       if(!session || !session.user) return;
       try{
@@ -1458,39 +1362,25 @@
       return "Last seen";
     }
 
-    // ✅ Contact button from profile
     function contactFromProfile(){
       if(!currentEditingUser || !currentEditingUser.id) return;
       closeModal("profileModal");
       openDM(currentEditingUser.id);
     }
 
-    // ✅ FAST PROFILE (parallel + cache)
     async function openProfile(id){
       if(!requireAuth()) return;
       if(!requireProfile()) return;
-
       const modal=document.getElementById("profileModal");
       modal.style.display="flex";
-
-      // instant placeholders
-      document.getElementById("vpName").innerText="Loading...";
-      document.getElementById("vpStatus").innerText=" ";
-      document.getElementById("vpBio").innerText=" ";
-      document.getElementById("vpImg").src="";
-
-      const [p, postsCount, pres] = await Promise.all([
-        hzGetProfileCached(id),
-        hzGetPostsCountCached(id),
-        hzGetPresenceCached(id)
-      ]);
-
-      if(!p){ return; }
+      const {data:p}=await sb.from("profiles").select("*").eq("id",id).single();
       currentEditingUser=p;
 
+      const {count:postsCount}=await sb.from("posts").select("*",{count:"exact",head:true}).eq("user_id",id);
       const r=getRank(p.vibe_score||0);
       const loc=profileLoc(p);
 
+      const pres = await fetchPresence(id);
       document.getElementById("vpStatus").innerText = presenceLabel(pres);
 
       document.getElementById("vpImg").src=p.avatar_url||"";
@@ -1517,23 +1407,10 @@
       lastRoomCreatedAt=null;
     }
 
-    // ✅ FAST MINI PROFILE (memory cache first)
     async function fetchProfileMini(userId){
       if(roomProfileCache[userId]) return roomProfileCache[userId];
-
-      const cached = hzGetMem(hzProfMem, userId, HZ_TTL_PROF);
-      if(cached){
-        const mini = {id: cached.id, username: cached.username, avatar_url: cached.avatar_url};
-        roomProfileCache[userId] = mini;
-        return mini;
-      }
-
       const {data}=await sb.from("profiles").select("id, username, avatar_url").eq("id",userId).maybeSingle();
-      if(data){
-        roomProfileCache[userId]=data;
-        hzWarmProfileMini(data);
-        return data;
-      }
+      if(data){roomProfileCache[userId]=data; return data}
       return {id:userId,username:"User",avatar_url:""}
     }
 
@@ -1579,7 +1456,7 @@
         const ids=[...new Set(fresh.map(r=>r.user_id).filter(Boolean))].filter(id=>!roomProfileCache[id]);
         if(ids.length){
           const {data:plist}=await sb.from("profiles").select("id, username, avatar_url").in("id",ids);
-          (plist||[]).forEach(p=>{roomProfileCache[p.id]=p; hzWarmProfileMini(p);});
+          (plist||[]).forEach(p=>{roomProfileCache[p.id]=p});
         }
         fresh.forEach(r=>{
           seenRoomMsgIds.add(r.id);
@@ -1610,7 +1487,7 @@
       const ids=[...new Set(rows.map(r=>r.user_id))];
       if(ids.length){
         const {data:plist}=await sb.from("profiles").select("id, username, avatar_url").in("id",ids);
-        (plist||[]).forEach(p=>{roomProfileCache[p.id]=p; hzWarmProfileMini(p);});
+        (plist||[]).forEach(p=>{roomProfileCache[p.id]=p});
       }
       rows.forEach(r=>{
         if(r.id) seenRoomMsgIds.add(r.id);
@@ -1650,10 +1527,6 @@
       loadPostComments();
     }
 
-    // =========================
-    // ✅ DM (Private messages)
-    // =========================
-
     function stopDMChannelOnly(){
       if(dmSub){sb.removeChannel(dmSub);dmSub=null}
       if(dmPollTimer){clearInterval(dmPollTimer);dmPollTimer=null}
@@ -1667,7 +1540,6 @@
       seenDMMsgIds=new Set();
     }
 
-    // ✅ FAST OPEN DM (parallel + cache)
     async function openDM(otherUserId){
       if(!requireAuth()) return;
       if(!requireProfile()) return;
@@ -1677,16 +1549,11 @@
 
       document.getElementById("dmChat").classList.remove("hidden");
 
-      const [prof, pres] = await Promise.all([
-        hzGetProfileCached(otherUserId),
-        hzGetPresenceCached(otherUserId)
-      ]);
+      const {data:prof}=await sb.from("profiles").select("id,username,avatar_url").eq("id", otherUserId).maybeSingle();
+      document.getElementById("dmNameDisplay").innerText = (prof && prof.username) ? prof.username : "User";
 
-      document.getElementById("dmNameDisplay").innerText =
-        (prof && prof.username) ? prof.username : "User";
-
-      document.getElementById("dmStatusDisplay").innerText =
-        presenceLabel(pres);
+      const pres = await fetchPresence(otherUserId);
+      document.getElementById("dmStatusDisplay").innerText = presenceLabel(pres);
 
       seenDMMsgIds=new Set();
       lastDMCAt=null;
@@ -1724,9 +1591,7 @@
       const box=document.getElementById("dmMsgs");
       box.innerHTML="Loading...";
 
-      // other profile (cached)
-      const otherP = await hzGetProfileCached(currentDMUserId);
-      const miniOther = otherP ? {id:otherP.id, username:otherP.username, avatar_url:otherP.avatar_url} : {id:currentDMUserId, username:"User", avatar_url:""};
+      const {data:otherP}=await sb.from("profiles").select("id, username, avatar_url").eq("id", currentDMUserId).maybeSingle();
 
       const {data:rows}=await sb.from(TBL_DM)
         .select("*")
@@ -1736,7 +1601,7 @@
       box.innerHTML="";
       (rows||[]).forEach(r=>{
         if(r.id) seenDMMsgIds.add(r.id);
-        renderDMMessage(r, miniOther);
+        renderDMMessage(r, otherP);
       });
 
       const last=(rows||[])[(rows||[]).length-1];
@@ -1752,9 +1617,8 @@
       seenDMMsgIds.add(row.id);
       lastDMCAt = row.created_at || lastDMCAt;
 
-      const otherP = await hzGetProfileCached(currentDMUserId);
-      const miniOther = otherP ? {id:otherP.id, username:otherP.username, avatar_url:otherP.avatar_url} : {id:currentDMUserId, username:"User", avatar_url:""};
-      renderDMMessage(row, miniOther);
+      const {data:otherP}=await sb.from("profiles").select("id, username, avatar_url").eq("id", currentDMUserId).maybeSingle();
+      renderDMMessage(row, otherP);
     }
 
     async function subscribeDM(threadId){
@@ -1778,17 +1642,15 @@
         const fresh=rows.filter(r=>r.id && !seenDMMsgIds.has(r.id));
         if(!fresh.length) return;
 
-        const otherP = await hzGetProfileCached(currentDMUserId);
-        const miniOther = otherP ? {id:otherP.id, username:otherP.username, avatar_url:otherP.avatar_url} : {id:currentDMUserId, username:"User", avatar_url:""};
+        const {data:otherP}=await sb.from("profiles").select("id, username, avatar_url").eq("id", currentDMUserId).maybeSingle();
         fresh.forEach(r=>{
           seenDMMsgIds.add(r.id);
           lastDMCAt = r.created_at || lastDMCAt;
-          renderDMMessage(r, miniOther);
+          renderDMMessage(r, otherP);
         });
       },900);
     }
 
-    // ✅ INSTANT SEND (optimistic UI) + then real insert
     async function sendDMMsg(){
       const text=(document.getElementById("dmInput").value||"").trim();
       if(!text || !currentDMUserId || !currentDMThreadId) return;
@@ -1796,22 +1658,6 @@
       if(!requireProfile()) return;
 
       document.getElementById("dmInput").value="";
-
-      // optimistic render
-      try{
-        const otherP = await hzGetProfileCached(currentDMUserId);
-        const miniOther = otherP ? {id:otherP.id, username:otherP.username, avatar_url:otherP.avatar_url} : {id:currentDMUserId, username:"User", avatar_url:""};
-        const tempRow = {
-          id: "tmp_"+Date.now(),
-          thread_id: currentDMThreadId,
-          sender_id: session.user.id,
-          receiver_id: currentDMUserId,
-          content: text,
-          audio_url: null,
-          created_at: new Date().toISOString()
-        };
-        renderDMMessage(tempRow, miniOther);
-      }catch(e){}
 
       const payload={
         thread_id: currentDMThreadId,
@@ -1824,10 +1670,14 @@
       const {data:row,error}=await sb.from(TBL_DM).insert(payload).select("*").single();
       if(error) return;
 
-      if(row && row.id) seenDMMsgIds.add(row.id);
+      if(row && row.id && !seenDMMsgIds.has(row.id)){
+        seenDMMsgIds.add(row.id);
+        lastDMCAt=row.created_at||lastDMCAt;
+        const {data:otherP}=await sb.from("profiles").select("id, username, avatar_url").eq("id", currentDMUserId).maybeSingle();
+        renderDMMessage(row, otherP);
+      }
     }
 
-    // ✅ Inbox list (group messages by other user)
     async function openInbox(){
       if(!requireAuth()) return;
       if(!requireProfile()) return;
@@ -1875,7 +1725,7 @@
       let profMap={};
       if(otherIds.length){
         const {data:plist}=await sb.from("profiles").select("id, username, avatar_url").in("id", otherIds);
-        (plist||[]).forEach(p=>{profMap[p.id]=p; hzWarmProfileMini(p);});
+        (plist||[]).forEach(p=>{profMap[p.id]=p});
       }
 
       box.innerHTML="";
@@ -1928,9 +1778,6 @@
       if(dmInboxBadgeTimer){clearInterval(dmInboxBadgeTimer); dmInboxBadgeTimer=null;}
     }
 
-    // =========================
-    // ✅ MIC PERMISSION MODAL
-    // =========================
     function uaInfo(){
       const ua=navigator.userAgent||"";
       const isAndroid=/Android/i.test(ua);
@@ -1999,9 +1846,6 @@
       document.getElementById("micPermModal").style.display="flex";
     }
 
-    // =========================
-    // ✅ AUDIO RECORD + UPLOAD + SEND
-    // =========================
     function bestMimeType(){
       const candidates=[
         "audio/webm;codecs=opus",
@@ -2187,9 +2031,8 @@
         if(row && row.id && !seenDMMsgIds.has(row.id)){
           seenDMMsgIds.add(row.id);
           lastDMCAt=row.created_at||lastDMCAt;
-          const otherP = await hzGetProfileCached(currentDMUserId);
-          const miniOther = otherP ? {id:otherP.id, username:otherP.username, avatar_url:otherP.avatar_url} : {id:currentDMUserId, username:"User", avatar_url:""};
-          renderDMMessage(row, miniOther);
+          const {data:otherP}=await sb.from("profiles").select("id, username, avatar_url").eq("id", currentDMUserId).maybeSingle();
+          renderDMMessage(row, otherP);
         }
       }
 
