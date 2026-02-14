@@ -936,15 +936,31 @@ document.addEventListener("click", unlockAudioOnce, {once:true, passive:true});
       const totalUnread=Object.values(perThread).reduce((a,b)=>a+(b||0),0);
       return {threadsUnread,totalUnread,perThread};
     }
+    
+    let lastInboxBadge = 0;
 
-    function renderInboxBadge(n){
-      const el=document.getElementById("inboxBadge");
-      if(!el) return;
-      const v=parseInt(n||0,10)||0;
-      if(v<=0){ el.style.display="none"; el.textContent=""; return; }
-      el.textContent=String(Math.min(99,v));
-      el.style.display="flex";
-    }
+    function renderInboxBadge(n) {
+  const el = document.getElementById("inboxBadge");
+  if (!el) return;
+  
+  const v = parseInt(n || 0, 10) || 0;
+  
+  // ✅ تشغيل صوت إذا الرقم زاد
+  if (v > lastInboxBadge) {
+    playSnd(sndRecv);
+  }
+  
+  lastInboxBadge = v;
+  
+  if (v <= 0) {
+    el.style.display = "none";
+    el.textContent = "";
+    return;
+  }
+  
+  el.textContent = String(Math.min(99, v));
+  el.style.display = "flex";
+}
 
     function renderTopRight(){
       const e=document.getElementById("topRightBadge");
