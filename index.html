@@ -68,37 +68,6 @@
       display:none;
     }
 
-    /* ✅ unread badge number (WhatsApp style) */
-    .badge-num{
-      position:absolute;top:6px;right:6px;
-      min-width:18px;height:18px;padding:0 5px;
-      border-radius:999px;
-      background:var(--danger);
-      color:#fff;
-      font-weight:900;
-      font-size:10px;
-      display:none;
-      align-items:center;
-      justify-content:center;
-      line-height:18px;
-      border:2px solid #000;
-    }
-    .thread-unread{
-      min-width:18px;height:18px;padding:0 5px;
-      border-radius:999px;
-      background:var(--danger);
-      color:#fff;
-      font-weight:900;
-      font-size:10px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      line-height:18px;
-      border:2px solid #000;
-      flex-shrink:0;
-      margin-left:8px;
-    }
-
     .user-badge{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.08);padding:7px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.12);cursor:pointer;backdrop-filter:blur(12px)}
     .user-badge .badge-icon{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:rgba(0,210,255,.12);border:1px solid rgba(0,210,255,.35);color:var(--primary)}
     .user-badge img{width:30px;height:30px;border-radius:50%;border:1px solid var(--primary);object-fit:cover}
@@ -368,8 +337,6 @@
   </svg>
 
   <audio id="globalAudio"></audio>
-  <audio id="sendSfx" preload="auto" src="https://k.top4top.io/m_36972gwsb0.mp3"></audio>
-  <audio id="recvSfx" preload="auto" src="https://j.top4top.io/m_3697roivn0.mp3"></audio>
 
   <div id="mainScroll">
     <div id="app">
@@ -378,7 +345,7 @@
 
         <div class="top-actions">
           <button class="icon-btn" id="inboxBtn" title="Messages" onclick="openInbox()">
-            <span class="badge-num" id="inboxBadge" style="display:none">0</span>
+            <span class="badge-dot" id="inboxDot"></span>
             <svg><use href="#i-chat"></use></svg>
           </button>
           <div class="user-badge" id="topRightBadge"></div>
@@ -774,67 +741,6 @@
     let dmInboxBadgeTimer=null;
 
     const globalAudio=document.getElementById("globalAudio");
-
-    // ✅ DM sounds (Send / Receive)
-    const SND_SEND_URL="https://k.top4top.io/m_36972gwsb0.mp3";
-    const SND_RECV_URL="https://j.top4top.io/m_3697roivn0.mp3";
-    const sndSend=new Audio(SND_SEND_URL); sndSend.preload="auto";
-    const sndRecv=new Audio(SND_RECV_URL); sndRecv.preload="auto";
-
-    // ✅ unlock sounds on first user gesture (required on mobile)
-    let sndUnlocked=false;
-    async function unlockSoundsOnce(){
-      if(sndUnlocked) return;
-      sndUnlocked=true;
-      const arr=[sndSend,sndRecv];
-      for(const a of arr){
-        try{
-          a.muted=true;
-          await a.play();
-          a.pause();
-          a.currentTime=0;
-          a.muted=false;
-        }catch(e){
-          try{a.muted=false;}catch(_){}
-        }
-      }
-    }
-    document.addEventListener("pointerdown", unlockSoundsOnce, {once:true,passive:true});
-
-    function playSnd(a){
-      try{ unlockSoundsOnce(); }catch(_){}
-      try{
-        a.pause();
-        a.currentTime=0;
-        a.play();
-      }catch(e){}
-    }
-    const sendSfx=document.getElementById("sendSfx");
-    const recvSfx=document.getElementById("recvSfx");
-    let audioUnlocked=false;
-    let pendingRecvBeep=false;
-    let lastRecvBeepAt=0;
-    function unlockAudioOnce(){
-      if(audioUnlocked) return;
-      audioUnlocked=true;
-      // Prime audio on first user gesture (autoplay policy)
-      try{ if(sendSfx){ sendSfx.muted=true; sendSfx.play().then(()=>{sendSfx.pause(); sendSfx.currentTime=0; sendSfx.muted=false;}).catch(()=>{sendSfx.muted=false;}); } }catch(e){}
-      try{ if(recvSfx){ recvSfx.muted=true; recvSfx.play().then(()=>{recvSfx.pause(); recvSfx.currentTime=0; recvSfx.muted=false;}).catch(()=>{recvSfx.muted=false;}); } }catch(e){}
-      if(pendingRecvBeep){ pendingRecvBeep=false; playRecvSfx(); }
-    }
-    function playSendSfx(){
-      try{ if(!audioUnlocked) return; if(!sendSfx) return; sendSfx.currentTime=0; sendSfx.play().catch(()=>{}); }catch(e){}
-    }
-    function playRecvSfx(){
-      try{
-        const now=Date.now();
-        if(now-lastRecvBeepAt<900) return;
-        if(!audioUnlocked){ pendingRecvBeep=true; return; }
-        if(!recvSfx) return;
-        lastRecvBeepAt=now;
-        recvSfx.currentTime=0; recvSfx.play().catch(()=>{});
-      }catch(e){}
-    }
     const TIKTOK_URL="https://www.tiktok.com/@hypezone.ma";
     const AD_IMAGE="https://i.postimg.cc/rwTFC8C7/Tik-Tok.png";
 
@@ -849,54 +755,6 @@
 
     const TBL_DM="dm_messages";
     const TBL_PRESENCE="user_presence";
-
-    // ✅ Unread tracking (client-side)
-    const LS_DM_READ="hz_dm_read"; // threadId -> ISO last read
-    function getReadMap(){
-      try{ return JSON.parse(localStorage.getItem(LS_DM_READ)||"{}") || {}; }catch(e){ return {}; }
-    }
-    function setRead(threadId){
-      if(!threadId) return;
-      const m=getReadMap();
-      m[threadId]=new Date().toISOString();
-      try{ localStorage.setItem(LS_DM_READ, JSON.stringify(m)); }catch(e){}
-    }
-    async function computeUnreadMap(){
-      if(!session || !session.user) return {threadsUnread:0, counts:{}};
-      const uid=session.user.id;
-      const read=getReadMap();
-      const {data, error}=await sb.from(TBL_DM)
-        .select("thread_id, created_at")
-        .eq("receiver_id", uid)
-        .order("created_at",{ascending:false})
-        .limit(600);
-
-      if(error || !data) return {threadsUnread:0, counts:{}};
-
-      const counts={};
-      for(const r of data){
-        const tid=r.thread_id;
-        if(!tid) continue;
-        const last=read[tid];
-        if(!last || new Date(r.created_at) > new Date(last)){
-          counts[tid]=(counts[tid]||0)+1;
-        }
-      }
-      const threadsUnread=Object.keys(counts).length;
-      return {threadsUnread, counts};
-    }
-    function renderInboxBadge(threadsUnread){
-      const el=document.getElementById("inboxBadge");
-      if(!el) return;
-      if(threadsUnread>0){
-        el.style.display="flex";
-        el.textContent=String(Math.min(99, threadsUnread));
-      }else{
-        el.style.display="none";
-        el.textContent="0";
-      }
-    }
-
 
     const cities={
       rabat:{name:"Rabat",hoods:["Agdal","Hassan","Hay Riad","Ocean","Medina","Souissi","Yacoub Al Mansour","Akkari","Kammra","Temara","Skhirat"]},
@@ -1649,12 +1507,6 @@
       document.getElementById("roomInput").value="";
       const {data:row,error}=await sb.from("room_chats").insert({room_name:currentRoomKey,user_id:session.user.id,content:text}).select("*").single();
       if(error) return;
-      // ✅ send sound (text)
-      playSnd(sndSend);
-
-      // ✅ send sound
-      playSendSfx();
-
       if(row && row.id){
         if(!seenRoomMsgIds.has(row.id)){
           seenRoomMsgIds.add(row.id);
@@ -1694,10 +1546,6 @@
 
       currentDMUserId=otherUserId;
       currentDMThreadId=dmThreadId(session.user.id, otherUserId);
-
-      // ✅ mark this thread as read when opened
-      setRead(currentDMThreadId);
-      computeUnreadMap().then(u=>renderInboxBadge(u.threadsUnread));
 
       document.getElementById("dmChat").classList.remove("hidden");
 
@@ -1795,9 +1643,11 @@
         if(!fresh.length) return;
 
         const {data:otherP}=await sb.from("profiles").select("id, username, avatar_url").eq("id", currentDMUserId).maybeSingle();
-        for(const r of fresh){
-          await handleNewDM(r);
-        }
+        fresh.forEach(r=>{
+          seenDMMsgIds.add(r.id);
+          lastDMCAt = r.created_at || lastDMCAt;
+          renderDMMessage(r, otherP);
+        });
       },900);
     }
 
@@ -1820,9 +1670,6 @@
       const {data:row,error}=await sb.from(TBL_DM).insert(payload).select("*").single();
       if(error) return;
 
-      // ✅ send sound (text)
-      playSnd(sndSend);
-
       if(row && row.id && !seenDMMsgIds.has(row.id)){
         seenDMMsgIds.add(row.id);
         lastDMCAt=row.created_at||lastDMCAt;
@@ -1844,9 +1691,6 @@
       box.innerHTML="Loading...";
 
       const uid = session.user.id;
-
-      const unread = await computeUnreadMap();
-      renderInboxBadge(unread.threadsUnread);
 
       const {data:rows, error}=await sb.from(TBL_DM)
         .select("*")
@@ -1889,7 +1733,6 @@
         const otherId = (t.sender_id===uid) ? t.receiver_id : t.sender_id;
         const p = profMap[otherId] || {id:otherId, username:"User", avatar_url:""};
         const preview = t.audio_url ? "Voice message" : (t.content||"");
-        const ucnt = unread.counts[t.thread_id] || 0;
         box.innerHTML +=
           `<div class="thread-item" onclick="closeModal('inboxModal');openDM('${otherId}')">
             <img class="thread-avatar" src="${p.avatar_url||""}" alt="">
@@ -1897,21 +1740,18 @@
               <div class="thread-name">${p.username||"User"}</div>
               <div class="thread-preview">${escapeHtml(preview)}</div>
             </div>
-            ${ucnt>0?`<div class="thread-unread">${Math.min(99,ucnt)}</div>`:""}<div class="thread-time">${timeAgo(t.created_at)}</div>
+            <div class="thread-time">${timeAgo(t.created_at)}</div>
           </div>`;
       });
 
-      renderInboxBadge(0);
+      const dot=document.getElementById("inboxDot");
+      if(dot) dot.style.display="none";
     }
 
     async function startInboxBadge(){
       stopInboxBadge();
       if(!session || !session.user) return;
       const uid=session.user.id;
-
-      // initial render
-      const unread0 = await computeUnreadMap();
-      renderInboxBadge(unread0.threadsUnread);
 
       let lastCheck=new Date().toISOString();
 
@@ -1920,36 +1760,22 @@
           const since = lastCheck;
           lastCheck = new Date().toISOString();
 
-          // get only new incoming messages since last check
           const {data}=await sb.from(TBL_DM)
-            .select("*")
+            .select("id,receiver_id,created_at")
             .eq("receiver_id", uid)
             .gt("created_at", since)
-            .order("created_at",{ascending:true})
-            .limit(50);
+            .order("created_at",{ascending:false})
+            .limit(1);
 
           if(data && data.length){
-            // if user is currently inside same DM thread, mark as read immediately; else leave unread
-            for(const r of data){
-              const inThisThread = (currentDMThreadId && r.thread_id===currentDMThreadId && !document.getElementById("dmChat").classList.contains("hidden"));
-              if(inThisThread){
-                setRead(r.thread_id);
-              }else{
-                // keep unread by not updating read map
-              }
-              // ✅ receive sound only for DM incoming (not rooms)
-              if(r.sender_id && r.sender_id!==uid) playSnd(sndRecv);
-            }
+            const dot=document.getElementById("inboxDot");
+            if(dot) dot.style.display="block";
           }
-
-          const unread = await computeUnreadMap();
-          renderInboxBadge(unread.threadsUnread);
         }catch(e){}
       }, 2500);
     }
     function stopInboxBadge(){
       if(dmInboxBadgeTimer){clearInterval(dmInboxBadgeTimer); dmInboxBadgeTimer=null;}
-    }
     }
 
     function uaInfo(){
@@ -2173,9 +1999,6 @@
           alert("Failed to send audio message.");
           return;
         }
-        // ✅ send sound
-        playSendSfx();
-
         if(row && row.id && !seenRoomMsgIds.has(row.id)){
           seenRoomMsgIds.add(row.id);
           lastRoomCreatedAt=row.created_at||lastRoomCreatedAt;
@@ -2189,8 +2012,6 @@
           alert("Failed to send audio comment.");
           return;
         }
-        // ✅ send sound
-        playSendSfx();
         loadPostComments();
       }else if(target==="dm"){
         const payload={
@@ -2207,9 +2028,6 @@
           alert("Failed to send audio DM.");
           return;
         }
-        // ✅ send sound
-        playSendSfx();
-
         if(row && row.id && !seenDMMsgIds.has(row.id)){
           seenDMMsgIds.add(row.id);
           lastDMCAt=row.created_at||lastDMCAt;
@@ -2432,12 +2250,6 @@
       });
 
       setupMicButtons();
-
-      // ✅ Unlock sound effects on first user gesture
-      document.addEventListener("pointerdown", unlockAudioOnce, {once:true, passive:true});
-      document.addEventListener("touchstart", unlockAudioOnce, {once:true, passive:true});
-      document.addEventListener("mousedown", unlockAudioOnce, {once:true, passive:true});
-
       showSplashThenStart();
     }
 
