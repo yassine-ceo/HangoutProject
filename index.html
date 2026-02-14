@@ -580,117 +580,110 @@
   </div>
 
   <script>
-    const sb=supabase.createClient("https://tujdnvnrizgqroaozsqp.supabase.co","sb_publishable_WyigevxmzR2gLtbog2Ztfg_8pdmSwop",{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:"pkce"}});
-    /* =========================
-       Stateful Silent Reload (deterministic resume recovery)
-       - Saves UI state + sets hz_silent_reload flag, then hard reloads on resume/BFCache
-       - Splash is bypassed ONLY for this silent reload (see showSplashThenStart)
-       ========================= */
-    (function(){
-      let __hzResumeTriggered=false;
-      let __hzWasHidden=false;
+    const sb=supabase.createClient(
 
-      function __hzSaveState(){
+/* =========================
+   STATEFUL SILENT RELOAD (Deterministic Resume Recovery)
+   ========================= */
+(function(){
+
+  let resumeTriggered=false;
+  let wasHidden=false;
+
+  function saveAppState(){
+    try{
+      const mainScroll=document.getElementById("mainScroll");
+      const roomsHidden=document.getElementById("roomsView").classList.contains("hidden");
+      const state={
+        view: roomsHidden?"feed":"rooms",
+        roomOpen: !!(currentRoomKey),
+        roomKey: currentRoomKey||null,
+        roomLabel: currentRoomLabel||null,
+        dmOpen: !!(currentDMThreadId),
+        dmUserId: currentDMUserId||null,
+        dmThreadId: currentDMThreadId||null,
+        scrollY: mainScroll?mainScroll.scrollTop:0
+      };
+      sessionStorage.setItem("hz_resume_state", JSON.stringify(state));
+      sessionStorage.setItem("hz_silent_reload","1");
+    }catch(e){}
+  }
+
+  function restoreAppState(){
+    try{
+      const raw=sessionStorage.getItem("hz_resume_state");
+      if(!raw) return;
+      const state=JSON.parse(raw);
+      sessionStorage.removeItem("hz_resume_state");
+
+      try{
+        if(state.view==="rooms"){
+          switchView("rooms", document.getElementById("dockRooms"));
+        }else{
+          switchView("feed", document.getElementById("dockHome"));
+        }
+      }catch(e){}
+
+      setTimeout(()=>{
         try{
           const ms=document.getElementById("mainScroll");
-          const roomsView=document.getElementById("roomsView");
-          const chatRoom=document.getElementById("chatRoom");
-          const dmChat=document.getElementById("dmChat");
-          const state={
-            view:(roomsView && roomsView.classList.contains("hidden"))?"feed":"rooms",
-            roomOpen:!!(currentRoomKey),
-            roomKey:currentRoomKey||null,
-            roomLabel:currentRoomLabel||null,
-            dmOpen:!!(currentDMThreadId),
-            dmUserId:currentDMUserId||null,
-            dmThreadId:currentDMThreadId||null,
-            chatRoomVisible:!!(chatRoom && !chatRoom.classList.contains("hidden")),
-            dmChatVisible:!!(dmChat && !dmChat.classList.contains("hidden")),
-            scrollY:ms?(ms.scrollTop||0):(window.scrollY||0),
-            ts:Date.now()
-          };
-          sessionStorage.setItem("hz_resume_state",JSON.stringify(state));
-          sessionStorage.setItem("hz_silent_reload","1");
+          if(ms) ms.scrollTop=state.scrollY||0;
         }catch(e){}
-      }
+      },250);
 
-      function __hzHardReload(){
-        if(__hzResumeTriggered) return;
-        __hzResumeTriggered=true;
-        __hzSaveState();
-        location.reload();
-      }
-
-      function __hzRestoreState(){
+      setTimeout(async ()=>{
         try{
-          const raw=sessionStorage.getItem("hz_resume_state");
-          if(!raw) return;
-          let state=null;
-          try{state=JSON.parse(raw)}catch(e){state=null}
-          sessionStorage.removeItem("hz_resume_state");
-          if(!state) return;
-
-          try{
-            if(state.view==="rooms") switchView("rooms",document.getElementById("dockRooms"));
-            else switchView("feed",document.getElementById("dockHome"));
-          }catch(e){}
-
-          setTimeout(()=>{
-            try{
-              const ms=document.getElementById("mainScroll");
-              if(ms) ms.scrollTop=state.scrollY||0;
-            }catch(e){}
-          },250);
-
-          setTimeout(async ()=>{
-            try{
-              const {data}=await sb.auth.getSession();
-              if(data && data.session) session=data.session;
-            }catch(e){}
-
-            try{
-              if(state.roomOpen && state.roomKey){
-                currentRoomKey=state.roomKey;
-                currentRoomLabel=state.roomLabel||currentRoomLabel;
-                if(state.chatRoomVisible){
-                  const cr=document.getElementById("chatRoom");
-                  if(cr) cr.classList.remove("hidden");
-                }
-                await subscribeRoom(state.roomKey);
-              }
-            }catch(e){}
-
-            try{
-              if(state.dmOpen && state.dmThreadId){
-                currentDMThreadId=state.dmThreadId;
-                currentDMUserId=state.dmUserId||currentDMUserId;
-                if(state.dmChatVisible){
-                  const dc=document.getElementById("dmChat");
-                  if(dc) dc.classList.remove("hidden");
-                }
-                await subscribeDM(state.dmThreadId);
-              }
-            }catch(e){}
-          },450);
+          const {data}=await sb.auth.getSession();
+          if(data && data.session) session=data.session;
         }catch(e){}
-      }
 
-      document.addEventListener("visibilitychange",()=>{
-        if(document.visibilityState==="hidden"){__hzWasHidden=true;return;}
-        if(document.visibilityState==="visible" && __hzWasHidden) __hzHardReload();
-      },{passive:true});
+        try{
+          if(state.roomOpen && state.roomKey){
+            currentRoomKey=state.roomKey;
+            currentRoomLabel=state.roomLabel||currentRoomLabel;
+            await subscribeRoom(state.roomKey);
+          }
+        }catch(e){}
 
-      window.addEventListener("pageshow",(e)=>{
-        if(e && e.persisted) __hzHardReload();
-      },{passive:true});
+        try{
+          if(state.dmOpen && state.dmThreadId){
+            currentDMThreadId=state.dmThreadId;
+            currentDMUserId=state.dmUserId||currentDMUserId;
+            await subscribeDM(state.dmThreadId);
+          }
+        }catch(e){}
 
-      window.addEventListener("online",()=>{
-        if(!document.hidden) __hzHardReload();
-      },{passive:true});
+      },400);
 
-      window.addEventListener("load",()=>{__hzRestoreState();},{passive:true});
-    })();
+    }catch(e){}
+  }
 
+  function hardReload(){
+    if(resumeTriggered) return;
+    resumeTriggered=true;
+    saveAppState();
+    location.reload();
+  }
+
+  document.addEventListener("visibilitychange",()=>{
+    if(document.visibilityState==="hidden"){wasHidden=true;return;}
+    if(document.visibilityState==="visible" && wasHidden){hardReload();}
+  });
+
+  window.addEventListener("pageshow",(e)=>{
+    if(e && e.persisted) hardReload();
+  });
+
+  window.addEventListener("online",()=>{
+    if(!document.hidden) hardReload();
+  });
+
+  window.addEventListener("load",()=>{
+    restoreAppState();
+  });
+
+})();
+"https://tujdnvnrizgqroaozsqp.supabase.co","sb_publishable_WyigevxmzR2gLtbog2Ztfg_8pdmSwop",{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:"pkce"}});
     let session,currentBg,currentPostId,currentRoomKey=null,currentRoomLabel=null,roomSub=null,currentPlayingBtn=null,myProfile={},isEditing=!1,currentEditingUser=null,seenRoomMsgIds=new Set,roomProfileCache={},profileRequired=!1,roomPollTimer=null,lastRoomCreatedAt=null;
 
     // ✅ DM state
@@ -844,13 +837,12 @@
     }
 
     function showSplashThenStart(){
-      // ✅ Silent reload: bypass Splash (show Splash only on manual reload)
-      if(sessionStorage.getItem("hz_silent_reload")==="1"){
-        sessionStorage.removeItem("hz_silent_reload");
-        lockTourScroll(false);
-        return;
-      }
 
+  if(sessionStorage.getItem("hz_silent_reload")==="1"){
+    sessionStorage.removeItem("hz_silent_reload");
+    try{ lockTourScroll(false); }catch(e){}
+    return;
+  }
       const splash=document.getElementById("splash");
       splash.style.display="flex";
       lockTourScroll(true);
