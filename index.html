@@ -68,34 +68,24 @@
       display:none;
     }
 
-    .badge-count{
-      position:absolute;top:5px;right:5px;
-      min-width:16px;height:16px;padding:0 4px;
+    /* ✅ WhatsApp-style unread badge (small red circle + white number) */
+    .badge-num{
+      position:absolute;
+      top:4px;
+      right:4px;
+      min-width:18px;
+      height:18px;
+      padding:0 5px;
       border-radius:999px;
       background:var(--danger);
-      border:2px solid #000;
       color:#fff;
+      border:2px solid #000;
       font-size:10px;
-      font-weight:900;
+      font-weight:1000;
       display:none;
       align-items:center;
       justify-content:center;
       line-height:1;
-    }
-    .thread-badge{
-      min-width:18px;height:18px;padding:0 5px;
-      border-radius:999px;
-      background:var(--danger);
-      border:2px solid #000;
-      color:#fff;
-      font-size:10px;
-      font-weight:900;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      line-height:1;
-      margin-left:8px;
-      flex-shrink:0;
     }
 
     .user-badge{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.08);padding:7px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.12);cursor:pointer;backdrop-filter:blur(12px)}
@@ -249,6 +239,23 @@
     .thread-preview{font-size:11px;color:rgba(255,255,255,.62);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .thread-time{font-size:10px;color:rgba(255,255,255,.45);font-weight:900}
 
+    /* ✅ per-thread unread badge */
+    .thread-unread{
+      min-width:18px;
+      height:18px;
+      padding:0 6px;
+      border-radius:999px;
+      background:var(--danger);
+      color:#fff;
+      font-size:10px;
+      font-weight:1000;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      line-height:1;
+      border:2px solid rgba(0,0,0,.65);
+    }
+
     :root{--maxW:1100px}
     #mainScroll{scrollbar-gutter:stable}
     .post-visual{min-height:260px;height:clamp(260px,55vw,420px)}
@@ -367,8 +374,6 @@
   </svg>
 
   <audio id="globalAudio"></audio>
-  <audio id="sendSfx" preload="auto" src="https://k.top4top.io/m_36972gwsb0.mp3"></audio>
-  <audio id="recvSfx" preload="auto" src="https://j.top4top.io/m_3697roivn0.mp3"></audio>
 
   <div id="mainScroll">
     <div id="app">
@@ -377,7 +382,7 @@
 
         <div class="top-actions">
           <button class="icon-btn" id="inboxBtn" title="Messages" onclick="openInbox()">
-            <span class="badge-count" id="inboxBadge"></span>
+            <span class="badge-num" id="inboxBadge"></span>
             <svg><use href="#i-chat"></use></svg>
           </button>
           <div class="user-badge" id="topRightBadge"></div>
@@ -607,82 +612,6 @@
   <script>
     const sb=supabase.createClient("https://tujdnvnrizgqroaozsqp.supabase.co","sb_publishable_WyigevxmzR2gLtbog2Ztfg_8pdmSwop",{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:"pkce"}});
 
-    // ===== DM sound + unread counters (WhatsApp-style) =====
-    const SEND_SFX_URL = "https://k.top4top.io/m_36972gwsb0.mp3";
-    const RECV_SFX_URL = "https://j.top4top.io/m_3697roivn0.mp3";
-
-    function playSfx(kind){
-      try{
-        const el = document.getElementById(kind==="send" ? "sendSfx" : "recvSfx");
-        if(!el) return;
-        if(kind==="send" && (!el.src || !el.src.includes("m_36972gwsb0.mp3"))) el.src = SEND_SFX_URL;
-        if(kind==="recv" && (!el.src || !el.src.includes("m_3697roivn0.mp3"))) el.src = RECV_SFX_URL;
-        el.currentTime = 0;
-        const p = el.play();
-        if(p && typeof p.catch === "function") p.catch(()=>{});
-      }catch(e){}
-    }
-
-    // Unread per DM thread stored locally (no DB changes required)
-    const UNREAD_KEY = "hz_dm_unread_v1";
-    function getUnreadMap(){
-      try{
-        const raw = localStorage.getItem(UNREAD_KEY);
-        const obj = raw ? JSON.parse(raw) : {};
-        return (obj && typeof obj==="object") ? obj : {};
-      }catch(e){ return {}; }
-    }
-    function setUnreadMap(map){
-      try{ localStorage.setItem(UNREAD_KEY, JSON.stringify(map||{})); }catch(e){}
-    }
-    function countUnreadThreads(map){
-      let c=0;
-      Object.keys(map||{}).forEach(k=>{ if((map[k]||0)>0) c++; });
-      return c;
-    }
-    function updateInboxBadgeUI(){
-      const badge = document.getElementById("inboxBadge");
-      if(!badge) return;
-      const map = getUnreadMap();
-      const n = countUnreadThreads(map);
-      if(n<=0){
-        badge.style.display="none";
-        badge.textContent="";
-        return;
-      }
-      badge.style.display="inline-flex";
-      badge.textContent = (n>9) ? "9+" : String(n);
-    }
-    function incUnread(threadId){
-      if(!threadId) return;
-
-      // Don't count messages for the currently open DM thread (user is reading it)
-      try{
-        const dmVisible = document.getElementById("dmChat") && !document.getElementById("dmChat").classList.contains("hidden");
-        if(dmVisible && currentDMThreadId && threadId===currentDMThreadId){
-          updateInboxBadgeUI();
-          return;
-        }
-      }catch(e){}
-
-      const map = getUnreadMap();
-      map[threadId] = (map[threadId]||0) + 1;
-      setUnreadMap(map);
-      updateInboxBadgeUI();
-    }
-    function clearUnread(threadId){
-      if(!threadId) return;
-      const map = getUnreadMap();
-      if(map[threadId]){
-        delete map[threadId];
-        setUnreadMap(map);
-      }
-      updateInboxBadgeUI();
-    }
-
-    // Global realtime inbox watcher (DM only)
-    let dmInboxSub = null;
-
     (function(){
       let resumeTriggered = false;
       let wasHidden = false;
@@ -841,6 +770,7 @@
     let currentDMUserId=null;
     let currentDMThreadId=null;
     let dmSub=null;
+    let dmInboxSub=null;
     let dmPollTimer=null;
     let lastDMCAt=null;
     let seenDMMsgIds=new Set();
@@ -851,6 +781,16 @@
     const globalAudio=document.getElementById("globalAudio");
     const TIKTOK_URL="https://www.tiktok.com/@hypezone.ma";
     const AD_IMAGE="https://i.postimg.cc/rwTFC8C7/Tik-Tok.png";
+
+    // ✅ DM send/receive sounds
+    const SND_SEND_URL="https://k.top4top.io/m_36972gwsb0.mp3";
+    const SND_RECV_URL="https://j.top4top.io/m_3697roivn0.mp3";
+    const sndSend=new Audio(SND_SEND_URL);
+    const sndRecv=new Audio(SND_RECV_URL);
+    try{ sndSend.preload="auto"; sndRecv.preload="auto"; }catch(e){}
+    function playSnd(a){
+      try{ if(!a) return; a.pause(); a.currentTime=0; const p=a.play(); if(p&&p.catch) p.catch(()=>{}); }catch(e){}
+    }
 
     let hzRecorder=null;
     let hzStream=null;
@@ -922,6 +862,51 @@
       const x=String(a||"");
       const y=String(b||"");
       return (x<y) ? `${x}_${y}` : `${y}_${x}`;
+    }
+
+    // ✅ Unread tracking (local, per-user, per-thread)
+    function dmReadKey(threadId){
+      const uid=(session && session.user && session.user.id) ? session.user.id : "";
+      return `hz_dm_read_${uid}_${threadId}`;
+    }
+    function getThreadReadAt(threadId){
+      try{ return localStorage.getItem(dmReadKey(threadId)) || null; }catch(e){ return null; }
+    }
+    function setThreadReadAt(threadId, iso){
+      try{ if(!threadId) return; localStorage.setItem(dmReadKey(threadId), iso||new Date().toISOString()); }catch(e){}
+    }
+    function markThreadReadNow(threadId){ setThreadReadAt(threadId, new Date().toISOString()); }
+
+    async function computeUnreadMap(limit=500){
+      if(!session || !session.user) return {threadsUnread:0, totalUnread:0, perThread:{}};
+      const uid=session.user.id;
+      const {data:rows, error}=await sb.from(TBL_DM)
+        .select("thread_id,receiver_id,created_at")
+        .eq("receiver_id", uid)
+        .order("created_at", {ascending:false})
+        .limit(limit);
+      if(error) return {threadsUnread:0, totalUnread:0, perThread:{}};
+
+      const perThread={};
+      (rows||[]).forEach(r=>{
+        const tid=r.thread_id;
+        if(!tid) return;
+        const readAt=getThreadReadAt(tid);
+        if(readAt && r.created_at<=readAt) return;
+        perThread[tid]=(perThread[tid]||0)+1;
+      });
+      const threadsUnread=Object.keys(perThread).filter(k=>perThread[k]>0).length;
+      const totalUnread=Object.values(perThread).reduce((a,b)=>a+(b||0),0);
+      return {threadsUnread,totalUnread,perThread};
+    }
+
+    function renderInboxBadge(n){
+      const el=document.getElementById("inboxBadge");
+      if(!el) return;
+      const v=parseInt(n||0,10)||0;
+      if(v<=0){ el.style.display="none"; el.textContent=""; return; }
+      el.textContent=String(Math.min(99,v));
+      el.style.display="flex";
     }
 
     function renderTopRight(){
@@ -1615,12 +1600,14 @@
       document.getElementById("roomInput").value="";
       const {data:row,error}=await sb.from("room_chats").insert({room_name:currentRoomKey,user_id:session.user.id,content:text}).select("*").single();
       if(error) return;
+
+      // ✅ send sound
+      playSnd(sndSend);
       if(row && row.id){
         if(!seenRoomMsgIds.has(row.id)){
           seenRoomMsgIds.add(row.id);
           lastRoomCreatedAt=row.created_at||lastRoomCreatedAt;
           renderOneMessage(row,myProfile&&myProfile.id?{id:myProfile.id,username:myProfile.username,avatar_url:myProfile.avatar_url}:{username:"Me",avatar_url:""});
-        playSfx("send");
         }
       }
     }
@@ -1656,9 +1643,6 @@
       currentDMUserId=otherUserId;
       currentDMThreadId=dmThreadId(session.user.id, otherUserId);
 
-      // mark this thread as read
-      clearUnread(currentDMThreadId);
-
       document.getElementById("dmChat").classList.remove("hidden");
 
       const {data:prof}=await sb.from("profiles").select("id,username,avatar_url").eq("id", otherUserId).maybeSingle();
@@ -1671,6 +1655,10 @@
       lastDMCAt=null;
       await loadDMMessages();
       await subscribeDM(currentDMThreadId);
+
+      // ✅ mark this thread as read when user opens it
+      try{ markThreadReadNow(currentDMThreadId); }catch(e){}
+      try{ const u=await computeUnreadMap(500); renderInboxBadge(u.threadsUnread); }catch(e){}
     }
 
     function renderDMMessage(row, otherProfile){
@@ -1729,12 +1717,21 @@
       seenDMMsgIds.add(row.id);
       lastDMCAt = row.created_at || lastDMCAt;
 
+      // ✅ receive sound ONLY for private DM (not rooms) and only when message comes to me
+      try{
+        const incoming = session && session.user && row.receiver_id===session.user.id && row.sender_id!==session.user.id;
+        if(incoming) playSnd(sndRecv);
+      }catch(e){}
+
       const {data:otherP}=await sb.from("profiles").select("id, username, avatar_url").eq("id", currentDMUserId).maybeSingle();
       renderDMMessage(row, otherP);
-        playSfx("send");
 
-      // Receive sound only for messages coming from the other user (DM only)
-      if(row.sender_id!==session.user.id) playSfx("recv");
+      // ✅ if user is inside this DM, mark as read immediately
+      try{
+        const dmVisible = !document.getElementById("dmChat").classList.contains("hidden");
+        if(dmVisible){ setThreadReadAt(currentDMThreadId, row.created_at || new Date().toISOString()); }
+      }catch(e){}
+      try{ const u=await computeUnreadMap(500); renderInboxBadge(u.threadsUnread); }catch(e){}
     }
 
     async function subscribeDM(threadId){
@@ -1786,12 +1783,19 @@
       const {data:row,error}=await sb.from(TBL_DM).insert(payload).select("*").single();
       if(error) return;
 
+      // ✅ send sound
+      playSnd(sndSend);
+
       if(row && row.id && !seenDMMsgIds.has(row.id)){
         seenDMMsgIds.add(row.id);
         lastDMCAt=row.created_at||lastDMCAt;
         const {data:otherP}=await sb.from("profiles").select("id, username, avatar_url").eq("id", currentDMUserId).maybeSingle();
         renderDMMessage(row, otherP);
       }
+
+      // ✅ keep this thread read (I'm inside it)
+      try{ setThreadReadAt(currentDMThreadId, row.created_at || new Date().toISOString()); }catch(e){}
+      try{ const u=await computeUnreadMap(500); renderInboxBadge(u.threadsUnread); }catch(e){}
     }
 
     async function openInbox(){
@@ -1844,59 +1848,87 @@
         (plist||[]).forEach(p=>{profMap[p.id]=p});
       }
 
+      // ✅ unread counts (per thread)
+      let unread={threadsUnread:0,totalUnread:0,perThread:{}};
+      try{ unread = await computeUnreadMap(700); }catch(e){}
+
       box.innerHTML="";
       threads.forEach(t=>{
         const otherId = (t.sender_id===uid) ? t.receiver_id : t.sender_id;
         const p = profMap[otherId] || {id:otherId, username:"User", avatar_url:""};
         const preview = t.audio_url ? "Voice message" : (t.content||"");
+        const un = (unread && unread.perThread && unread.perThread[t.thread_id]) ? unread.perThread[t.thread_id] : 0;
         box.innerHTML +=
           `<div class="thread-item" onclick="closeModal('inboxModal');openDM('${otherId}')">
             <img class="thread-avatar" src="${p.avatar_url||""}" alt="">
             <div class="thread-meta">
-              <div class="thread-name">${p.username||"User"}${(function(){const um=getUnreadMap();const n=um[t.thread_id]||0;return n>0?`<span class=\"thread-badge\">${n>99?"99+":n}</span>`:"";})()}</div>
+              <div class="thread-name">${p.username||"User"}</div>
               <div class="thread-preview">${escapeHtml(preview)}</div>
             </div>
-            <div class="thread-time">${timeAgo(t.created_at)}</div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
+              <div class="thread-time">${timeAgo(t.created_at)}</div>
+              <span class="thread-unread" style="${un>0?"display:flex":"display:none"}">${Math.min(99,un)}</span>
+            </div>
           </div>`;
       });
 
-      updateInboxBadgeUI();
+      // keep global badge accurate
+      try{ renderInboxBadge(unread.threadsUnread||0); }catch(e){}
     }
-    async function startInboxBadge(){
-      stopInboxBadge();
+
+    // ✅ Global DM receive listener (plays receive sound + updates unread badge)
+    function stopDMInboxLive(){
+      try{ if(dmInboxSub){ sb.removeChannel(dmInboxSub); dmInboxSub=null; } }catch(e){}
+    }
+    async function startDMInboxLive(){
+      stopDMInboxLive();
       if(!session || !session.user) return;
       const uid=session.user.id;
-
-      updateInboxBadgeUI();
-
-      dmInboxSub = sb.channel("dm_inbox:"+uid)
-        .on("postgres_changes",
-          {event:"INSERT",schema:"public",table:TBL_DM,filter:`receiver_id=eq.${uid}`},
-          (payload)=>{
-            const row = payload && payload.new;
+      dmInboxSub=sb.channel("dm_inbox:"+uid)
+        .on("postgres_changes",{event:"INSERT",schema:"public",table:TBL_DM,filter:`receiver_id=eq.${uid}`},async (payload)=>{
+          try{
+            const row=payload && payload.new ? payload.new : null;
             if(!row) return;
-            incUnread(row.thread_id);
 
-            // Avoid double sound when the DM thread is currently open (handleNewDM will play it)
+            // ✅ receive sound (DM only)
+            if(row.sender_id!==uid) playSnd(sndRecv);
+
+            // ✅ if I'm inside the same DM, mark as read instantly
             try{
-              const dmVisible = document.getElementById("dmChat") && !document.getElementById("dmChat").classList.contains("hidden");
-              if(!(dmVisible && currentDMThreadId && row.thread_id===currentDMThreadId)){
-                playSfx("recv");
+              const dmVisible = !document.getElementById("dmChat").classList.contains("hidden");
+              if(dmVisible && currentDMThreadId && row.thread_id===currentDMThreadId){
+                setThreadReadAt(currentDMThreadId, row.created_at || new Date().toISOString());
               }
-            }catch(e){ playSfx("recv"); }
-          }
-        )
+            }catch(e){}
+
+            // ✅ update badge + inbox list if open
+            try{ const u=await computeUnreadMap(700); renderInboxBadge(u.threadsUnread); }catch(e){}
+            try{ if(document.getElementById("inboxModal").style.display==="flex") loadInbox(); }catch(e){}
+          }catch(e){}
+        })
         .subscribe();
     }
 
+    async function startInboxBadge(){
+      stopInboxBadge();
+      if(!session || !session.user) return;
+
+      // render once immediately
+      try{
+        const u=await computeUnreadMap(500);
+        renderInboxBadge(u.threadsUnread);
+      }catch(e){}
+
+      dmInboxBadgeTimer=setInterval(async ()=>{
+        try{
+          const u=await computeUnreadMap(500);
+          renderInboxBadge(u.threadsUnread);
         }catch(e){}
       }, 2500);
     }
     function stopInboxBadge(){
-      if(dmInboxSub){ sb.removeChannel(dmInboxSub); dmInboxSub=null; }
-      if(dmInboxBadgeTimer){clearInterval(dmInboxBadgeTimer); dmInboxBadgeTimer=null;} // legacy
+      if(dmInboxBadgeTimer){clearInterval(dmInboxBadgeTimer); dmInboxBadgeTimer=null;}
     }
-
 
     function uaInfo(){
       const ua=navigator.userAgent||"";
@@ -2119,11 +2151,13 @@
           alert("Failed to send audio message.");
           return;
         }
+
+        // ✅ send sound
+        playSnd(sndSend);
         if(row && row.id && !seenRoomMsgIds.has(row.id)){
           seenRoomMsgIds.add(row.id);
           lastRoomCreatedAt=row.created_at||lastRoomCreatedAt;
           renderOneMessage(row,myProfile&&myProfile.id?{id:myProfile.id,username:myProfile.username,avatar_url:myProfile.avatar_url}:{username:"Me",avatar_url:""});
-        playSfx("send");
         }
       }else if(target==="comment"){
         const {error}=await sb.from("comments").insert({post_id:currentPostId,user_id:session.user.id,text_content:"",audio_url:audioUrl});
@@ -2149,12 +2183,19 @@
           alert("Failed to send audio DM.");
           return;
         }
+
+        // ✅ send sound
+        playSnd(sndSend);
         if(row && row.id && !seenDMMsgIds.has(row.id)){
           seenDMMsgIds.add(row.id);
           lastDMCAt=row.created_at||lastDMCAt;
           const {data:otherP}=await sb.from("profiles").select("id, username, avatar_url").eq("id", currentDMUserId).maybeSingle();
           renderDMMessage(row, otherP);
         }
+
+        // ✅ keep thread read (I'm inside it)
+        try{ setThreadReadAt(currentDMThreadId, row.created_at || new Date().toISOString()); }catch(e){}
+        try{ const u=await computeUnreadMap(500); renderInboxBadge(u.threadsUnread); }catch(e){}
       }
 
       hzIsUploading=false;
@@ -2343,6 +2384,7 @@
         await checkProfile();
         startPresence();
         startInboxBadge();
+        startDMInboxLive();
       }
 
       renderTopRight();
@@ -2352,9 +2394,11 @@
           try{ await upsertPresence(false); }catch(e){}
           stopPresence();
           stopInboxBadge();
+          stopDMInboxLive();
           session=null; myProfile={}; profileRequired=false;
           stopRoomLive();
           stopDMLive();
+          try{ renderInboxBadge(0); }catch(e){}
           renderTopRight();
           loadFeed();
         }
@@ -2367,6 +2411,7 @@
           loadFeed();
           startPresence();
           startInboxBadge();
+          startDMInboxLive();
         }
       });
 
