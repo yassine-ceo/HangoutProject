@@ -24,10 +24,25 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Courgette&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Courgette&family=Noto+Sans+Arabic:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <style>
     :root{--bg:#000;--card:#111;--primary:#00d2ff;--text:#fff;--muted:#888;--border:rgba(255,255,255,0.12);--viby:#ffd700;--danger:#ff4757;--success:#2ecc71}
-    *{box-sizing:border-box;margin:0;padding:0;outline:0;-webkit-tap-highlight-color:transparent;font-family:'Outfit',sans-serif}
+    /* ✅ Arabic font (auto for Arabic glyph fallback + optional explicit class/lang targeting) */
+    .noto-sans-arabic-hz{
+      font-family: "Noto Sans Arabic", sans-serif;
+      font-optical-sizing: auto;
+      font-weight: 400;
+      font-style: normal;
+      font-variation-settings: "wdth" 100;
+    }
+    :lang(ar), [lang="ar"], [dir="rtl"]{
+      font-family: "Noto Sans Arabic", sans-serif !important;
+      font-optical-sizing: auto;
+      font-style: normal;
+      font-variation-settings: "wdth" 100;
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0;outline:0;-webkit-tap-highlight-color:transparent;font-family:'Outfit','Noto Sans Arabic',sans-serif}
     body{background:var(--bg);color:var(--text);height:100vh;overflow:hidden;-webkit-user-select:none;user-select:none}
     input,textarea,select,button{user-select:auto;-webkit-user-select:auto}
     .hidden{display:none!important}
