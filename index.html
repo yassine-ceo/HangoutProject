@@ -561,10 +561,6 @@
         </div>
         <div class="report-form" dir="rtl" lang="ar">
           <div>
-            <label>اسم المستخدم المُبلّغ عنه</label>
-            <input class="form-input" id="rpUsername" type="text" readonly />
-          </div>
-          <div>
             <label>UID الحساب المُبلّغ عنه</label>
             <input class="form-input" id="rpUid" type="text" placeholder="أدخل UID هنا" />
           </div>
@@ -581,10 +577,6 @@
               <option value="انتهاك الخصوصية">انتهاك الخصوصية</option>
               <option value="أخرى">أخرى</option>
             </select>
-          </div>
-          <div>
-            <label>تفاصيل إضافية (اختياري)</label>
-            <textarea class="form-input" id="rpDetails" rows="4" placeholder="اشرح بإيجاز ما حدث…"></textarea>
           </div>
           <div class="report-actions">
             <button class="btn-ghost" onclick="closeModal('reportModal')">إلغاء</button>
@@ -637,12 +629,7 @@
           <span id="vpUid" class="uid-code">-</span>
           <button class="uid-copy-mini" title="Copy UID" onclick="copyUid(document.getElementById('vpUid').textContent)">⧉</button>
         </div>
-        <div class="report-hint" dir="rtl" lang="ar">
-          للتبليغ عن هذا الحساب <button class="link-btn" onclick="openReportFromProfile()">اضغط هنا</button>
-        </div>
-
-
-        <div class="prof-status" id="vpStatus"> </div>
+<div class="prof-status" id="vpStatus"> </div>
 
         <div id="vpRankBadge" class="prof-rank-badge">ROOKIE</div>
         <div class="prof-bio" id="vpBio"></div>
@@ -1265,55 +1252,48 @@ function copyUid(uid){
       }
     }
 
-    function openReport(username, uid){
+    function openReport(uid){
       const m=document.getElementById("reportModal");
       if(!m) return;
-      document.getElementById("rpUsername").value=username||"";
       document.getElementById("rpUid").value=uid||"";
       document.getElementById("rpReason").value="انتحال هوية";
-      document.getElementById("rpDetails").value="";
       m.style.display="flex";
     }
 
-    function openReportFromProfile(){
-      if(!currentEditingUser) return;
-      openReport(currentEditingUser.username, currentEditingUser.id);
+    function openReportFromSettings(){
+      openReport("");
     }
+
 
     function sendReportEmail(){
       const to="hypezone.maroc@gmail.com";
       const subject="Report";
-      const username=(document.getElementById("rpUsername").value||"").trim();
+
       const uid=(document.getElementById("rpUid").value||"").trim();
       const reason=(document.getElementById("rpReason").value||"").trim();
-      const details=(document.getElementById("rpDetails").value||"").trim();
 
       if(!uid){ return alert("Please enter UID"); }
 
       const reporterName=(myProfile&&myProfile.username)?myProfile.username:"";
       const reporterUid=(session&&session.user&&session.user.id)?session.user.id:"";
+      const now=new Date().toISOString();
 
-      const lines=[
-        "HypeZone — User Report",
+      const bodyLines=[
+        "Report",
         "",
-        "Reported user:",
-        `- Username: ${username||"(unknown)"}`,
-        `- UID: ${uid}`,
+        "Reason: "+reason,
+        "Reported UID: "+uid,
         "",
-        "Reporter:",
-        `- Username: ${reporterName||"(unknown)"}`,
-        `- UID: ${reporterUid||"(unknown)"}`,
+        "Reporter: "+(reporterName?reporterName:"(unknown)"),
+        "Reporter UID: "+(reporterUid?reporterUid:"(unknown)"),
+        "Time (UTC): "+now,
         "",
-        `Reason: ${reason||"(not specified)"}`,
-        details?`Details: ${details}`:"Details: (none)",
-        "",
-        `Client time: ${new Date().toString()}`
+        "— Generated from HypeZone settings"
       ];
 
-      const body=encodeURIComponent(lines.join("\n"));
-      const url=`mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${body}`;
-      window.location.href=url;
-      closeModal("reportModal");
+      const mailto=`mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyLines.join("
+"))}`;
+      window.location.href=mailto;
     }
 
 function escapeHtml(s){return s?s.replace(/&/g,"&amp;").replace(/</g,"&lt;"):""}
@@ -1517,7 +1497,7 @@ function escapeHtml(s){return s?s.replace(/&/g,"&amp;").replace(/</g,"&lt;"):""}
         const visual=p.background_style
           ?`<div class="post-visual" style="background:${p.background_style}"><div class="bg-text">${escapeHtml(p.caption)}</div></div>`
           :`<div class="post-visual"><img src="${p.image_url}"><div class="img-caption">${escapeHtml(p.caption)}</div></div>`;
-        e.innerHTML+=`<div class="post-card"><div class="post-header"><div class="post-user-info"><img class="p-avatar" src="${u.avatar_url}" onclick="openProfile('${u.id}')"><div onclick="openProfile('${u.id}')"><div class="p-name">${u.username} <span class="rank-tag ${r.cls}">${r.name}</span></div><div class="p-loc">${locLabel} • ${timeAgo(p.created_at)}</div><div class="p-uid">UID: <span class="uid-code">${u.id}</span> <button class="uid-copy-mini" title="Copy UID" onclick="copyUid(\'${u.id}\')">⧉</button></div></div></div>${isMine?`<button class="delete-btn" onclick="deletePost('${p.id}')"><svg><use href="#i-trash"></use></svg></button>`:""}</div>${visual}<div class="post-actions"><div class="vote-box"><button class="vote-btn up" onclick="vote('${p.id}', 1)"><svg><use href="#i-up"></use></svg></button><span class="vote-val">${u.vibe_score||0}</span><button class="vote-btn down" onclick="vote('${p.id}', -1)"><svg><use href="#i-down"></use></svg></button></div><button class="action-btn" onclick="openComments('${p.id}')"><svg style="width:16px"><use href="#i-chat"></use></svg> Comments</button></div></div>`;
+        e.innerHTML+=`<div class="post-card"><div class="post-header"><div class="post-user-info"><img class="p-avatar" src="${u.avatar_url}" onclick="openProfile('${u.id}')"><div onclick="openProfile('${u.id}')"><div class="p-name">${u.username} <span class="rank-tag ${r.cls}">${r.name}</span></div><div class="p-loc">${locLabel} • ${timeAgo(p.created_at)}</div></div></div>${isMine?`<button class="delete-btn" onclick="deletePost('${p.id}')"><svg><use href="#i-trash"></use></svg></button>`:""}</div>${visual}<div class="post-actions"><div class="vote-box"><button class="vote-btn up" onclick="vote('${p.id}', 1)"><svg><use href="#i-up"></use></svg></button><span class="vote-val">${u.vibe_score||0}</span><button class="vote-btn down" onclick="vote('${p.id}', -1)"><svg><use href="#i-down"></use></svg></button></div><button class="action-btn" onclick="openComments('${p.id}')"><svg style="width:16px"><use href="#i-chat"></use></svg> Comments</button></div></div>`;
         rendered++;
         if(rendered%adEvery===0){
           e.innerHTML+=buildSponsoredCard(rendered);
@@ -2766,6 +2746,15 @@ function escapeHtml(s){return s?s.replace(/&/g,"&amp;").replace(/</g,"&lt;"):""}
         </div>
 
         <div class="settings-section">
+  <div class="settings-h">التبليغ</div>
+  <div class="settings-p" dir="rtl" lang="ar">إذا واجهت حسابًا مخالفًا، يمكنك إرسال تبليغ رسمي بسرعة عبر البريد. اختر السبب ثم أدخل UID للحساب.</div>
+  <button class="btn-primary" onclick="openReportFromSettings()" dir="rtl" lang="ar" style="display:flex;align-items:center;justify-content:center;gap:10px">
+    <svg style="width:18px;height:18px"><use href="#i-chat"></use></svg>
+    تبليغ عن حساب
+  </button>
+</div>
+
+<div class="settings-section">
           <div class="settings-h">من نحن</div>
           <div class="legal-box" dir="rtl" lang="ar">
             منصة مغربية اجتماعية تركّز على بناء مجتمعات محلية داخل المغرب حسب المدينة والحي.
