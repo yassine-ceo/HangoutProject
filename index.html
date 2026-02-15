@@ -111,13 +111,8 @@
     .badge-title{font-size:12px;font-weight:900;color:#fff}
     .badge-sub{font-size:10px;color:rgba(255,255,255,.55);margin-top:2px}
     .event-banner{padding:0 15px;margin-bottom:20px}
-    .event-banner .banner-media{position:relative;width:100%;height:90px;border-radius:20px;border:1px solid var(--border);box-shadow:0 5px 20px rgba(0,0,0,.5);overflow:hidden}
-    .event-banner .banner-media video,
-    .event-banner .banner-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
-    .event-banner .banner-media video{opacity:1;transition:opacity 4s ease;pointer-events:none}
-    .event-banner .banner-media img{opacity:0;transition:opacity 4s ease}
-    .event-banner.banner-show-image .banner-media video{opacity:0}
-    .event-banner.banner-show-image .banner-media img{opacity:1}
+    .event-banner img,
+    .event-banner .banner-video{width:100%;height:90px;object-fit:cover;border-radius:20px;border:1px solid var(--border);box-shadow:0 5px 20px rgba(0,0,0,.5);display:block}
 
     .feed{padding:0 15px 15px 15px;display:flex;flex-direction:column;gap:25px}
     .post-card{background:var(--card);border-radius:24px;border:1px solid var(--border);overflow:hidden;position:relative}
@@ -326,7 +321,8 @@
       .topbar,.event-banner,.rooms-layout{max-width:var(--maxW);margin-left:auto;margin-right:auto}
       .topbar{padding:18px 24px}
       .event-banner{padding:0 24px;margin-bottom:22px}
-      .event-banner .banner-media{height:110px}
+      .event-banner img,
+      .event-banner .banner-video{height:110px}
       .feed{max-width:var(--maxW);margin:0 auto;padding:0 24px 24px 24px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}
       .post-card{border-radius:22px}
       .post-visual{height:clamp(220px,32vh,420px)}
@@ -342,7 +338,8 @@
       .feed{grid-template-columns:repeat(3,minmax(0,1fr))}
       .hood-grid{grid-template-columns:repeat(4,1fr)}
       .post-visual{height:clamp(220px,28vh,380px)}
-      .event-banner .banner-media{height:130px}
+      .event-banner img,
+      .event-banner .banner-video{height:130px}
     }
   </style>
   <script>
@@ -411,13 +408,10 @@
       </div>
 
       <div id="feedView">
-        <div class="event-banner" id="eventBanner">
-          <div class="banner-media">
-            <video id="bannerVideo" autoplay muted playsinline preload="auto">
-              <source src="https://j.top4top.io/m_369822lrx0.mp4" type="video/mp4">
-            </video>
-            <img id="bannerImage" src="https://i.postimg.cc/Jzk5f5fw/Hype-Zone.png" alt="Event banner">
-          </div>
+        <div class="event-banner">
+          <video class="banner-video" autoplay muted loop playsinline preload="auto">
+          <source src="https://j.top4top.io/m_369822lrx0.mp4" type="video/mp4">
+        </video>
         </div>
         <div class="feed" id="feedList"></div>
       </div>
@@ -1254,7 +1248,6 @@ document.addEventListener("click", unlockAudioOnce, {once:true, passive:true});
       await checkProfile();
       renderTopRight();
       loadFeed();
-      setupBannerVideo();
     }
 
     async function checkProfile(){
@@ -2464,64 +2457,7 @@ document.addEventListener("click", unlockAudioOnce, {once:true, passive:true});
       await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo,queryParams:{access_type:"offline",prompt:"consent"}}});
     };
 
-    
-    function setupBannerVideo(){
-      const banner=document.getElementById("eventBanner") || document.querySelector(".event-banner");
-      if(!banner) return;
-      const video=banner.querySelector("#bannerVideo") || banner.querySelector("video");
-      const img=banner.querySelector("#bannerImage") || banner.querySelector("img");
-      if(!video || !img) return;
-
-      const reveal=()=>{
-        if(banner.classList.contains("banner-show-image")) return;
-        banner.classList.add("banner-show-image");
-        const cleanup=()=>{
-          try{ video.pause(); }catch(e){}
-          video.style.display="none";
-          video.removeEventListener("transitionend", cleanup);
-        };
-        // clean after fade-out completes
-        video.addEventListener("transitionend", cleanup);
-      };
-
-      // Start in video mode
-      banner.classList.remove("banner-show-image");
-      img.style.opacity=""; // keep css driven
-      video.style.display="block";
-
-      let done=false;
-      const finish=()=>{
-        if(done) return;
-        done=true;
-        try{ video.pause(); }catch(e){}
-        reveal();
-      };
-
-      // Force switch exactly at 5 seconds
-      const t=setTimeout(finish, 5000);
-
-      // If video ends early, switch immediately
-      video.addEventListener("ended", ()=>{
-        clearTimeout(t);
-        finish();
-      });
-
-      // Try autoplay; if blocked, show image gracefully
-      try{
-        const p=video.play();
-        if(p && typeof p.catch==="function"){
-          p.catch(()=>{
-            clearTimeout(t);
-            finish();
-          });
-        }
-      }catch(e){
-        clearTimeout(t);
-        finish();
-      }
-    }
-
-async function init(){
+    async function init(){
       renderCities();
       renderGradients();
       renderSetupHoods();
