@@ -341,48 +341,6 @@
       .event-banner img,
       .event-banner .banner-video{height:130px}
     }
-  
-    /* ✅ Settings + Themes */
-    .settings-section{margin:10px 0 18px}
-    .settings-title{font-size:13px;font-weight:1000;color:rgba(255,255,255,.9);margin:12px 0 10px;letter-spacing:.2px}
-    .theme-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-    .theme-btn{
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(255,255,255,.06);
-      color:#fff;
-      border-radius:16px;
-      padding:12px;
-      cursor:pointer;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      text-align:left;
-    }
-    .theme-btn:active{transform:scale(.99)}
-    .theme-btn.active{border-color:var(--primary);box-shadow:0 0 0 3px rgba(0,210,255,.12)}
-    .theme-swatch{display:flex;gap:6px;align-items:center}
-    .sw{width:12px;height:12px;border-radius:50%;border:1px solid rgba(255,255,255,.25)}
-    .settings-link{
-      display:inline-flex;align-items:center;gap:8px;
-      color:rgba(255,255,255,.85);
-      text-decoration:none;
-      font-weight:900;
-      padding:10px 12px;
-      border-radius:14px;
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(255,255,255,.05);
-      width:100%;
-      justify-content:center;
-      margin-top:10px;
-    }
-    .settings-hr{border:none;border-top:1px solid rgba(255,255,255,.12);margin:14px 0}
-    .about-box{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:14px;line-height:1.7;color:rgba(255,255,255,.78);font-size:13px}
-    .about-box h4{margin:0 0 8px;color:#fff;font-size:14px;font-weight:1000}
-    .about-box ul{margin:8px 0 0 18px}
-    .about-box li{margin:6px 0}
-    .email-pill{display:inline-block;margin-top:10px;padding:8px 12px;border-radius:999px;background:rgba(0,210,255,.12);border:1px solid rgba(0,210,255,.35);color:var(--primary);text-decoration:none;font-weight:1000}
-
   </style>
   <script>
     document.addEventListener("contextmenu",e=>e.preventDefault());
@@ -430,11 +388,6 @@
     <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></symbol>
     <symbol id="i-bolt-filled" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="currentColor" stroke="none"/></symbol>
     <symbol id="i-gps" viewBox="0 0 24 24"><path d="M12 2a8 8 0 0 1 8 8c0 5.4-8 14-8 14S4 15.4 4 10a8 8 0 0 1 8-8z"/><circle cx="12" cy="10" r="3"/></symbol>
-
-    <symbol id="i-settings" viewBox="0 0 24 24">
-      <circle cx="12" cy="12" r="3"></circle>
-      <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.03.03a2 2 0 0 1-1.41 3.41h-.08a2 2 0 0 1-1.41-.59l-.03-.03a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 0 1-4 0v-.08a1.7 1.7 0 0 0-1-1.55 1.7 1.7 0 0 0-1.87.34l-.03.03A2 2 0 1 1 3.41 18.3l.03-.03A1.7 1.7 0 0 0 3.78 16.4 1.7 1.7 0 0 0 2.23 15H2a2 2 0 0 1 0-4h.08a1.7 1.7 0 0 0 1.55-1 1.7 1.7 0 0 0-.34-1.87l-.03-.03A2 2 0 1 1 5.7 3.41l.03.03a1.7 1.7 0 0 0 1.87.34H7.6A1.7 1.7 0 0 0 9.15 2.23V2a2 2 0 0 1 4 0v.08a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.03-.03A2 2 0 1 1 20.59 5.7l-.03.03a1.7 1.7 0 0 0-.34 1.87v.01A1.7 1.7 0 0 0 21.77 9H22a2 2 0 0 1 0 4h-.08a1.7 1.7 0 0 0-1.55 1z"></path>
-    </symbol>
     <symbol id="i-exit" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol>
   </svg>
 
@@ -449,9 +402,6 @@
           <button class="icon-btn" id="inboxBtn" title="Messages" onclick="openInbox()">
             <span class="badge-num" id="inboxBadge"></span>
             <svg><use href="#i-chat"></use></svg>
-          </button>
-          <button class="icon-btn" id="settingsBtn" title="Settings" onclick="openSettings()">
-            <svg><use href="#i-settings"></use></svg>
           </button>
           <div class="user-badge" id="topRightBadge"></div>
         </div>
@@ -659,94 +609,7 @@
     </div>
   </div>
 
-  
-  <div id="settingsModal" class="modal">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3>Settings</h3>
-        <button class="close-btn" onclick="closeModal('settingsModal')">✕</button>
-      </div>
-      <div class="scroll-content">
-        <div class="settings-section">
-          <div class="settings-title">Themes</div>
-          <div class="theme-grid" id="themeGrid">
-            <button class="theme-btn" data-theme="default" onclick="applyTheme('default')">
-              <span>Default</span>
-              <span class="theme-swatch"><span class="sw" style="background:#000"></span><span class="sw" style="background:#111"></span><span class="sw" style="background:#00d2ff"></span></span>
-            </button>
-            <button class="theme-btn" data-theme="neon" onclick="applyTheme('neon')">
-              <span>Neon</span>
-              <span class="theme-swatch"><span class="sw" style="background:#050014"></span><span class="sw" style="background:#12002a"></span><span class="sw" style="background:#ff2bd6"></span></span>
-            </button>
-            <button class="theme-btn" data-theme="emerald" onclick="applyTheme('emerald')">
-              <span>Emerald</span>
-              <span class="theme-swatch"><span class="sw" style="background:#00140f"></span><span class="sw" style="background:#082018"></span><span class="sw" style="background:#2ecc71"></span></span>
-            </button>
-            <button class="theme-btn" data-theme="sunset" onclick="applyTheme('sunset')">
-              <span>Sunset</span>
-              <span class="theme-swatch"><span class="sw" style="background:#140000"></span><span class="sw" style="background:#1b0a00"></span><span class="sw" style="background:#ff6b00"></span></span>
-            </button>
-            <button class="theme-btn" data-theme="royal" onclick="applyTheme('royal')">
-              <span>Royal</span>
-              <span class="theme-swatch"><span class="sw" style="background:#050018"></span><span class="sw" style="background:#0f0a22"></span><span class="sw" style="background:#8e44ad"></span></span>
-            </button>
-            <button class="theme-btn" data-theme="ice" onclick="applyTheme('ice')">
-              <span>Ice</span>
-              <span class="theme-swatch"><span class="sw" style="background:#001018"></span><span class="sw" style="background:#061c24"></span><span class="sw" style="background:#00d2ff"></span></span>
-            </button>
-            <button class="theme-btn" data-theme="mono" onclick="applyTheme('mono')">
-              <span>Mono</span>
-              <span class="theme-swatch"><span class="sw" style="background:#000"></span><span class="sw" style="background:#0b0b0b"></span><span class="sw" style="background:#fff"></span></span>
-            </button>
-            <button class="theme-btn" data-theme="light" onclick="applyTheme('light')">
-              <span>Light</span>
-              <span class="theme-swatch"><span class="sw" style="background:#f5f7fb"></span><span class="sw" style="background:#ffffff"></span><span class="sw" style="background:#007aff"></span></span>
-            </button>
-          </div>
-        </div>
-
-        <hr class="settings-hr"/>
-
-        <button class="btn-primary" onclick="openAbout()">من نحن</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="aboutModal" class="modal">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3>من نحن</h3>
-        <button class="close-btn" onclick="closeModal('aboutModal')">✕</button>
-      </div>
-      <div class="scroll-content">
-        <div class="about-box" dir="rtl" lang="ar">
-          <h4>HypeZone Maroc</h4>
-          <p>
-            Hypezone.maroc منصة اجتماعية محلية تساعدك على اكتشاف الغرف حسب المدينة والحي، مشاركة “الڤايب”، والتواصل مع ناس حقيقيين.
-            نحن نبني تجربة بسيطة وسريعة تركز على المجتمع المحلي داخل المغرب.
-          </p>
-
-          <h4 style="margin-top:12px">سياسة بسيطة</h4>
-          <ul>
-            <li>لا تنشر محتوى يحض على الكراهية أو العنف أو التحرش أو الابتزاز.</li>
-            <li>احترم خصوصية الآخرين: ممنوع نشر أرقام/روابط شخصية بدون إذن.</li>
-            <li>أي محتوى مخالف قد يتم حذفه أو تقييد الحساب.</li>
-          </ul>
-
-          <h4 style="margin-top:12px">إخلاء مسؤولية</h4>
-          <p>
-            المحتوى الذي ينشره المستخدمون هو مسؤوليتهم وحدهم. Hypezone.maroc لا تضمن دقة المحتوى أو سلامته،
-            ولا تتحمل أي مسؤولية عن أي ضرر مباشر أو غير مباشر ناتج عن استخدام المنصة أو التفاعل مع المستخدمين.
-            باستخدامك للموقع فأنت توافق على هذه الشروط البسيطة.
-          </p>
-
-          <a class="email-pill" href="mailto:hypezone.maroc@gmail.com">hypezone.maroc</a>
-        </div>
-      </div>
-    </div>
-  </div>
-
-<div id="tourOverlay" class="tour-overlay">
+  <div id="tourOverlay" class="tour-overlay">
     <div class="tour-dim"></div>
     <div class="tour-ring"></div>
     <div class="tour-arrow" id="tourArrow">
@@ -767,44 +630,6 @@
   </div>
 
   <script>
-
-    // ✅ Themes (saved in browser)
-    const HZ_THEMES = {
-      default: { "--bg":"#000","--card":"#111","--primary":"#00d2ff","--text":"#fff","--muted":"#888","--border":"rgba(255,255,255,0.12)","--viby":"#ffd700","--danger":"#ff4757","--success":"#2ecc71" },
-      neon:    { "--bg":"#050014","--card":"#12002a","--primary":"#ff2bd6","--text":"#fff","--muted":"rgba(255,255,255,.62)","--border":"rgba(255,255,255,0.14)","--viby":"#00d2ff","--danger":"#ff4757","--success":"#2ecc71" },
-      emerald: { "--bg":"#00140f","--card":"#082018","--primary":"#2ecc71","--text":"#fff","--muted":"rgba(255,255,255,.62)","--border":"rgba(255,255,255,0.14)","--viby":"#ffd700","--danger":"#ff4757","--success":"#2ecc71" },
-      sunset:  { "--bg":"#140000","--card":"#1b0a00","--primary":"#ff6b00","--text":"#fff","--muted":"rgba(255,255,255,.62)","--border":"rgba(255,255,255,0.14)","--viby":"#ffd700","--danger":"#ff4757","--success":"#2ecc71" },
-      royal:   { "--bg":"#050018","--card":"#0f0a22","--primary":"#8e44ad","--text":"#fff","--muted":"rgba(255,255,255,.62)","--border":"rgba(255,255,255,0.14)","--viby":"#00d2ff","--danger":"#ff4757","--success":"#2ecc71" },
-      ice:     { "--bg":"#001018","--card":"#061c24","--primary":"#00d2ff","--text":"#fff","--muted":"rgba(255,255,255,.62)","--border":"rgba(255,255,255,0.14)","--viby":"#2ecc71","--danger":"#ff4757","--success":"#2ecc71" },
-      mono:    { "--bg":"#000","--card":"#0b0b0b","--primary":"#ffffff","--text":"#fff","--muted":"rgba(255,255,255,.55)","--border":"rgba(255,255,255,0.16)","--viby":"#ffffff","--danger":"#ff4757","--success":"#2ecc71" },
-      light:   { "--bg":"#f5f7fb","--card":"#ffffff","--primary":"#007aff","--text":"#0b0b0b","--muted":"rgba(0,0,0,.55)","--border":"rgba(0,0,0,0.12)","--viby":"#ffb703","--danger":"#e63946","--success":"#2a9d8f" }
-    };
-
-    function applyTheme(name){
-      const theme = HZ_THEMES[name] || HZ_THEMES.default;
-      const root = document.documentElement;
-      Object.keys(theme).forEach(k => root.style.setProperty(k, theme[k]));
-      localStorage.setItem("hz_theme", name);
-
-      // Active state
-      document.querySelectorAll("#themeGrid .theme-btn").forEach(btn=>{
-        btn.classList.toggle("active", btn.getAttribute("data-theme") === name);
-      });
-
-      // Ensure body text color matches theme
-      document.body.style.background = getComputedStyle(root).getPropertyValue("--bg").trim();
-      document.body.style.color = getComputedStyle(root).getPropertyValue("--text").trim();
-    }
-
-    function initTheme(){
-      const saved = localStorage.getItem("hz_theme") || "default";
-      applyTheme(saved);
-    }
-
-    function openSettings(){ openModal("settingsModal"); }
-    function openAbout(){ closeModal("settingsModal"); openModal("aboutModal"); }
-
-    document.addEventListener("DOMContentLoaded", initTheme);
     const sb=supabase.createClient("https://tujdnvnrizgqroaozsqp.supabase.co","sb_publishable_WyigevxmzR2gLtbog2Ztfg_8pdmSwop",{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:"pkce"}});
 
     (function(){
