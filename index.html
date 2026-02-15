@@ -43,39 +43,6 @@
     }
 
     *{box-sizing:border-box;margin:0;padding:0;outline:0;-webkit-tap-highlight-color:transparent;font-family:'Outfit','Noto Sans Arabic',sans-serif}
-    /* ✅ Arabic UI: keep layout LTR (no mirror) while text reads RTL */
-    html.lang-ar body{direction:rtl}
-    html.lang-ar .topbar,
-    html.lang-ar .top-actions,
-    html.lang-ar .dock,
-    html.lang-ar .feed,
-    html.lang-ar .post-header,
-    html.lang-ar .post-actions,
-    html.lang-ar .vote-box,
-    html.lang-ar .input-row,
-    html.lang-ar .chat-top,
-    html.lang-ar .msg-row,
-    html.lang-ar .thread-item,
-    html.lang-ar .city-header,
-    html.lang-ar .hood-grid,
-    html.lang-ar .modal-header,
-    html.lang-ar .tour-actions,
-    html.lang-ar .user-badge{direction:ltr}
-    html.lang-ar .bg-text,
-    html.lang-ar .img-caption,
-    html.lang-ar .hood-name,
-    html.lang-ar .city-title,
-    html.lang-ar .c-bubble,
-    html.lang-ar .msg-box,
-    html.lang-ar .thread-meta,
-    html.lang-ar .info-list,
-    html.lang-ar .gate-card,
-    html.lang-ar .tour-box,
-    html.lang-ar .modal-card{direction:rtl;text-align:right}
-    html.lang-ar input, html.lang-ar textarea{direction:rtl;text-align:right}
-    /* Brand should never flip or change */
-    .brand{direction:ltr; unicode-bidi:isolate}
-
     body{background:var(--bg);color:var(--text);height:100vh;overflow:hidden;-webkit-user-select:none;user-select:none}
     input,textarea,select,button{user-select:auto;-webkit-user-select:auto}
     .hidden{display:none!important}
@@ -98,7 +65,7 @@
     body.tour-lock{overflow:hidden!important}
 
     .topbar{padding:15px 20px;display:flex;justify-content:space-between;align-items:center;background:0 0;z-index:50}
-    .brand{font-family:'Courgette',cursive;font-size:26px;color:#00d2ff;text-shadow:0 0 15px rgba(0,210,255,.4);letter-spacing:.2px}
+    .brand{font-family:'Courgette',cursive;font-size:26px;color:var(--primary);text-shadow:0 0 15px rgba(0,210,255,.4)}
     .top-actions{display:flex;align-items:center;gap:10px}
     .icon-btn{
       width:42px;height:42px;border-radius:50%;
@@ -108,8 +75,6 @@
       backdrop-filter:blur(12px);
       position:relative;
     }
-    .icon-btn svg{width:22px;height:22px}
-
     .badge-dot{
       position:absolute;top:6px;right:6px;
       width:10px;height:10px;border-radius:50%;
@@ -373,31 +338,7 @@
       .post-visual{height:clamp(220px,28vh,380px)}
       .event-banner img{height:130px}
     }
-  
-
-    /* ✅ Settings modal UI */
-    .settings-section{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:14px 14px;margin-bottom:12px}
-    .settings-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
-    .settings-label{flex:1;min-width:0}
-    .settings-title{font-size:13px;font-weight:1000;color:#fff}
-    .settings-sub{font-size:11px;color:rgba(255,255,255,.55);margin-top:3px;line-height:1.35}
-    .settings-select{max-width:170px;margin:0;border-radius:12px;padding:10px 12px}
-
-    .hz-switch{position:relative;display:inline-block;width:52px;height:30px;flex-shrink:0}
-    .hz-switch input{opacity:0;width:0;height:0}
-    .hz-slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#222;border:1px solid rgba(255,255,255,.14);transition:.2s;border-radius:999px}
-    .hz-slider:before{position:absolute;content:"";height:22px;width:22px;left:4px;bottom:3px;background:#fff;transition:.2s;border-radius:50%}
-    .hz-switch input:checked + .hz-slider{background:rgba(0,210,255,.20);border-color:rgba(0,210,255,.55)}
-    .hz-switch input:checked + .hz-slider:before{transform:translateX(22px);background:var(--primary)}
-
-    .theme-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-    .theme-card{border-radius:14px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.25);padding:10px;cursor:pointer;transition:.2s;position:relative;overflow:hidden}
-    .theme-card:active{transform:scale(.98)}
-    .theme-card.selected{border-color:var(--primary);box-shadow:0 0 0 2px rgba(0,210,255,.15) inset}
-    .theme-swatch{height:34px;border-radius:10px;border:1px solid rgba(255,255,255,.10);background:linear-gradient(135deg,var(--t1),var(--t2))}
-    .theme-name{margin-top:8px;font-size:11px;font-weight:1000;color:rgba(255,255,255,.85);text-align:center}
-
-</style>
+  </style>
   <script>
     document.addEventListener("contextmenu",e=>e.preventDefault());
     document.addEventListener("copy",e=>e.preventDefault());
@@ -445,12 +386,7 @@
     <symbol id="i-bolt-filled" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="currentColor" stroke="none"/></symbol>
     <symbol id="i-gps" viewBox="0 0 24 24"><path d="M12 2a8 8 0 0 1 8 8c0 5.4-8 14-8 14S4 15.4 4 10a8 8 0 0 1 8-8z"/><circle cx="12" cy="10" r="3"/></symbol>
     <symbol id="i-exit" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol>
-  
-    <symbol id="i-settings" viewBox="0 0 24 24">
-      <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"></path>
-      <path d="M19.4 15a7.9 7.9 0 0 0 .1-1l2-1.5-2-3.5-2.4.7a7.6 7.6 0 0 0-1.7-1l-.4-2.5h-4l-.4 2.5c-.6.2-1.2.6-1.7 1L4.5 9 2.5 12.5l2 1.5a7.9 7.9 0 0 0 .1 1l-2 1.5 2 3.5 2.4-.7c.5.4 1.1.8 1.7 1l.4 2.5h4l.4-2.5c.6-.2 1.2-.6 1.7-1l2.4.7 2-3.5-2-1.5z"></path>
-    </symbol>
-</svg>
+  </svg>
 
   <audio id="globalAudio"></audio>
 
@@ -464,10 +400,6 @@
             <span class="badge-num" id="inboxBadge"></span>
             <svg><use href="#i-chat"></use></svg>
           </button>
-          <button class="icon-btn" id="settingsBtn" title="Settings" onclick="openSettings()">
-            <svg><use href="#i-settings"></use></svg>
-          </button>
-
           <div class="user-badge" id="topRightBadge"></div>
         </div>
       </div>
@@ -487,9 +419,9 @@
 
   <div class="dock-wrapper" id="dockWrap">
     <div class="dock">
-      <button class="dock-btn active" id="dockHome" onclick="switchView('feed',this)"><svg><use href="#i-home-strong"></use></svg> <span data-i18n="home">Home</span></button>
+      <button class="dock-btn active" id="dockHome" onclick="switchView('feed',this)"><svg><use href="#i-home-strong"></use></svg> Home</button>
       <button class="fab-main" id="dockCreate" onclick="openCreate()"><svg><use href="#i-plus-strong"></use></svg></button>
-      <button class="dock-btn" id="dockRooms" onclick="switchView('rooms',this)"><svg><use href="#i-rooms-strong"></use></svg> <span data-i18n="rooms">Rooms</span></button>
+      <button class="dock-btn" id="dockRooms" onclick="switchView('rooms',this)"><svg><use href="#i-rooms-strong"></use></svg> Rooms</button>
     </div>
   </div>
 
@@ -530,60 +462,10 @@
     </div>
   </div>
 
-  <!-- ✅ Settings -->
-  <div id="settingsModal" class="modal">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3 data-i18n="settings">Settings</h3>
-        <button class="close-btn" onclick="closeSettings()">✕</button>
-      </div>
-
-      <div class="scroll-content">
-        <div class="settings-section">
-          <div class="settings-row">
-            <div class="settings-label">
-              <div class="settings-title" data-i18n="notif_sound">Notification sound</div>
-              <div class="settings-sub" data-i18n="notif_sound_sub">Play sound when you receive messages</div>
-            </div>
-            <label class="hz-switch">
-              <input type="checkbox" id="setNotifSound" />
-              <span class="hz-slider"></span>
-            </label>
-          </div>
-        </div>
-
-        <div class="settings-section">
-          <div class="settings-row">
-            <div class="settings-label">
-              <div class="settings-title" data-i18n="language">Language</div>
-              <div class="settings-sub" data-i18n="language_sub">Choose your app language</div>
-            </div>
-            <select class="form-input settings-select" id="setLang">
-              <option value="en">English</option>
-              <option value="ar">العربية</option>
-              <option value="fr">Français</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="settings-section">
-          <div class="settings-label" style="margin-bottom:10px">
-            <div class="settings-title" data-i18n="theme">Theme</div>
-            <div class="settings-sub" data-i18n="theme_sub">Pick a look you like</div>
-          </div>
-          <div class="theme-grid" id="themeGrid"></div>
-        </div>
-
-        <button class="btn-primary" onclick="saveSettings()" data-i18n="save">Save</button>
-      </div>
-    </div>
-  </div>
-
-
   <div id="commentsModal" class="modal">
     <div class="modal-card">
       <div class="modal-header">
-        <h3 data-i18n="comments">Comments</h3>
+        <h3>Comments</h3>
         <button class="close-btn" onclick="closeModal('commentsModal')">✕</button>
       </div>
       <div class="scroll-content" id="postCommentsList"></div>
@@ -633,13 +515,13 @@
           </div>
         </div>
         <div class="info-list">
-          <div class="info-row"><span data-i18n="city">City</span><span id="vpCity">-</span></div>
-          <div class="info-row"><span data-i18n="neighborhood">Neighborhood</span><span id="vpHood">-</span></div>
-          <div class="info-row"><span data-i18n="age">Age</span><span id="vpAge">-</span></div>
-          <div class="info-row"><span data-i18n="gender">Gender</span><span id="vpGender">-</span></div>
-          <div class="info-row"><span data-i18n="interests">Interests</span><span id="vpInterests">-</span></div>
+          <div class="info-row"><span>City</span><span id="vpCity">-</span></div>
+          <div class="info-row"><span>Neighborhood</span><span id="vpHood">-</span></div>
+          <div class="info-row"><span>Age</span><span id="vpAge">-</span></div>
+          <div class="info-row"><span>Gender</span><span id="vpGender">-</span></div>
+          <div class="info-row"><span>Interests</span><span id="vpInterests">-</span></div>
         </div>
-        <button id="editProfileBtn" class="edit-profile-btn" onclick="openEditProfile()"><span data-i18n="edit_profile">Edit Profile</span></button>
+        <button id="editProfileBtn" class="edit-profile-btn" onclick="openEditProfile()">Edit Profile</button>
       </div>
     </div>
   </div>
@@ -661,7 +543,7 @@
         <input class="form-input" id="setupUser" placeholder="Username (unique)">
         <input class="form-input" id="setupFull" placeholder="Display Name">
         <div style="display:flex;gap:10px">
-          <select class="form-input" id="setupGender"><option value="male" data-i18n="male">Male</option><option value="female" data-i18n="female">Female</option></select>
+          <select class="form-input" id="setupGender"><option value="Male">Male</option><option value="Female">Female</option></select>
           <input class="form-input" id="setupInterests" placeholder="Interests">
         </div>
         <select class="form-input" id="setupHood"></select>
@@ -744,245 +626,6 @@
 
   <script>
     const sb=supabase.createClient("https://tujdnvnrizgqroaozsqp.supabase.co","sb_publishable_WyigevxmzR2gLtbog2Ztfg_8pdmSwop",{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:"pkce"}});
-
-
-    /* =========================
-       ✅ Settings (localStorage)
-       ========================= */
-    const HZ_SETTINGS_KEY="hz_settings_v1";
-    const HZ_DEFAULT_SETTINGS={ notifSound:true, lang:"en", theme:"neon" };
-
-    function loadSettings(){
-      try{
-        const raw=localStorage.getItem(HZ_SETTINGS_KEY);
-        if(!raw) return {...HZ_DEFAULT_SETTINGS};
-        const obj=JSON.parse(raw);
-        return {...HZ_DEFAULT_SETTINGS, ...(obj||{})};
-      }catch(e){ return {...HZ_DEFAULT_SETTINGS}; }
-    }
-    function persistSettings(){
-      try{ localStorage.setItem(HZ_SETTINGS_KEY, JSON.stringify(hzSettings)); }catch(e){}
-    }
-
-    let hzSettings = loadSettings();
-
-    const HZ_THEMES={
-      neon:    {name:{en:"Neon Blue",ar:"نيون أزرق",fr:"Néon bleu"},   vars:{bg:"#000000",card:"#111111",primary:"#00d2ff",text:"#ffffff",muted:"#888888",border:"rgba(255,255,255,0.12)",viby:"#ffd700",danger:"#ff4757",success:"#2ecc71"}, swatch:["#00d2ff","#007aff"]},
-      violet:  {name:{en:"Violet Night",ar:"ليل بنفسجي",fr:"Nuit violette"}, vars:{bg:"#070510",card:"#131026",primary:"#a78bfa",text:"#ffffff",muted:"#9ca3af",border:"rgba(255,255,255,0.12)",viby:"#fbbf24",danger:"#fb7185",success:"#34d399"}, swatch:["#a78bfa","#06b6d4"]},
-      emerald: {name:{en:"Emerald",ar:"زمردي",fr:"Émeraude"},         vars:{bg:"#000b08",card:"#0b1a14",primary:"#34d399",text:"#ffffff",muted:"#8aa39a",border:"rgba(255,255,255,0.12)",viby:"#fde047",danger:"#f87171",success:"#22c55e"}, swatch:["#34d399","#10b981"]},
-      sunset:  {name:{en:"Sunset",ar:"غروب",fr:"Coucher de soleil"},  vars:{bg:"#0b0700",card:"#1a1100",primary:"#fb923c",text:"#ffffff",muted:"#a38b74",border:"rgba(255,255,255,0.12)",viby:"#facc15",danger:"#ef4444",success:"#22c55e"}, swatch:["#fb923c","#f43f5e"]},
-      rose:    {name:{en:"Rose",ar:"وردي",fr:"Rose"},                vars:{bg:"#0b0010",card:"#1a0b24",primary:"#fb7185",text:"#ffffff",muted:"#a78bfa",border:"rgba(255,255,255,0.12)",viby:"#fbbf24",danger:"#f43f5e",success:"#2dd4bf"}, swatch:["#fb7185","#a78bfa"]},
-      mono:    {name:{en:"Mono",ar:"أحادي",fr:"Mono"},               vars:{bg:"#000000",card:"#0c0c0c",primary:"#ffffff",text:"#ffffff",muted:"#a3a3a3",border:"rgba(255,255,255,0.16)",viby:"#ffffff",danger:"#ff4757",success:"#2ecc71"}, swatch:["#ffffff","#525252"]}
-    };
-
-    
-    const I18N={
-      en:{
-        settings:"Settings",
-        notif_sound:"Notification sound",
-        notif_sound_sub:"Play sound when you receive messages",
-        language:"Language",
-        language_sub:"Choose your app language",
-        theme:"Theme",
-        theme_sub:"Pick a look you like",
-        save:"Save",
-        home:"Home",
-        rooms:"Rooms",
-        messages:"Messages",
-        comments:"Comments",
-        loading:"Loading...",
-        type_comment:"Type a comment...",
-        city:"City",
-        neighborhood:"Neighborhood",
-        age:"Age",
-        gender:"Gender",
-        interests:"Interests",
-        edit_profile:"Edit Profile",
-        male:"Male",
-        female:"Female",
-        online:"Online",
-        offline:"Offline",
-        close:"Close",
-        send:"Send"
-      },
-      ar:{
-        settings:"الإعدادات",
-        notif_sound:"صوت الإشعارات",
-        notif_sound_sub:"تشغيل صوت عند وصول الرسائل",
-        language:"اللغة",
-        language_sub:"اختر لغة التطبيق",
-        theme:"الثيم",
-        theme_sub:"اختر المظهر الذي يعجبك",
-        save:"حفظ",
-        home:"الرئيسية",
-        rooms:"الغرف",
-        messages:"الرسائل",
-        comments:"التعليقات",
-        loading:"جارٍ التحميل...",
-        type_comment:"اكتب تعليقاً...",
-        city:"المدينة",
-        neighborhood:"الحي",
-        age:"العمر",
-        gender:"الجنس",
-        interests:"الاهتمامات",
-        edit_profile:"تعديل الملف",
-        male:"ذكر",
-        female:"أنثى",
-        online:"متصل",
-        offline:"غير متصل",
-        close:"إغلاق",
-        send:"إرسال"
-      },
-      fr:{
-        settings:"Paramètres",
-        notif_sound:"Son des notifications",
-        notif_sound_sub:"Jouer un son à la réception des messages",
-        language:"Langue",
-        language_sub:"Choisissez la langue de l'app",
-        theme:"Thème",
-        theme_sub:"Choisissez le style que vous aimez",
-        save:"Enregistrer",
-        home:"Accueil",
-        rooms:"Salons",
-        messages:"Messages",
-        comments:"Commentaires",
-        loading:"Chargement...",
-        type_comment:"Écrire un commentaire...",
-        city:"Ville",
-        neighborhood:"Quartier",
-        age:"Âge",
-        gender:"Genre",
-        interests:"Centres d’intérêt",
-        edit_profile:"Modifier le profil",
-        male:"Homme",
-        female:"Femme",
-        online:"En ligne",
-        offline:"Hors ligne",
-        close:"Fermer",
-        send:"Envoyer"
-      }
-    };
-
-
-    function t(key){
-      const lang=hzSettings.lang||"en";
-      return (I18N[lang] && I18N[lang][key]) ? I18N[lang][key] : (I18N.en[key]||key);
-    }
-
-    function applyTheme(themeKey){
-      const theme=HZ_THEMES[themeKey]||HZ_THEMES.neon;
-      const root=document.documentElement;
-      const vars=theme.vars||{};
-      Object.keys(vars).forEach(k=> root.style.setProperty(`--${k}`, vars[k]));
-      // keep theme selection
-      hzSettings.theme=themeKey in HZ_THEMES ? themeKey : "neon";
-    }
-
-    function applyLanguage(lang){
-      const safe = (lang==="ar"||lang==="fr"||lang==="en") ? lang : "en";
-      hzSettings.lang = safe;
-      const root=document.documentElement;
-      root.lang = safe;
-
-      // ✅ Do NOT mirror the whole UI. Keep base LTR and only style Arabic text RTL via CSS rules.
-      root.dir = "ltr";
-      root.classList.toggle("lang-ar", safe==="ar");
-
-      // update all labels
-      document.querySelectorAll("[data-i18n]").forEach(el=>{
-        const k=el.getAttribute("data-i18n");
-        if(k) el.textContent = t(k);
-      });
-
-      // placeholders
-      document.querySelectorAll("[data-i18n-placeholder]").forEach(el=>{
-        const k=el.getAttribute("data-i18n-placeholder");
-        if(k) el.setAttribute("placeholder", t(k));
-      });
-
-      // tooltips
-      const settingsBtn=document.getElementById("settingsBtn");
-      if(settingsBtn) settingsBtn.title=t("settings");
-      const inboxBtn=document.getElementById("inboxBtn");
-      if(inboxBtn) inboxBtn.title=t("messages");
-
-      // rerender dynamic UI
-      try{ renderCities(); }catch(e){}
-      try{ loadFeed(); }catch(e){}
-      try{ refreshProfileView && refreshProfileView(); }catch(e){}
-      try{ refreshInboxList && refreshInboxList(); }catch(e){}
-    }
-
-    function renderThemeGrid(){
-      const grid=document.getElementById("themeGrid");
-      if(!grid) return;
-      grid.innerHTML="";
-      Object.keys(HZ_THEMES).forEach(key=>{
-        const th=HZ_THEMES[key];
-        const card=document.createElement("div");
-        card.className="theme-card"+(hzSettings.theme===key?" selected":"");
-        card.dataset.themeKey=key;
-        card.style.setProperty("--t1", th.swatch?.[0] || th.vars?.primary || "#00d2ff");
-        card.style.setProperty("--t2", th.swatch?.[1] || "#007aff");
-
-        const sw=document.createElement("div");
-        sw.className="theme-swatch";
-
-        const nm=document.createElement("div");
-        nm.className="theme-name";
-        nm.textContent = (th.name && (th.name[hzSettings.lang]||th.name.en)) ? (th.name[hzSettings.lang]||th.name.en) : key;
-
-        card.appendChild(sw);
-        card.appendChild(nm);
-        card.onclick=()=>{
-          hzSettings.theme=key;
-          applyTheme(key);
-          persistSettings();
-          renderThemeGrid();
-        };
-        grid.appendChild(card);
-      });
-    }
-
-    function openSettings(){
-      const m=document.getElementById("settingsModal");
-      if(!m) return;
-      // populate controls
-      const cb=document.getElementById("setNotifSound");
-      if(cb) cb.checked=!!hzSettings.notifSound;
-      const sel=document.getElementById("setLang");
-      if(sel) sel.value=hzSettings.lang||"en";
-
-      renderThemeGrid();
-      applyLanguage(hzSettings.lang||"en"); // refresh labels in modal too
-      m.style.display="flex";
-    }
-    function closeSettings(){
-      const m=document.getElementById("settingsModal");
-      if(!m) return;
-      m.style.display="none";
-    }
-    function saveSettings(){
-      const cb=document.getElementById("setNotifSound");
-      const sel=document.getElementById("setLang");
-      hzSettings.notifSound = cb ? !!cb.checked : !!hzSettings.notifSound;
-      hzSettings.lang = sel ? (sel.value||"en") : (hzSettings.lang||"en");
-      // theme already applied by grid click
-      persistSettings();
-      applyTheme(hzSettings.theme||"neon");
-      applyLanguage(hzSettings.lang||"en");
-      closeSettings();
-    }
-
-    // Apply settings early
-    try{ applyTheme(hzSettings.theme||"neon"); }catch(e){}
-    try{ applyLanguage(hzSettings.lang||"en"); }catch(e){}
-
-    window.addEventListener("load", ()=>{
-      try{ applyTheme(hzSettings.theme||"neon"); }catch(e){}
-      try{ applyLanguage(hzSettings.lang||"en"); }catch(e){}
-    });
-
 
     (function(){
       let resumeTriggered = false;
@@ -1198,15 +841,7 @@ document.addEventListener("pointerdown", unlockAudioOnce, {once:true, passive:tr
 document.addEventListener("touchstart", unlockAudioOnce, {once:true, passive:true});
 document.addEventListener("click", unlockAudioOnce, {once:true, passive:true});
     function playSnd(a){
-      try{
-        if(!a) return;
-        const isNotif=((typeof sndSend!=="undefined" && a===sndSend) || (typeof sndRecv!=="undefined" && a===sndRecv));
-        if(isNotif && hzSettings && hzSettings.notifSound===false) return;
-        a.pause();
-        a.currentTime=0;
-        const p=a.play();
-        if(p&&p.catch) p.catch(()=>{});
-      }catch(e){}
+      try{ if(!a) return; a.pause(); a.currentTime=0; const p=a.play(); if(p&&p.catch) p.catch(()=>{}); }catch(e){}
     }
 
     let hzRecorder=null;
@@ -1450,85 +1085,18 @@ document.addEventListener("click", unlockAudioOnce, {once:true, passive:true});
       document.getElementById(view+"View").classList.remove("hidden");
     }
 
-    
-    // ✅ Localization for cities / neighborhoods (full switch when language changes)
-    const CITY_AR={
-      "Rabat":"الرباط","Sale":"سلا","Casablanca":"الدار البيضاء","Marrakech":"مراكش","Fes":"فاس","Tangier":"طنجة",
-      "Agadir":"أكادير","Meknes":"مكناس","Oujda":"وجدة","Kenitra":"القنيطرة","Tetouan":"تطوان","Eljadida":"الجديدة",
-      "Safi":"آسفي","Mohammedia":"المحمدية","Nador":"الناظور","Benimellal":"بني ملال","Khouribga":"خريبكة",
-      "Taza":"تازة","Essaouira":"الصويرة","Laayoune":"العيون","Dakhla":"الداخلة"
-    };
-    const CITY_FR={
-      "Rabat":"Rabat","Sale":"Salé","Casablanca":"Casablanca","Marrakech":"Marrakech","Fes":"Fès","Tangier":"Tanger",
-      "Agadir":"Agadir","Meknes":"Meknès","Oujda":"Oujda","Kenitra":"Kénitra","Tetouan":"Tétouan","Eljadida":"El Jadida",
-      "Safi":"Safi","Mohammedia":"Mohammédia","Nador":"Nador","Benimellal":"Béni Mellal","Khouribga":"Khouribga",
-      "Taza":"Taza","Essaouira":"Essaouira","Laayoune":"Laâyoune","Dakhla":"Dakhla"
-    };
-
-    // common neighborhood word-level overrides (Morocco)
-    const HOOD_AR_WORDS = [
-      ["Hay ","حي "],["Bab ","باب "],["Sidi ","سيدي "],["Ain ","عين "],["Al ","ال "],["Derb ","درب "],
-      ["Medina","المدينة"],["Centre","المركز"],["Center","المركز"],["Plage","الشاطئ"]
-    ];
-
-    function latinToArabicBasic(s){
-      // lightweight transliteration (not perfect, but guarantees Arabic script)
-      const map = [
-        ["ch","ش"],["sh","ش"],["kh","خ"],["gh","غ"],["ou","و"],["aa","ا"],["ee","ي"],["oo","و"],
-        ["a","ا"],["b","ب"],["c","ك"],["d","د"],["e","ي"],["f","ف"],["g","گ"],["h","ه"],["i","ي"],["j","ج"],
-        ["k","ك"],["l","ل"],["m","م"],["n","ن"],["o","و"],["p","ب"],["q","ق"],["r","ر"],["s","س"],["t","ت"],
-        ["u","و"],["v","ف"],["w","و"],["x","كس"],["y","ي"],["z","ز"]
-      ];
-      let out=""; let i=0; const low=s.toLowerCase();
-      while(i<low.length){
-        let done=false;
-        for(const [k,v] of map){
-          if(low.startsWith(k,i)){ out+=v; i+=k.length; done=true; break; }
-        }
-        if(!done){ out+=s[i]; i++; }
-      }
-      return out.replace(/'/g,"");
-    }
-
-    function locCityName(name){
-      const lang=hzSettings.lang||"en";
-      if(lang==="ar") return CITY_AR[name] || latinToArabicBasic(name);
-      if(lang==="fr") return CITY_FR[name] || name;
-      return name;
-    }
-    function locHoodName(name){
-      const lang=hzSettings.lang||"en";
-      if(lang==="ar"){
-        let x=name;
-        HOOD_AR_WORDS.forEach(([a,b])=>{ x=x.split(a).join(b); });
-        // common explicit fixes
-        const fixes={
-          "Maarif":"المعاريف","Anfa":"أنفا","Ain Diab":"عين الذئاب","Gueliz":"كيليز","Hivernage":"إيفرنـاج",
-          "Tabriquet":"تابريكت","Agdal":"أكدال","Hay Salam":"حي السلام","Hay Mohammadi":"حي المحمدي",
-          "Sidi Maarouf":"سيدي معروف","Ain Sebaa":"عين السبع","Derb Sultan":"درب السلطان"
-        };
-        return fixes[name] || latinToArabicBasic(x);
-      }
-      // French: mostly same; small fixes
-      if(lang==="fr"){
-        const fixes={"Fes":"Fès","Gueliz":"Guéliz","Hivernage":"Hivernage","Ain Diab":"Aïn Diab","Eljadida":"El Jadida"};
-        return fixes[name] || name;
-      }
-      return name;
-    }
-
-function renderCities(){
+    function renderCities(){
       const e=document.getElementById("citiesWrap"); if(!e) return;
       e.innerHTML="";
       cityOrder.forEach(k=>{
         const n=cities[k]; if(!n) return;
         const header=document.createElement("div");
         header.className="city-header";
-        header.innerHTML=`<svg class="city-icon"><use href="#i-gps"></use></svg><span class="city-title">${locCityName(n.name)}</span>`;
+        header.innerHTML=`<svg class="city-icon"><use href="#i-gps"></use></svg><span class="city-title">${n.name.toUpperCase()}</span>`;
         const grid=document.createElement("div");
         grid.className="hood-grid"; grid.id=k+"Grid";
         n.hoods.forEach(h=>{
-          grid.innerHTML+=`<div class="hood-item" onclick="openRoom('${k}','${h}')"><div class="online-dot"></div><div class="hood-name">${locHoodName(h)}</div></div>`;
+          grid.innerHTML+=`<div class="hood-item" onclick="openRoom('${k}','${h}')"><div class="online-dot"></div><div class="hood-name">${h}</div></div>`;
         });
         e.appendChild(header); e.appendChild(grid);
       });
@@ -1693,7 +1261,7 @@ function renderCities(){
 
     async function loadFeed(){
       const e=document.getElementById("feedList");
-      e.innerHTML=`<div style='text-align:center;color:#666'>${t('loading')}</div>`;
+      e.innerHTML="<div style='text-align:center;color:#666'>Loading...</div>";
       const {data}=await sb.from("posts").select("*, profiles(*)").order("created_at",{ascending:false});
       e.innerHTML="";
       const posts=(data||[]);
@@ -1984,9 +1552,9 @@ function renderCities(){
       document.getElementById("vpScore").innerText=p.vibe_score||0;
       document.getElementById("vpPosts").innerText=postsCount||0;
       document.getElementById("vpCity").innerText=loc.cityName||"-";
-      document.getElementById("vpHood").innerText=loc.hood?locHoodName(loc.hood):"-";
+      document.getElementById("vpHood").innerText=loc.hood||"-";
       document.getElementById("vpAge").innerText=p.age||"-";
-      document.getElementById("vpGender").innerText=p.gender? (p.gender==="male"?t("male"):(p.gender==="female"?t("female"):p.gender)) : "-";
+      document.getElementById("vpGender").innerText=p.gender||"-";
       document.getElementById("vpInterests").innerText=p.interests||"-";
 
       const isMine = session.user.id===id;
