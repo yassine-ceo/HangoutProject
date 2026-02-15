@@ -341,7 +341,59 @@
       .event-banner img,
       .event-banner .banner-video{height:130px}
     }
-  </style>
+  
+    /* ✅ Settings / Themes */
+    .settings-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:6px 0 12px}
+    .settings-h{font-size:14px;font-weight:1000;color:#fff;letter-spacing:.2px}
+    .settings-p{font-size:12px;color:rgba(255,255,255,.62);line-height:1.55;margin-top:6px}
+    .settings-section{padding:12px 0;border-bottom:1px solid rgba(255,255,255,.10)}
+    .settings-section:last-child{border-bottom:none}
+    .theme-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:10px}
+    .theme-btn{
+      display:flex;align-items:center;gap:10px;
+      width:100%;
+      padding:12px 12px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.05);
+      color:#fff;
+      cursor:pointer;
+      text-align:left;
+      transition:transform .15s ease, border-color .2s ease, background .2s ease;
+    }
+    .theme-btn:active{transform:scale(.99)}
+    .theme-btn.active{border-color:rgba(0,210,255,.65);background:rgba(0,210,255,.10)}
+    .theme-swatch{
+      width:34px;height:34px;border-radius:12px;
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow:0 12px 30px rgba(0,0,0,.45);
+      flex-shrink:0;
+    }
+    .theme-meta{display:flex;flex-direction:column;gap:2px;min-width:0}
+    .theme-name{font-size:12px;font-weight:1000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .theme-note{font-size:10px;color:rgba(255,255,255,.55);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .link-pill{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:10px 12px;border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.06);
+      color:#fff;text-decoration:none;font-weight:900;font-size:12px;
+      width:fit-content;margin-top:10px;
+    }
+    .link-pill:active{transform:scale(.99)}
+    .legal-box{
+      margin-top:10px;
+      background:rgba(0,0,0,.35);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:16px;
+      padding:12px 12px;
+      color:rgba(255,255,255,.72);
+      font-size:12px;
+      line-height:1.65;
+    }
+    .legal-box ul{padding-left:18px;margin:8px 0}
+    .legal-box li{margin:6px 0}
+</style>
   <script>
     document.addEventListener("contextmenu",e=>e.preventDefault());
     document.addEventListener("copy",e=>e.preventDefault());
@@ -389,6 +441,18 @@
     <symbol id="i-bolt-filled" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="currentColor" stroke="none"/></symbol>
     <symbol id="i-gps" viewBox="0 0 24 24"><path d="M12 2a8 8 0 0 1 8 8c0 5.4-8 14-8 14S4 15.4 4 10a8 8 0 0 1 8-8z"/><circle cx="12" cy="10" r="3"/></symbol>
     <symbol id="i-exit" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24">
+      <line x1="4" y1="21" x2="4" y2="14"></line>
+      <line x1="4" y1="10" x2="4" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="12"></line>
+      <line x1="12" y1="8" x2="12" y2="3"></line>
+      <line x1="20" y1="21" x2="20" y2="16"></line>
+      <line x1="20" y1="12" x2="20" y2="3"></line>
+      <line x1="1" y1="14" x2="7" y2="14"></line>
+      <line x1="9" y1="8" x2="15" y2="8"></line>
+      <line x1="17" y1="16" x2="23" y2="16"></line>
+    </symbol>
+
   </svg>
 
   <audio id="globalAudio"></audio>
@@ -402,6 +466,9 @@
           <button class="icon-btn" id="inboxBtn" title="Messages" onclick="openInbox()">
             <span class="badge-num" id="inboxBadge"></span>
             <svg><use href="#i-chat"></use></svg>
+          </button>
+          <button class="icon-btn" id="settingsBtn" title="Settings" onclick="openSettings()">
+            <svg><use href="#i-settings"></use></svg>
           </button>
           <div class="user-badge" id="topRightBadge"></div>
         </div>
@@ -2509,5 +2576,154 @@ document.addEventListener("click", unlockAudioOnce, {once:true, passive:true});
 
     init();
   </script>
+  <!-- Settings Modal -->
+  <div class="modal" id="settingsModal" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="gate-title" style="margin:0">Settings</div>
+        <button class="close-btn" onclick="closeSettings()">×</button>
+      </div>
+
+      <div class="scroll-content">
+        <div class="settings-section">
+          <div class="settings-row">
+            <div class="settings-h">Themes</div>
+          </div>
+          <div class="settings-p">Choose a look that matches your vibe. Your theme is saved on this device.</div>
+          <div class="theme-grid" id="themeGrid"></div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-h">من نحن</div>
+          <div class="legal-box" dir="rtl" lang="ar">
+            HypeZone هي شركة ومنصة اجتماعية تكنولوجية تركّز على بناء مجتمعات محلية داخل المغرب حسب المدينة والحي.
+            هدفنا هو تقديم مساحة آمنة، سريعة، وعملية لاكتشاف الغرف، مشاركة الـ vibes، وبناء علاقات حقيقية على أرض الواقع.
+            نحن نطوّر المنتج بعقلية “منصة قوية” ومعايير تشغيل احترافية.
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-h">سياسة الاستخدام</div>
+          <div class="legal-box" dir="rtl" lang="ar">
+            باستخدامك لـ HypeZone أنت توافق على الالتزام بسياسات المنصة التالية:
+            <ul>
+              <li>ممنوع أي محتوى غير قانوني، تحريض، كراهية، تهديد، أو انتهاك للخصوصية.</li>
+              <li>ممنوع انتحال الهوية، الاحتيال، أو محاولة الوصول غير المصرّح به لأي حساب/خدمة.</li>
+              <li>نحتفظ بحق إزالة المحتوى أو تقييد الحسابات التي تخالف السياسات أو تضرّ بالمجتمع.</li>
+              <li>قد يتم تحديث هذه السياسة عند الحاجة لأسباب أمنية/قانونية/تشغيلية.</li>
+              <li>أنت مسؤول عن المحتوى الذي تنشره، وعن احترام الآخرين وقوانين بلدك.</li>
+            </ul>
+            نحن نعمل بمعايير امتثال وتشغيل قوية لحماية المستخدمين والمنصة.
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-h">التواصل</div>
+          <div class="settings-p" dir="rtl" lang="ar">للدعم أو الشراكات أو الاستفسارات:</div>
+          <a class="link-pill" href="mailto:hypezone.maroc@gmail.com" title="Email hypezone.maroc@gmail.com">
+            <svg style="width:18px;height:18px"><use href="#i-send"></use></svg>
+            hypezon.maroc
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // ✅ Settings / Themes (saved in browser)
+  (function(){
+    const THEMES = [{"id": "neon-night", "name": "Neon Night", "note": "Hype classic", "vars": {"--bg": "#000000", "--card": "#111111", "--primary": "#00d2ff", "--text": "#ffffff", "--muted": "#888888", "--border": "rgba(255,255,255,0.12)", "--viby": "#ffd700", "--danger": "#ff4757", "--success": "#2ecc71"}}, {"id": "midnight-blue", "name": "Midnight Blue", "note": "Clean & calm", "vars": {"--bg": "#050912", "--card": "#0b1324", "--primary": "#4aa3ff", "--text": "#ffffff", "--muted": "#8ea0b6", "--border": "rgba(255,255,255,0.12)", "--viby": "#ffd166", "--danger": "#ff4d6d", "--success": "#3ddc97"}}, {"id": "cyber-purple", "name": "Cyber Purple", "note": "Deep neon", "vars": {"--bg": "#05000a", "--card": "#120018", "--primary": "#b44cff", "--text": "#ffffff", "--muted": "#a08ab0", "--border": "rgba(255,255,255,0.12)", "--viby": "#ffd700", "--danger": "#ff4d6d", "--success": "#2ecc71"}}, {"id": "emerald-noir", "name": "Emerald Noir", "note": "Premium dark", "vars": {"--bg": "#020807", "--card": "#0b1413", "--primary": "#00f5a0", "--text": "#ffffff", "--muted": "#88a8a0", "--border": "rgba(255,255,255,0.12)", "--viby": "#f4d35e", "--danger": "#ff5d6c", "--success": "#00f5a0"}}, {"id": "rose-black", "name": "Rose Black", "note": "Bold & modern", "vars": {"--bg": "#070406", "--card": "#130a10", "--primary": "#ff3ea5", "--text": "#ffffff", "--muted": "#b19aa8", "--border": "rgba(255,255,255,0.12)", "--viby": "#ffd700", "--danger": "#ff4757", "--success": "#2ecc71"}}, {"id": "sunset-dark", "name": "Sunset Dark", "note": "Warm contrast", "vars": {"--bg": "#0a0402", "--card": "#140905", "--primary": "#ff7a00", "--text": "#ffffff", "--muted": "#b79b8f", "--border": "rgba(255,255,255,0.12)", "--viby": "#ffd166", "--danger": "#ff3b5c", "--success": "#2bd97c"}}, {"id": "arctic-dark", "name": "Arctic Dark", "note": "Cold minimal", "vars": {"--bg": "#05080b", "--card": "#0e141a", "--primary": "#7ae7ff", "--text": "#ffffff", "--muted": "#9fb2bf", "--border": "rgba(255,255,255,0.12)", "--viby": "#ffd700", "--danger": "#ff4757", "--success": "#2ecc71"}}, {"id": "gold-elite", "name": "Gold Elite", "note": "Luxury vibe", "vars": {"--bg": "#050403", "--card": "#120f0a", "--primary": "#ffd700", "--text": "#ffffff", "--muted": "#b6a77a", "--border": "rgba(255,255,255,0.12)", "--viby": "#ffd700", "--danger": "#ff4d6d", "--success": "#2ecc71"}}, {"id": "ocean-teal", "name": "Ocean Teal", "note": "Fresh & clean", "vars": {"--bg": "#021015", "--card": "#062029", "--primary": "#00d2a8", "--text": "#ffffff", "--muted": "#85aeb0", "--border": "rgba(255,255,255,0.12)", "--viby": "#ffe66d", "--danger": "#ff4757", "--success": "#2ecc71"}}, {"id": "mono-gray", "name": "Mono Gray", "note": "Studio", "vars": {"--bg": "#0a0a0a", "--card": "#141414", "--primary": "#d9d9d9", "--text": "#ffffff", "--muted": "#9a9a9a", "--border": "rgba(255,255,255,0.12)", "--viby": "#ffd700", "--danger": "#ff4757", "--success": "#2ecc71"}}];
+    const KEY = "hz_theme_v1";
+
+    function applyVars(vars){
+      const root = document.documentElement;
+      Object.keys(vars).forEach(k => root.style.setProperty(k, vars[k]));
+    }
+
+    function setActive(themeId){
+      const grid = document.getElementById("themeGrid");
+      if(!grid) return;
+      grid.querySelectorAll(".theme-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.themeId === themeId);
+      });
+    }
+
+    window.applyTheme = function(themeId){
+      const t = THEMES.find(x => x.id === themeId) || THEMES[0];
+      applyVars(t.vars);
+      try{ localStorage.setItem(KEY, t.id); }catch(e){}
+      setActive(t.id);
+    }
+
+    window.openSettings = function(){
+      const m = document.getElementById("settingsModal");
+      if(!m) return;
+      m.style.display = "flex";
+      m.setAttribute("aria-hidden","false");
+      // lock scroll like other modals
+      document.body.classList.add("tour-lock");
+    }
+
+    window.closeSettings = function(){
+      const m = document.getElementById("settingsModal");
+      if(!m) return;
+      m.style.display = "none";
+      m.setAttribute("aria-hidden","true");
+      document.body.classList.remove("tour-lock");
+    }
+
+    function renderThemes(){
+      const grid = document.getElementById("themeGrid");
+      if(!grid) return;
+      grid.innerHTML = "";
+      THEMES.forEach(t => {
+        const btn = document.createElement("button");
+        btn.className = "theme-btn";
+        btn.type = "button";
+        btn.dataset.themeId = t.id;
+
+        const sw = document.createElement("div");
+        sw.className = "theme-swatch";
+        // simple swatch: bg with primary border glow
+        sw.style.background = t.vars["--card"] || "#111";
+        sw.style.borderColor = t.vars["--primary"] || "rgba(255,255,255,.14)";
+        sw.style.boxShadow = "0 14px 40px rgba(0,0,0,.55), 0 0 0 2px rgba(0,0,0,.35), 0 0 18px " + (t.vars["--primary"] || "#00d2ff") + "33";
+
+        const meta = document.createElement("div");
+        meta.className = "theme-meta";
+        meta.innerHTML = '<div class="theme-name"></div><div class="theme-note"></div>';
+        meta.querySelector(".theme-name").textContent = t.name;
+        meta.querySelector(".theme-note").textContent = t.note;
+
+        btn.appendChild(sw);
+        btn.appendChild(meta);
+
+        btn.addEventListener("click", () => window.applyTheme(t.id));
+        grid.appendChild(btn);
+      });
+    }
+
+    function initTheme(){
+      renderThemes();
+      let saved = null;
+      try{ saved = localStorage.getItem(KEY); }catch(e){}
+      const chosen = THEMES.some(x => x.id === saved) ? saved : THEMES[0].id;
+      window.applyTheme(chosen);
+    }
+
+    document.addEventListener("click", (e) => {
+      const m = document.getElementById("settingsModal");
+      if(!m || m.style.display !== "flex") return;
+      if(e.target === m) window.closeSettings();
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if(e.key === "Escape") window.closeSettings();
+    });
+
+    document.addEventListener("DOMContentLoaded", initTheme);
+  })();
+</script>
+
 </body>
 </html>
