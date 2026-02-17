@@ -239,6 +239,80 @@
     }
     .verified-badge svg{width:18px;height:18px;display:block}
 
+    /* ✅ Fix verified badge rendering (avoid clipping/distortion on mobile) */
+    .verified-badge{
+      width:26px;height:26px;
+      border-radius:999px;
+      overflow:visible;
+      transform:translateZ(0);
+    }
+    .verified-badge svg{
+      width:14px;height:14px;
+      overflow:visible;
+      display:block;
+    }
+
+    /* ✅ Profile modal layout polish (clean, consistent spacing) */
+    #profileModal .prof-view{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:10px;
+    }
+    #profileModal .prof-bio{margin-bottom:10px}
+    #profileModal .stat-grid{
+      width:100%;
+      margin-top:4px;
+      margin-bottom:14px;
+    }
+    #profileModal .stat-box{
+      border-radius:16px;
+      background:linear-gradient(145deg,#1a1a1a,#121212);
+    }
+    #profileModal .info-list{
+      width:100%;
+      border-radius:18px;
+      background:linear-gradient(145deg,#1b1b1b,#141414);
+    }
+    #profileModal .info-row{
+      align-items:center;
+      gap:12px;
+      font-size:14px;
+    }
+    #profileModal .info-row > span:first-child{
+      flex:0 0 120px;
+      font-weight:900;
+      color:rgba(255,255,255,.82);
+    }
+    #profileModal .info-row > span:last-child{
+      flex:1;
+      min-width:0;
+      display:flex;
+      justify-content:flex-end;
+      align-items:center;
+      gap:10px;
+      color:rgba(255,255,255,.92);
+      font-weight:800;
+    }
+    /* UID specific: keep value + copy tidy */
+    #profileModal .info-row .uid-right{
+      flex:1;
+      min-width:0;
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      gap:10px;
+    }
+    #profileModal #vpUid{
+      max-width:200px;
+      min-width:0;
+    }
+    #profileModal .uid-label{
+      flex:0 0 120px;
+      font-weight:900;
+      color:rgba(255,255,255,.82);
+    }
+
     /* ✅ Official profile special look */
     #profileModal .modal-card.official-profile{
       background:
@@ -542,10 +616,12 @@
       </div>
       <div class="prof-view">
         <img id="vpImg" class="prof-lg" alt="Profile photo">
-        <h2 id="vpNameWrap" style="display:flex;align-items:center;justify-content:center;gap:10px;margin:0">
+        <h2 id="vpNameWrap" style="display:flex;align-items:center;justify-content:center;gap:10px;margin:0;line-height:1.2">
           <span id="vpName">Name</span>
           <span id="vpVerified" class="verified-badge" style="display:none" title="Verified">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3 2 3.5.5 1.5 3.2 2.5 2.4-2.5 2.4-1.5 3.2-3.5.5-3 2-3-2-3.5-.5-1.5-3.2L1 10.1l2.5-2.4L5 4.5 8.5 4 12 2z" fill="currentColor" stroke="none"></path><path d="M10.2 12.7l-1.4-1.4-1.4 1.4 2.8 2.8 6-6-1.4-1.4z" fill="#000" stroke="none"></path></svg>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M9.2 12.6l-1.6-1.6-1.4 1.4 3 3 8-8-1.4-1.4z" fill="#fff" stroke="none"></path>
+            </svg>
           </span>
         </h2>
 
@@ -569,10 +645,10 @@
 
         <div class="info-list">
           <div class="info-row">
-            <span>UID</span>
-            <span style="display:flex;align-items:center;gap:10px">
+            <span class="uid-label">UID</span>
+            <span class="uid-right">
               <span id="vpUid" style="font-weight:900;color:rgba(255,255,255,.9)">-</span>
-              <button class="action-btn" style="padding:6px 10px;font-size:10px" onclick="copyProfileUID()">Copy</button>
+              <button class="action-btn" style="padding:6px 10px;font-size:10px;flex:0 0 auto" onclick="copyProfileUID()">Copy</button>
             </span>
           </div>
           <div class="info-row"><span>City</span><span id="vpCity">-</span></div>
