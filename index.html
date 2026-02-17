@@ -111,8 +111,7 @@
     .badge-title{font-size:12px;font-weight:900;color:#fff}
     .badge-sub{font-size:10px;color:rgba(255,255,255,.55);margin-top:2px}
     .event-banner{padding:0 15px;margin-bottom:20px}
-    .event-banner img,
-    .event-banner .banner-video{width:100%;height:90px;object-fit:cover;border-radius:20px;border:1px solid var(--border);box-shadow:0 5px 20px rgba(0,0,0,.5);display:block}
+    .event-banner img{width:100%;height:90px;object-fit:cover;border-radius:20px;border:1px solid var(--border);box-shadow:0 5px 20px rgba(0,0,0,.5);display:block}
 
     .feed{padding:0 15px 15px 15px;display:flex;flex-direction:column;gap:25px}
     .post-card{background:var(--card);border-radius:24px;border:1px solid var(--border);overflow:hidden;position:relative}
@@ -321,8 +320,7 @@
       .topbar,.event-banner,.rooms-layout{max-width:var(--maxW);margin-left:auto;margin-right:auto}
       .topbar{padding:18px 24px}
       .event-banner{padding:0 24px;margin-bottom:22px}
-      .event-banner img,
-      .event-banner .banner-video{height:110px}
+      .event-banner img{height:110px}
       .feed{max-width:var(--maxW);margin:0 auto;padding:0 24px 24px 24px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}
       .post-card{border-radius:22px}
       .post-visual{height:clamp(220px,32vh,420px)}
@@ -338,8 +336,7 @@
       .feed{grid-template-columns:repeat(3,minmax(0,1fr))}
       .hood-grid{grid-template-columns:repeat(4,1fr)}
       .post-visual{height:clamp(220px,28vh,380px)}
-      .event-banner img,
-      .event-banner .banner-video{height:130px}
+      .event-banner img{height:130px}
     }
   </style>
   <script>
@@ -409,9 +406,7 @@
 
       <div id="feedView">
         <div class="event-banner">
-          <video class="banner-video" autoplay muted loop playsinline preload="auto">
-          <source src="https://j.top4top.io/m_369822lrx0.mp4" type="video/mp4">
-        </video>
+          <img src="https://i.postimg.cc/Jzk5f5fw/Hype-Zone.png" alt="Event banner">
         </div>
         <div class="feed" id="feedList"></div>
       </div>
@@ -519,7 +514,15 @@
             <div style="font-size:10px;color:#888">POSTS</div>
           </div>
         </div>
+
         <div class="info-list">
+          <div class="info-row">
+            <span>UID</span>
+            <span style="display:flex;align-items:center;gap:10px">
+              <span id="vpUid" style="font-weight:900;color:rgba(255,255,255,.9)">-</span>
+              <button class="action-btn" style="padding:6px 10px;font-size:10px" onclick="copyProfileUID()">Copy</button>
+            </span>
+          </div>
           <div class="info-row"><span>City</span><span id="vpCity">-</span></div>
           <div class="info-row"><span>Neighborhood</span><span id="vpHood">-</span></div>
           <div class="info-row"><span>Age</span><span id="vpAge">-</span></div>
@@ -1082,6 +1085,27 @@ document.addEventListener("click", unlockAudioOnce, {once:true, passive:true});
 
     function closeModal(id){if(profileRequired && id==="setupModal") return; document.getElementById(id).style.display="none"}
 
+
+    function copyProfileUID(){
+      const uid = (currentEditingUser && currentEditingUser.id) ? currentEditingUser.id : (document.getElementById("vpUid")?.innerText || "");
+      if(!uid || uid === "-") return;
+      const done = () => alert("Copied UID ✅");
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(uid).then(done).catch(()=>fallbackCopy(uid, done));
+      }else{
+        fallbackCopy(uid, done);
+      }
+    }
+    function fallbackCopy(t, cb){
+      const ta=document.createElement("textarea");
+      ta.value=t; ta.setAttribute("readonly",""); ta.style.position="fixed"; ta.style.top="-9999px"; ta.style.left="-9999px";
+      document.body.appendChild(ta);
+      ta.select(); ta.setSelectionRange(0, t.length);
+      try{document.execCommand("copy"); cb && cb();}catch(e){}
+      document.body.removeChild(ta);
+    }
+
+
     function switchView(view,btn){
       document.querySelectorAll(".dock-btn").forEach(e=>e.classList.remove("active"));
       btn.classList.add("active");
@@ -1551,6 +1575,7 @@ document.addEventListener("click", unlockAudioOnce, {once:true, passive:true});
 
       document.getElementById("vpImg").src=p.avatar_url||"";
       document.getElementById("vpName").innerText=p.username||"";
+      document.getElementById("vpUid").innerText=p.id||"-";
       document.getElementById("vpRankBadge").innerText=r.name;
       document.getElementById("vpRankBadge").className=`prof-rank-badge ${r.cls}`;
       document.getElementById("vpBio").innerText=p.bio||"No bio yet.";
