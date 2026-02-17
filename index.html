@@ -250,6 +250,61 @@
       height:12px;
       display:block;
     }
+
+    .verified-badge-inline{
+      display:inline-flex;
+      vertical-align:middle;
+      margin:0 6px 0 2px;
+      transform:translateY(2px);
+      flex:0 0 auto;
+    }
+    .verified-badge-inline svg{
+      display:block;
+      overflow:visible;
+      shape-rendering:geometricPrecision;
+    }
+    .rank-official{
+      background:linear-gradient(135deg,#1877F2,#00d2ff);
+      color:#000;
+    }
+
+    .admin-panel{
+      width:100%;
+      background:rgba(24,119,242,.08);
+      border:1px solid rgba(24,119,242,.25);
+      border-radius:16px;
+      padding:12px;
+      margin:0 0 12px;
+    }
+    .admin-title{
+      font-size:11px;
+      font-weight:1000;
+      letter-spacing:.6px;
+      text-transform:uppercase;
+      color:rgba(255,255,255,.75);
+      margin-bottom:10px;
+      text-align:left;
+    }
+    .admin-actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .admin-btn{
+      border:none;
+      cursor:pointer;
+      border-radius:12px;
+      padding:10px 12px;
+      font-weight:1000;
+      font-size:12px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.12);
+      color:#fff;
+      flex:1 1 140px;
+    }
+    .admin-btn.danger{background:rgba(255,71,87,.14);border-color:rgba(255,71,87,.35);color:#fff}
+    .admin-btn.warn{background:rgba(255,215,0,.12);border-color:rgba(255,215,0,.35);color:#fff}
+    .admin-btn.good{background:rgba(46,204,113,.14);border-color:rgba(46,204,113,.35);color:#fff}
 /* ✅ Profile modal layout polish (clean, consistent spacing) */
     #profileModal .prof-view{
       display:flex;
@@ -692,6 +747,16 @@
         <div class="prof-bio" id="vpBio"></div>
 
         <button id="contactBtn" class="btn-primary" style="margin:0 0 12px;display:none" onclick="contactFromProfile()">Message</button>
+        <div id="adminPanel" class="admin-panel" style="display:none">
+          <div class="admin-title">Admin Panel</div>
+          <div class="admin-actions">
+            <button class="admin-btn warn" id="adminBanBtn" onclick="adminBanUser()">Ban</button>
+            <button class="admin-btn good" id="adminUnbanBtn" onclick="adminUnbanUser()" style="display:none">Unban</button>
+            <button class="admin-btn danger" onclick="adminDeleteUserPosts()">Delete Posts</button>
+            <button class="admin-btn danger" onclick="adminDisableUser()">Disable Account</button>
+          </div>
+        </div>
+
 
         <div class="stat-grid">
           <div class="stat-box">
@@ -823,6 +888,22 @@
 
   <script>
     const sb=supabase.createClient("https://tujdnvnrizgqroaozsqp.supabase.co","sb_publishable_WyigevxmzR2gLtbog2Ztfg_8pdmSwop",{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:"pkce"}});
+
+    // ✅ Official / Admin config
+    const OFFICIAL_UID = "92617e4a-760e-4721-b579-9a34600a1eb5";
+    function isOfficialById(id){ return String(id||"") === OFFICIAL_UID; }
+    function isOfficialProfile(p){ return isOfficialById(p?.id) || String(p?.username||"").toLowerCase()==="hypezone"; }
+    function isAdmin(){ return !!(session && session.user && session.user.id === OFFICIAL_UID); }
+
+    function verifiedBadgeHTML(size=18){
+      return `<span class="verified-badge-inline" title="Verified" aria-label="Verified">
+        <svg viewBox="0 0 24 24" width="${size}" height="${size}" aria-hidden="true" focusable="false">
+          <circle cx="12" cy="12" r="10" fill="#1877F2"></circle>
+          <circle cx="12" cy="12" r="10" fill="none" stroke="#fff" stroke-width="2"></circle>
+          <path d="M10.2 13.9 7.8 11.5l-1.1 1.1 3.5 3.5L17.4 8.9l-1.1-1.1z" fill="#fff"></path>
+        </svg>
+      </span>`;
+    }
 
     (function(){
       let resumeTriggered = false;
@@ -1466,6 +1547,18 @@ document.addEventListener("click", unlockAudioOnce, {once:true, passive:true});
     async function checkProfile(){
       if(!session||!session.user) return;
       const {data}=await sb.from("profiles").select("*").eq("id",session.user.id).maybeSingle();
+      // ✅ block banned/disabled accounts (requires profiles.is_banned / profiles.disabled columns)
+      try{
+        if(data && (data.is_banned || data.disabled)){
+          alert("Your account is restricted.");
+          await sb.auth.signOut();
+          session=null;
+          myProfile=null;
+          document.getElementById("gateModal").style.display="flex";
+          return;
+        }
+      }catch(e){}
+
       if(data && data.id && data.username && data.avatar_url && data.full_name && data.gender && data.interests && data.neighborhood){
         myProfile=data;
         profileRequired=false;
@@ -1487,12 +1580,18 @@ document.addEventListener("click", unlockAudioOnce, {once:true, passive:true});
       let rendered=0;
       posts.forEach(p=>{
         const u=p.profiles, r=getRank(u.vibe_score||0), isMine=session&&session.user&&session.user.id===u.id;
+        const isOfficial = isOfficialProfile(u);
         const loc=profileLoc(u);
         const locLabel=loc.cityName+" in "+loc.hood;
+
+        const nameLine = `<div class="p-name">${escapeHtml(u.username||"User")} ${isOfficial?verifiedBadgeHTML(18):""} ${isOfficial?`<span class="rank-tag rank-official">OFFICIAL</span>`:`<span class="rank-tag ${r.cls}">${r.name}</span>`}</div>`;
+        const subLine = isOfficial ? `` : `<div class="p-loc">${locLabel} • ${timeAgo(p.created_at)}</div>`;
+
         const visual=p.background_style
           ?`<div class="post-visual" style="background:${p.background_style}"><div class="bg-text">${escapeHtml(p.caption)}</div></div>`
           :`<div class="post-visual"><img src="${p.image_url}"><div class="img-caption">${escapeHtml(p.caption)}</div></div>`;
-        e.innerHTML+=`<div class="post-card"><div class="post-header"><div class="post-user-info"><img class="p-avatar" src="${u.avatar_url}" onclick="openProfile('${u.id}')"><div onclick="openProfile('${u.id}')"><div class="p-name">${u.username} <span class="rank-tag ${r.cls}">${r.name}</span></div><div class="p-loc">${locLabel} • ${timeAgo(p.created_at)}</div></div></div>${isMine?`<button class="delete-btn" onclick="deletePost('${p.id}')"><svg><use href="#i-trash"></use></svg></button>`:""}</div>${visual}<div class="post-actions"><div class="vote-box"><button class="vote-btn up" onclick="vote('${p.id}', 1)"><svg><use href="#i-up"></use></svg></button><span class="vote-val">${u.vibe_score||0}</span><button class="vote-btn down" onclick="vote('${p.id}', -1)"><svg><use href="#i-down"></use></svg></button></div><button class="action-btn" onclick="openComments('${p.id}')"><svg style="width:16px"><use href="#i-chat"></use></svg> Comments</button></div></div>`;
+
+        e.innerHTML+=`<div class="post-card"><div class="post-header"><div class="post-user-info"><img class="p-avatar" src="${u.avatar_url}" onclick="openProfile('${u.id}')"><div onclick="openProfile('${u.id}')">${nameLine}${subLine}</div></div>${isMine||isAdmin()?`<button class="delete-btn" onclick="deletePost('${p.id}')"><svg><use href="#i-trash"></use></svg></button>`:""}</div>${visual}<div class="post-actions"><div class="vote-box"><button class="vote-btn up" onclick="vote('${p.id}', 1)"><svg><use href="#i-up"></use></svg></button><span class="vote-val">${u.vibe_score||0}</span><button class="vote-btn down" onclick="vote('${p.id}', -1)"><svg><use href="#i-down"></use></svg></button></div><button class="action-btn" onclick="openComments('${p.id}')"><svg style="width:16px"><use href="#i-chat"></use></svg> Comments</button></div></div>`;
         rendered++;
         if(rendered%adEvery===0){
           e.innerHTML+=buildSponsoredCard(rendered);
@@ -1747,17 +1846,102 @@ document.addEventListener("click", unlockAudioOnce, {once:true, passive:true});
       openDM(currentEditingUser.id);
     }
 
-    async function openProfile(id){
+    
+    // ✅ Admin moderation (official account only)
+    function refreshAdminUI(targetProfile, isTargetOfficial, isTargetMine){
+      const panel = document.getElementById("adminPanel");
+      if(!panel) return;
+
+      const show = isAdmin() && !isTargetMine && !isTargetOfficial;
+      panel.style.display = show ? "block" : "none";
+      if(!show) return;
+
+      const banned = !!(targetProfile && targetProfile.is_banned);
+      const banBtn = document.getElementById("adminBanBtn");
+      const unbanBtn = document.getElementById("adminUnbanBtn");
+      if(banBtn) banBtn.style.display = banned ? "none" : "inline-flex";
+      if(unbanBtn) unbanBtn.style.display = banned ? "inline-flex" : "none";
+    }
+
+    async function adminBanUser(){
+      if(!isAdmin() || !currentEditingUser?.id) return;
+      if(!confirm("Ban this user?")) return;
+      try{
+        const {error} = await sb.from("profiles").update({
+          is_banned:true,
+          banned_at:new Date().toISOString()
+        }).eq("id", currentEditingUser.id);
+        if(error) throw error;
+        currentEditingUser.is_banned = true;
+        refreshAdminUI(currentEditingUser, false, false);
+        alert("User banned ✅");
+      }catch(err){
+        alert("Ban failed. You need a column profiles.is_banned (boolean) and RLS policy for admin.\n" + (err?.message||err));
+      }
+    }
+
+    async function adminUnbanUser(){
+      if(!isAdmin() || !currentEditingUser?.id) return;
+      if(!confirm("Unban this user?")) return;
+      try{
+        const {error} = await sb.from("profiles").update({
+          is_banned:false,
+          banned_at:null
+        }).eq("id", currentEditingUser.id);
+        if(error) throw error;
+        currentEditingUser.is_banned = false;
+        refreshAdminUI(currentEditingUser, false, false);
+        alert("User unbanned ✅");
+      }catch(err){
+        alert("Unban failed. You need a column profiles.is_banned (boolean) and RLS policy for admin.\n" + (err?.message||err));
+      }
+    }
+
+    async function adminDeleteUserPosts(){
+      if(!isAdmin() || !currentEditingUser?.id) return;
+      if(!confirm("Delete ALL posts (and comments) for this user?")) return;
+      try{
+        // delete comments by user
+        await sb.from("comments").delete().eq("user_id", currentEditingUser.id);
+        // delete posts by user
+        const {error} = await sb.from("posts").delete().eq("user_id", currentEditingUser.id);
+        if(error) throw error;
+        alert("User content deleted ✅");
+        // refresh post count in profile
+        try{
+          const {count:pc}=await sb.from("posts").select("*",{count:"exact",head:true}).eq("user_id",currentEditingUser.id);
+          const vpPosts=document.getElementById("vpPosts"); if(vpPosts) vpPosts.innerText=pc||0;
+        }catch(e){}
+        loadFeed();
+      }catch(err){
+        alert("Delete failed. You need RLS policy allowing admin delete on posts/comments.\n" + (err?.message||err));
+      }
+    }
+
+    async function adminDisableUser(){
+      if(!isAdmin() || !currentEditingUser?.id) return;
+      if(!confirm("Disable this account (soft-disable)?")) return;
+      try{
+        const {error} = await sb.from("profiles").update({
+          disabled:true,
+          disabled_at:new Date().toISOString()
+        }).eq("id", currentEditingUser.id);
+        if(error) throw error;
+        alert("Account disabled ✅ (Note: Auth user deletion requires a server/Edge Function.)");
+      }catch(err){
+        alert("Disable failed. Add profiles.disabled (boolean) and RLS policy for admin.\n" + (err?.message||err));
+      }
+    }
+
+async function openProfile(id){
       if(!requireAuth()) return;
       if(!requireProfile()) return;
       const modal=document.getElementById("profileModal");
       modal.style.display="flex";
       const {data:p}=await sb.from("profiles").select("*").eq("id",id).single();
       currentEditingUser=p;
-
       // ✅ Official (verified) account rules
-      const OFFICIAL_UID = "92617e4a-760e-4721-b579-9a34600a1eb5";
-      const isOfficial = (String(id) === OFFICIAL_UID) || (String(p.username||"").toLowerCase() === "hypezone");
+      const isOfficial = isOfficialProfile(p);
       try{
         const card = modal.querySelector(".modal-card");
         if(card) card.classList.toggle("official-profile", !!isOfficial);
@@ -1766,7 +1950,6 @@ document.addEventListener("click", unlockAudioOnce, {once:true, passive:true});
         const vb = document.getElementById("vpVerified");
         if(vb) vb.style.display = isOfficial ? "inline-flex" : "none";
       }catch(e){}
-
 
       const {count:postsCount}=await sb.from("posts").select("*",{count:"exact",head:true}).eq("user_id",id);
       const r=getRank(p.vibe_score||0);
@@ -1799,6 +1982,7 @@ document.addEventListener("click", unlockAudioOnce, {once:true, passive:true});
       const isMine = session.user.id===id;
       document.getElementById("editProfileBtn").style.display=isMine?"block":"none";
       document.getElementById("contactBtn").style.display=!isMine?"block":"none";
+      refreshAdminUI(p, isOfficial, isMine);
     }
 
     function stopRoomLive(){
