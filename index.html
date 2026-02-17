@@ -231,28 +231,26 @@
 
     /* ✅ Verified badge (Facebook-style blue check) */
     .verified-badge{
-      width:22px;height:22px;border-radius:50%;
-      display:inline-flex;align-items:center;justify-content:center;
-      background:#1877F2; /* Facebook-like blue */
-      box-shadow:0 10px 28px rgba(24,119,242,.28), 0 0 0 4px rgba(24,119,242,.10);
-      flex:0 0 auto;
-    }
-    .verified-badge svg{width:18px;height:18px;display:block}
-
-    /* ✅ Fix verified badge rendering (avoid clipping/distortion on mobile) */
-    .verified-badge{
-      width:26px;height:26px;
+      width:22px;
+      height:22px;
       border-radius:999px;
-      overflow:visible;
-      transform:translateZ(0);
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      background:#1877F2;
+      border:2px solid #ffffff; /* Facebook-like white ring */
+      box-shadow:0 10px 28px rgba(0,0,0,.35);
+      flex:0 0 auto;
+      overflow:hidden;           /* prevent any crop artifacts */
+      transform:translateZ(0);   /* mobile rendering stability */
+      box-sizing:border-box;
     }
     .verified-badge svg{
-      width:14px;height:14px;
-      overflow:visible;
+      width:12px;
+      height:12px;
       display:block;
     }
-
-    /* ✅ Profile modal layout polish (clean, consistent spacing) */
+/* ✅ Profile modal layout polish (clean, consistent spacing) */
     #profileModal .prof-view{
       display:flex;
       flex-direction:column;
@@ -313,7 +311,70 @@
       color:rgba(255,255,255,.82);
     }
 
-    /* ✅ Official profile special look */
+    /* ✅ Compact profile modal (shorter, cleaner on mobile) */
+    #profileModal .modal-card{
+      padding:16px;
+      max-width:380px;
+      max-height:78vh;
+    }
+    #profileModal .modal-header{margin-bottom:10px;padding-bottom:10px}
+    #profileModal .prof-lg{
+      width:78px;
+      height:78px;
+      margin-bottom:2px;
+    }
+    #profileModal #vpNameWrap{
+      gap:8px!important;
+    }
+    #profileModal #vpName{
+      font-size:clamp(22px,6vw,30px);
+      letter-spacing:.2px;
+    }
+    #profileModal .prof-status{margin:-6px 0 8px}
+    #profileModal .prof-rank-badge{padding:5px 12px;font-size:11px}
+    #profileModal .prof-bio{
+      font-size:13px;
+      margin-bottom:6px;
+      max-width:92%;
+    }
+    #profileModal #contactBtn{
+      padding:12px 14px;
+      border-radius:14px;
+      margin:0 0 10px!important;
+    }
+    #profileModal .stat-grid{
+      gap:10px;
+      margin-bottom:10px;
+    }
+    #profileModal .stat-box{
+      padding:12px;
+      border-radius:14px;
+      min-height:72px;
+    }
+    #profileModal .stat-box div:first-child{font-size:18px!important}
+    #profileModal .info-list{
+      margin-top:6px;
+      max-height:210px;   /* keeps modal short */
+      overflow-y:auto;
+      -webkit-overflow-scrolling:touch;
+    }
+    #profileModal .info-row{
+      padding:10px 0;
+      font-size:13px;
+    }
+    #profileModal .info-row > span:first-child,
+    #profileModal .uid-label{
+      flex:0 0 92px;
+      font-size:12px;
+    }
+    #profileModal #vpUid{
+      max-width:160px;
+    }
+    #profileModal .action-btn{
+      border-radius:999px;
+      padding:6px 10px;
+    }
+/* ✅ Official profile special look */
     #profileModal .modal-card.official-profile{
       background:
         radial-gradient(120% 120% at 50% 0%, rgba(24,119,242,.35), rgba(0,0,0,0) 60%),
@@ -619,8 +680,8 @@
         <h2 id="vpNameWrap" style="display:flex;align-items:center;justify-content:center;gap:10px;margin:0;line-height:1.2">
           <span id="vpName">Name</span>
           <span id="vpVerified" class="verified-badge" style="display:none" title="Verified">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M9.2 12.6l-1.6-1.6-1.4 1.4 3 3 8-8-1.4-1.4z" fill="#fff" stroke="none"></path>
+            <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+              <path fill="#fff" d="M8.33 13.06 5.54 10.27 4.6 11.21l3.73 3.73L15.4 7.87l-.94-.94z"/>
             </svg>
           </span>
         </h2>
