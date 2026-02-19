@@ -229,40 +229,36 @@
       letter-spacing:.2px;
     }
 
-    /* ✅ Verified badge (Facebook-style blue check) */
-    .verified-badge{
-      width:22px;
-      height:22px;
-      border-radius:999px;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      background:#1877F2;
-      border:2px solid #ffffff; /* Facebook-like white ring */
-      box-shadow:0 10px 28px rgba(0,0,0,.35);
-      flex:0 0 auto;
-      overflow:hidden;           /* prevent any crop artifacts */
-      transform:translateZ(0);   /* mobile rendering stability */
-      box-sizing:border-box;
-    }
-    .verified-badge svg{
-      width:12px;
-      height:12px;
-      display:block;
-    }
-
+    /* ✅ Verified badge (Facebook-like: blue circle + white ring + check) */
+.verified-badge,
     .verified-badge-inline{
-      display:inline-flex;
-      vertical-align:middle;
-      margin:0 6px 0 2px;
-      transform:translateY(2px);
-      flex:0 0 auto;
-    }
-    .verified-badge-inline svg{
-      display:block;
-      overflow:visible;
-      shape-rendering:geometricPrecision;
-    }
+      width:16px;
+      height:16px;
+  border-radius:999px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  background:#1877F2;
+  border:2px solid #ffffff; /* white ring like Facebook */
+  overflow:hidden;
+  box-sizing:border-box;
+  flex:0 0 auto;
+  vertical-align:middle;
+  transform:translateZ(0);
+}
+/* Inline (in posts) slightly smaller */
+.verified-badge-inline{
+      width:14px;
+      height:14px;
+  border-width:2px;
+  margin-left:6px;
+}
+.verified-badge svg,
+.verified-badge-inline svg{
+  width:70%;
+  height:70%;
+  display:block;
+}
     .rank-official{
       background:linear-gradient(135deg,#1877F2,#00d2ff);
       color:#000;
@@ -366,69 +362,177 @@
       color:rgba(255,255,255,.82);
     }
 
-    /* ✅ Compact profile modal (shorter, cleaner on mobile) */
-    #profileModal .modal-card{
-      padding:16px;
-      max-width:380px;
-      max-height:78vh;
-    }
-    #profileModal .modal-header{margin-bottom:10px;padding-bottom:10px}
-    #profileModal .prof-lg{
-      width:78px;
-      height:78px;
-      margin-bottom:2px;
-    }
-    #profileModal #vpNameWrap{
-      gap:8px!important;
-    }
-    #profileModal #vpName{
-      font-size:clamp(22px,6vw,30px);
-      letter-spacing:.2px;
-    }
-    #profileModal .prof-status{margin:-6px 0 8px}
-    #profileModal .prof-rank-badge{padding:5px 12px;font-size:11px}
-    #profileModal .prof-bio{
-      font-size:13px;
-      margin-bottom:6px;
-      max-width:92%;
-    }
-    #profileModal #contactBtn{
-      padding:12px 14px;
-      border-radius:14px;
-      margin:0 0 10px!important;
-    }
-    #profileModal .stat-grid{
-      gap:10px;
-      margin-bottom:10px;
-    }
-    #profileModal .stat-box{
-      padding:12px;
-      border-radius:14px;
-      min-height:72px;
-    }
-    #profileModal .stat-box div:first-child{font-size:18px!important}
-    #profileModal .info-list{
-      margin-top:6px;
-      max-height:210px;   /* keeps modal short */
-      overflow-y:auto;
-      -webkit-overflow-scrolling:touch;
-    }
-    #profileModal .info-row{
-      padding:10px 0;
-      font-size:13px;
-    }
-    #profileModal .info-row > span:first-child,
-    #profileModal .uid-label{
-      flex:0 0 92px;
-      font-size:12px;
-    }
-    #profileModal #vpUid{
-      max-width:160px;
-    }
-    #profileModal .action-btn{
-      border-radius:999px;
-      padding:6px 10px;
-    }
+    
+/* ✅ Profile modal redesign (short + smart layout) */
+#profileModal .modal-card{
+  padding:16px;
+  max-width:390px;
+  max-height:76vh;
+}
+#profileModal .modal-header{margin-bottom:10px;padding-bottom:10px}
+#profileModal .prof-view{ text-align:left; }
+#profileModal .prof-top{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:10px;
+}
+#profileModal .prof-avatar{
+  width:66px;
+  height:66px;
+  border-radius:50%;
+  object-fit:cover;
+  border:2px solid rgba(0,210,255,.75);
+  box-shadow:0 10px 30px rgba(0,0,0,.45);
+  flex:0 0 auto;
+}
+#profileModal .prof-meta{flex:1;min-width:0}
+#profileModal .prof-name-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+#profileModal .prof-name-left{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  min-width:0;
+}
+#profileModal #vpName{
+  font-size:18px;
+  font-weight:1000;
+  color:#fff;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  max-width:100%;
+}
+#profileModal .prof-status{
+  margin:2px 0 6px;
+  font-size:11px;
+  font-weight:900;
+  color:var(--danger);
+}
+#profileModal .prof-bio{
+  margin:0;
+  font-size:12px;
+  color:rgba(255,255,255,.70);
+  line-height:1.45;
+  max-height:38px;
+  overflow:hidden;
+}
+#profileModal .prof-rank-badge{
+  padding:5px 10px;
+  font-size:11px;
+  margin:0;
+  border-radius:999px;
+}
+#profileModal .prof-actions-row{
+  display:flex;
+  gap:10px;
+  margin:10px 0 8px;
+}
+#profileModal #contactBtn{
+  flex:1;
+  padding:11px 12px;
+  border-radius:14px;
+  margin:0!important;
+}
+#profileModal #editProfileBtn{
+  flex:0 0 120px;
+  padding:11px 12px;
+  border-radius:14px;
+  margin:0;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.14);
+  color:#fff;
+  font-weight:1000;
+}
+
+#profileModal .prof-mini-stats{
+  display:flex;
+  gap:10px;
+  margin:6px 0 10px;
+}
+#profileModal .stat-chip{
+  flex:1;
+  background:linear-gradient(145deg,#1b1b1b,#121212);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:16px;
+  padding:10px 12px;
+  text-align:center;
+}
+#profileModal .stat-val{
+  font-size:18px;
+  font-weight:1000;
+  color:#fff;
+  line-height:1;
+}
+#profileModal .stat-chip:first-child .stat-val{ color: var(--viby); }
+#profileModal .stat-lbl{
+  font-size:10px;
+  font-weight:900;
+  color:rgba(255,255,255,.48);
+  margin-top:4px;
+  letter-spacing:.6px;
+  text-transform:uppercase;
+}
+
+#profileModal .info-list{
+  margin-top:6px;
+  border-radius:16px;
+}
+#profileModal .info-scroll{
+  max-height:170px;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+}
+#profileModal .info-row{
+  padding:10px 0;
+  font-size:13px;
+}
+#profileModal .info-row > span:first-child,
+#profileModal .uid-label{
+  flex:0 0 96px;
+  font-size:12px;
+}
+#profileModal #vpUid{
+  display:inline-block;
+  max-width:150px;
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size:12px;
+}
+#profileModal .action-btn{
+  border-radius:999px;
+  padding:6px 10px;
+  font-size:10px;
+  font-weight:1000;
+}
+
+/* admin panel more compact */
+#profileModal .admin-panel{
+  margin:8px 0 10px;
+  padding:12px;
+  border-radius:16px;
+}
+#profileModal .admin-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+#profileModal .admin-btn{
+  padding:10px 10px;
+  border-radius:14px;
+  font-size:12px;
+}
+#profileModal .admin-btn.admin-wide{
+  grid-column:1 / span 2;
+}
 /* ✅ Official profile special look */
     #profileModal .modal-card.official-profile{
       background:
@@ -437,7 +541,7 @@
       border:1px solid rgba(24,119,242,.65);
       box-shadow:0 35px 110px rgba(0,0,0,.92), 0 0 0 1px rgba(24,119,242,.25) inset;
     }
-    #profileModal .modal-card.official-profile .prof-lg{
+    #profileModal .modal-card.official-profile .prof-avatar{
       border-color:#1877F2;
       box-shadow:0 0 0 6px rgba(24,119,242,.18), 0 18px 60px rgba(0,0,0,.75);
     }
@@ -447,10 +551,12 @@
       border:1px solid rgba(24,119,242,.35);
     }
     /* Hide internal info for official account */
-    #profileModal .modal-card.official-profile .stat-grid,
+    #profileModal .modal-card.official-profile .prof-mini-stats,
     #profileModal .modal-card.official-profile .info-list,
     #profileModal .modal-card.official-profile #editProfileBtn,
-    #profileModal .modal-card.official-profile #contactBtn{
+    #profileModal .modal-card.official-profile #contactBtn,
+    #profileModal .modal-card.official-profile .prof-actions-row,
+    #profileModal .modal-card.official-profile #adminPanel{
       display:none !important;
     }
     
@@ -731,59 +837,67 @@
         <button class="close-btn" onclick="closeModal('profileModal')">✕</button>
       </div>
       <div class="prof-view">
-        <img id="vpImg" class="prof-lg" alt="Profile photo">
-        <h2 id="vpNameWrap" style="display:flex;align-items:center;justify-content:center;gap:10px;margin:0;line-height:1.2">
-          <span id="vpName">Name</span>
-          <span id="vpVerified" class="verified-badge" style="display:none" title="Verified">
-            <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
-              <path fill="#fff" d="M8.33 13.06 5.54 10.27 4.6 11.21l3.73 3.73L15.4 7.87l-.94-.94z"/>
-            </svg>
-          </span>
-        </h2>
+<div class="prof-top">
+  <img id="vpImg" class="prof-avatar" alt="Profile photo">
+  <div class="prof-meta">
+    <div class="prof-name-row">
+      <div class="prof-name-left">
+        <span id="vpName">Name</span>
+        <span id="vpVerified" class="verified-badge" style="display:none" title="Verified" aria-label="Verified">
+          <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+            <path fill="#fff" d="M8.33 13.06 5.54 10.27 4.6 11.21l3.73 3.73L15.4 7.87l-.94-.94z"/>
+          </svg>
+        </span>
+      </div>
+      <div id="vpRankBadge" class="prof-rank-badge">ROOKIE</div>
+    </div>
+    <div class="prof-status" id="vpStatus"> </div>
+    <div class="prof-bio" id="vpBio"></div>
+  </div>
+</div>
 
-        <div class="prof-status" id="vpStatus"> </div>
+<div class="prof-actions-row">
+  <button id="contactBtn" class="btn-primary" style="display:none" onclick="contactFromProfile()">Message</button>
+  <button id="editProfileBtn" class="edit-profile-btn" style="display:none" onclick="openEditProfile()">Edit</button>
+</div>
 
-        <div id="vpRankBadge" class="prof-rank-badge">ROOKIE</div>
-        <div class="prof-bio" id="vpBio"></div>
+<div id="adminPanel" class="admin-panel" style="display:none">
+  <div class="admin-title">Admin Panel</div>
+  <div class="admin-actions">
+    <button class="admin-btn warn" id="adminBanBtn" onclick="adminBanUser()">Ban</button>
+    <button class="admin-btn good" id="adminUnbanBtn" onclick="adminUnbanUser()" style="display:none">Unban</button>
+    <button class="admin-btn danger" onclick="adminDeleteUserPosts()">Delete Posts</button>
+    <button class="admin-btn danger admin-wide" onclick="adminDisableUser()">Disable Account</button>
+  </div>
+</div>
 
-        <button id="contactBtn" class="btn-primary" style="margin:0 0 12px;display:none" onclick="contactFromProfile()">Message</button>
-        <div id="adminPanel" class="admin-panel" style="display:none">
-          <div class="admin-title">Admin Panel</div>
-          <div class="admin-actions">
-            <button class="admin-btn warn" id="adminBanBtn" onclick="adminBanUser()">Ban</button>
-            <button class="admin-btn good" id="adminUnbanBtn" onclick="adminUnbanUser()" style="display:none">Unban</button>
-            <button class="admin-btn danger" onclick="adminDeleteUserPosts()">Delete Posts</button>
-            <button class="admin-btn danger" onclick="adminDisableUser()">Disable Account</button>
-          </div>
-        </div>
+<div class="prof-mini-stats">
+  <div class="stat-chip">
+    <div class="stat-val" id="vpScore">0</div>
+    <div class="stat-lbl">Score</div>
+  </div>
+  <div class="stat-chip">
+    <div class="stat-val" id="vpPosts">0</div>
+    <div class="stat-lbl">Posts</div>
+  </div>
+</div>
 
+<div class="info-list info-scroll">
+  <div class="info-row">
+    <span class="uid-label">UID</span>
+    <span class="uid-right">
+      <span id="vpUid">-</span>
+      <button class="action-btn" onclick="copyProfileUID()">Copy</button>
+    </span>
+  </div>
+  <div class="info-row"><span>City</span><span id="vpCity">-</span></div>
+  <div class="info-row"><span>Neighborhood</span><span id="vpHood">-</span></div>
+  <div class="info-row"><span>Age</span><span id="vpAge">-</span></div>
+  <div class="info-row"><span>Gender</span><span id="vpGender">-</span></div>
+  <div class="info-row"><span>Interests</span><span id="vpInterests">-</span></div>
+</div>
 
-        <div class="stat-grid">
-          <div class="stat-box">
-            <div style="font-size:20px;font-weight:800;color:var(--viby)" id="vpScore">0</div>
-            <div style="font-size:10px;color:#888">SCORE</div>
-          </div>
-          <div class="stat-box">
-            <div style="font-size:20px;font-weight:800" id="vpPosts">0</div>
-            <div style="font-size:10px;color:#888">POSTS</div>
-          </div>
-        </div>
-
-        <div class="info-list">
-          <div class="info-row">
-            <span class="uid-label">UID</span>
-            <span class="uid-right">
-              <span id="vpUid" style="font-weight:900;color:rgba(255,255,255,.9)">-</span>
-              <button class="action-btn" style="padding:6px 10px;font-size:10px;flex:0 0 auto" onclick="copyProfileUID()">Copy</button>
-            </span>
-          </div>
-          <div class="info-row"><span>City</span><span id="vpCity">-</span></div>
-          <div class="info-row"><span>Neighborhood</span><span id="vpHood">-</span></div>
-          <div class="info-row"><span>Age</span><span id="vpAge">-</span></div>
-          <div class="info-row"><span>Gender</span><span id="vpGender">-</span></div>
-          <div class="info-row"><span>Interests</span><span id="vpInterests">-</span></div>
-        </div>
-        <button id="editProfileBtn" class="edit-profile-btn" onclick="openEditProfile()">Edit Profile</button>
+      
       </div>
     </div>
   </div>
@@ -895,15 +1009,14 @@
     function isOfficialProfile(p){ return isOfficialById(p?.id) || String(p?.username||"").toLowerCase()==="hypezone"; }
     function isAdmin(){ return !!(session && session.user && session.user.id === OFFICIAL_UID); }
 
-    function verifiedBadgeHTML(size=18){
-      return `<span class="verified-badge-inline" title="Verified" aria-label="Verified">
-        <svg viewBox="0 0 24 24" width="${size}" height="${size}" aria-hidden="true" focusable="false">
-          <circle cx="12" cy="12" r="10" fill="#1877F2"></circle>
-          <circle cx="12" cy="12" r="10" fill="none" stroke="#fff" stroke-width="2"></circle>
-          <path d="M10.2 13.9 7.8 11.5l-1.1 1.1 3.5 3.5L17.4 8.9l-1.1-1.1z" fill="#fff"></path>
-        </svg>
-      </span>`;
-    }
+    function verifiedBadgeHTML(size=14){
+  return `<span class="verified-badge-inline" title="Verified" aria-label="Verified">
+    <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+      <path fill="#fff" d="M8.33 13.06 5.54 10.27 4.6 11.21l3.73 3.73L15.4 7.87l-.94-.94z"/>
+    </svg>
+  </span>`;
+}
+
 
     (function(){
       let resumeTriggered = false;
@@ -1584,7 +1697,7 @@ document.addEventListener("click", unlockAudioOnce, {once:true, passive:true});
         const loc=profileLoc(u);
         const locLabel=loc.cityName+" in "+loc.hood;
 
-        const nameLine = `<div class="p-name">${escapeHtml(u.username||"User")} ${isOfficial?verifiedBadgeHTML(18):""} ${isOfficial?`<span class="rank-tag rank-official">OFFICIAL</span>`:`<span class="rank-tag ${r.cls}">${r.name}</span>`}</div>`;
+        const nameLine = `<div class="p-name">${escapeHtml(u.username||"User")}${isOfficial?verifiedBadgeHTML(14):""} ${!isOfficial?`<span class="rank-tag ${r.cls}">${r.name}</span>`:""}</div>`;
         const subLine = isOfficial ? `` : `<div class="p-loc">${locLabel} • ${timeAgo(p.created_at)}</div>`;
 
         const visual=p.background_style
