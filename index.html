@@ -112,6 +112,7 @@
     .badge-sub{font-size:10px;color:rgba(255,255,255,.55);margin-top:2px}
     .event-banner{padding:0 15px;margin-bottom:20px}
     .event-banner img{width:100%;height:90px;object-fit:cover;border-radius:20px;border:1px solid var(--border);box-shadow:0 5px 20px rgba(0,0,0,.5);display:block}
+    .event-banner video{width:100%;height:90px;object-fit:cover;border-radius:20px;border:1px solid var(--border);box-shadow:0 5px 20px rgba(0,0,0,.5);display:none}
 
     .feed{padding:0 15px 15px 15px;display:flex;flex-direction:column;gap:25px}
     .post-card{background:var(--card);border-radius:24px;border:1px solid var(--border);overflow:hidden;position:relative}
@@ -664,6 +665,7 @@
       .topbar{padding:18px 24px}
       .event-banner{padding:0 24px;margin-bottom:22px}
       .event-banner img{height:110px}
+      .event-banner video{height:110px}
       .feed{max-width:var(--maxW);margin:0 auto;padding:0 24px 24px 24px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}
       .post-card{border-radius:22px}
       .post-visual{height:clamp(220px,32vh,420px)}
@@ -680,110 +682,9 @@
       .hood-grid{grid-template-columns:repeat(4,1fr)}
       .post-visual{height:clamp(220px,28vh,380px)}
       .event-banner img{height:130px}
+      .event-banner video{height:130px}
     }
-  
-/* ===== Ramadan overlay (on top of site) ===== */
-#ramadanOverlay{
-  position:fixed; inset:0; z-index:6500;
-  display:none;
-  background:radial-gradient(1200px 800px at 50% 20%, rgba(255,215,0,.14), rgba(0,0,0,.78) 55%, rgba(0,0,0,.92) 100%);
-  overflow:hidden;
-  pointer-events:none;
-}
-#ramadanOverlay.show{display:block;}
-#ramadanOverlay.fadeOut{animation:ramadanFadeOut .55s ease forwards;}
-@keyframes ramadanFadeOut{to{opacity:0;}}
-#ramadanCanvas{position:absolute; inset:0; width:100%; height:100%;}
-.ramadan-grain{
-  position:absolute; inset:-40%;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
-  opacity:.11; mix-blend-mode:overlay;
-  animation:ramadanGrain 2.2s steps(2) infinite;
-  pointer-events:none;
-}
-@keyframes ramadanGrain{0%{transform:translate3d(-3%, -2%,0)}50%{transform:translate3d(2%, 3%,0)}100%{transform:translate3d(-2%, 1%,0)}}
-
-.ramadan-crescent{
-  position:absolute;
-  left:50%;
-  top:-140px;
-  width:170px;height:170px;
-  transform:translateX(-50%);
-  filter:drop-shadow(0 18px 50px rgba(0,210,255,.20)) drop-shadow(0 0 18px rgba(255,215,0,.22));
-  animation:ramadanDrop 1.1s cubic-bezier(.15,.95,.25,1) forwards;
-}
-@keyframes ramadanDrop{
-  0%{transform:translate(-50%,-20px) scale(.9); opacity:0}
-  70%{opacity:1}
-  100%{transform:translate(-50%, 180px) scale(1); opacity:1}
-}
-
-.ramadan-titleWrap{
-  position:absolute;
-  left:50%;
-  top:46%;
-  transform:translate(-50%,-50%);
-  width:min(680px,92vw);
-  text-align:center;
-  pointer-events:none;
-}
-.ramadan-ar{
-  font-size:46px;
-  font-weight:1000;
-  letter-spacing:.2px;
-  line-height:1.05;
-  margin-bottom:10px;
-  text-shadow:0 16px 70px rgba(0,0,0,.75);
-}
-.ramadan-en{
-  font-size:34px;
-  font-weight:1000;
-  letter-spacing:1px;
-  text-transform:none;
-  text-shadow:0 16px 70px rgba(0,0,0,.75);
-}
-.ramadan-shine{
-  background:linear-gradient(90deg, rgba(255,255,255,.55), rgba(255,215,0,1), rgba(0,210,255,1), rgba(255,255,255,.55));
-  background-size:220% 100%;
-  -webkit-background-clip:text;
-  background-clip:text;
-  color:transparent;
-  animation:ramadanShine 1.15s ease-in-out infinite;
-}
-@keyframes ramadanShine{
-  0%{background-position:0% 50%}
-  100%{background-position:100% 50%}
-}
-
-.ramadan-sub{
-  margin-top:14px;
-  font-size:12px;
-  font-weight:900;
-  color:rgba(255,255,255,.70);
-  letter-spacing:.5px;
-}
-#ramadanSkip{
-  position:absolute;
-  right:14px; top:14px;
-  padding:10px 12px;
-  border-radius:999px;
-  border:1px solid rgba(255,255,255,.14);
-  background:rgba(0,0,0,.35);
-  color:#fff;
-  font-weight:900;
-  font-size:12px;
-  cursor:pointer;
-  backdrop-filter:blur(12px);
-  pointer-events:auto;
-}
-#ramadanSkip:active{transform:scale(.98);}
-@media (max-width:420px){
-  .ramadan-ar{font-size:38px}
-  .ramadan-en{font-size:28px}
-  .ramadan-crescent{width:150px;height:150px}
-}
-
-</style>
+  </style>
   <script>
     document.addEventListener("contextmenu",e=>e.preventDefault());
     document.addEventListener("copy",e=>e.preventDefault());
@@ -795,201 +696,9 @@
       if(123==e.keyCode||e.ctrlKey&&e.shiftKey&&"I"==e.key||e.ctrlKey&&e.shiftKey&&"C"==e.key||e.ctrlKey&&e.shiftKey&&"J"==e.key||e.ctrlKey&&"U"==e.key) return !1
     };
   </script>
-<style>
-  /* ===== Ramadan Cinematic Intro (first visit) ===== */
-  #ramadanCine{position:fixed;inset:0;z-index:9000;display:none;align-items:center;justify-content:center;overflow:hidden;background:#000;}
-  #ramadanCine.show{display:flex;}
-  #ramadanCine *{box-sizing:border-box}
-  .rc-bg{position:absolute;inset:-30%;background:
-    radial-gradient(80% 80% at 20% 30%, rgba(0,210,255,.20), rgba(0,0,0,0) 55%),
-    radial-gradient(70% 70% at 70% 40%, rgba(138,43,226,.25), rgba(0,0,0,0) 55%),
-    radial-gradient(90% 90% at 50% 80%, rgba(0,255,157,.12), rgba(0,0,0,0) 60%),
-    linear-gradient(180deg,#000 0%, #05060a 40%, #000 100%);
-    filter:saturate(1.15) contrast(1.05);
-    transform:translateZ(0);
-    animation:rcPan 6.5s ease-in-out infinite alternate;
-  }
-  @keyframes rcPan{0%{transform:scale(1.05) translate(-1.5%,-1%)}100%{transform:scale(1.12) translate(1.5%,1%)}}
-
-  .rc-vignette{position:absolute;inset:-5%;
-    background:radial-gradient(120% 85% at 50% 45%, rgba(0,0,0,0) 30%, rgba(0,0,0,.55) 70%, rgba(0,0,0,.85) 100%);
-    pointer-events:none;
-  }
-
-  .rc-stars{position:absolute;inset:0;opacity:.55;mix-blend-mode:screen;pointer-events:none;transform:translateZ(0);
-    background:
-      radial-gradient(circle at 12% 20%, rgba(255,255,255,.9) 0 1px, rgba(0,0,0,0) 2px),
-      radial-gradient(circle at 78% 26%, rgba(255,255,255,.85) 0 1px, rgba(0,0,0,0) 2px),
-      radial-gradient(circle at 44% 12%, rgba(255,255,255,.8) 0 1px, rgba(0,0,0,0) 2px),
-      radial-gradient(circle at 64% 74%, rgba(255,255,255,.8) 0 1px, rgba(0,0,0,0) 2px),
-      radial-gradient(circle at 22% 68%, rgba(255,255,255,.8) 0 1px, rgba(0,0,0,0) 2px),
-      radial-gradient(circle at 88% 62%, rgba(255,255,255,.8) 0 1px, rgba(0,0,0,0) 2px);
-    animation:rcTwinkle 2.8s ease-in-out infinite alternate;
-  }
-  @keyframes rcTwinkle{0%{opacity:.35;filter:blur(.2px)}100%{opacity:.75;filter:blur(.6px)}}
-
-  .rc-dust{position:absolute;inset:0;pointer-events:none;opacity:.35;mix-blend-mode:screen}
-  .rc-dust::before,.rc-dust::after{content:"";position:absolute;inset:-40%;
-    background:
-      radial-gradient(circle at 30% 30%, rgba(255,215,0,.35) 0 1px, rgba(0,0,0,0) 3px),
-      radial-gradient(circle at 70% 40%, rgba(0,210,255,.25) 0 1px, rgba(0,0,0,0) 3px),
-      radial-gradient(circle at 40% 75%, rgba(255,255,255,.25) 0 1px, rgba(0,0,0,0) 3px),
-      radial-gradient(circle at 85% 80%, rgba(138,43,226,.22) 0 1px, rgba(0,0,0,0) 3px);
-    filter:blur(0.2px);
-    animation:rcFloat 7.5s linear infinite;
-    transform:translateZ(0);
-  }
-  .rc-dust::after{animation-duration:10.5s;opacity:.7;filter:blur(.6px)}
-  @keyframes rcFloat{0%{transform:translate(-2%,-2%) scale(1.05)}100%{transform:translate(2%,2%) scale(1.12)}}
-
-  .rc-beams{position:absolute;inset:-30%;pointer-events:none;opacity:.65;mix-blend-mode:screen;filter:blur(0.5px);
-    background:
-      conic-gradient(from 210deg at 50% 55%, rgba(0,210,255,0) 0 25deg, rgba(0,210,255,.12) 30deg 42deg, rgba(0,0,0,0) 48deg 360deg),
-      conic-gradient(from 260deg at 45% 65%, rgba(255,215,0,0) 0 20deg, rgba(255,215,0,.10) 22deg 34deg, rgba(0,0,0,0) 40deg 360deg);
-    animation:rcBeams 5.8s ease-in-out infinite alternate;
-  }
-  @keyframes rcBeams{0%{transform:scale(1.05) rotate(-3deg)}100%{transform:scale(1.12) rotate(4deg)}}
-
-  .rc-noise{position:absolute;inset:0;pointer-events:none;opacity:.22;mix-blend-mode:overlay;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
-    animation:rcNoise 1.2s steps(2) infinite;
-  }
-  @keyframes rcNoise{0%{transform:translate(0,0)}100%{transform:translate(-2%,2%)}}
-
-  .rc-stage{position:relative;z-index:2;width:min(820px,92vw);padding:22px 18px;border-radius:30px;
-    background:radial-gradient(120% 140% at 10% 0%, rgba(0,210,255,.18), rgba(0,0,0,0)), rgba(10,12,16,.62);
-    border:1px solid rgba(255,255,255,.14);
-    box-shadow:0 45px 140px rgba(0,0,0,.95);
-    backdrop-filter:blur(14px);
-    overflow:hidden;
-    transform:translateZ(0);
-  }
-  .rc-stage::before{content:"";position:absolute;inset:-30%;
-    background:radial-gradient(closest-side at 50% 50%, rgba(0,210,255,.22), rgba(0,0,0,0) 62%);
-    opacity:.55;filter:blur(18px);
-    animation:rcPulse 2.6s ease-in-out infinite;
-  }
-  @keyframes rcPulse{0%,100%{transform:scale(0.95)}50%{transform:scale(1.06)}}
-
-  .rc-row{display:flex;gap:18px;align-items:center;justify-content:center}
-  .rc-emblem{position:relative;width:120px;height:120px;flex:0 0 auto}
-  .rc-emblem::before{content:"";position:absolute;inset:-18px;border-radius:999px;
-    background:conic-gradient(from 0deg, rgba(255,215,0,.0), rgba(255,215,0,.55), rgba(0,210,255,.55), rgba(255,215,0,.0));
-    filter:blur(1px);
-    animation:rcSpin 4s linear infinite;
-    opacity:.9;
-  }
-  @keyframes rcSpin{to{transform:rotate(360deg)}}
-
-  .rc-crescent{position:absolute;inset:0;border-radius:999px;
-    background:radial-gradient(circle at 42% 45%, rgba(255,255,255,.92) 0 46%, rgba(0,0,0,0) 47%),
-               radial-gradient(circle at 52% 48%, rgba(0,0,0,1) 0 46%, rgba(0,0,0,0) 47%);
-    filter:drop-shadow(0 0 22px rgba(255,215,0,.18)) drop-shadow(0 0 40px rgba(0,210,255,.12));
-    transform:rotate(-14deg);
-  }
-  .rc-crescent::after{content:"";position:absolute;inset:-6px;border-radius:999px;border:1px solid rgba(255,255,255,.10)}
-  .rc-lantern{position:absolute;top:-18px;width:64px;height:120px;opacity:.92;filter:drop-shadow(0 20px 50px rgba(0,0,0,.65));}
-  .rc-lantern.l1{left:10%;transform:rotate(-6deg);animation:rcSwing 2.8s ease-in-out infinite}
-  .rc-lantern.l2{right:10%;transform:rotate(6deg);animation:rcSwing2 3.1s ease-in-out infinite}
-  @keyframes rcSwing{0%,100%{transform:translateY(0) rotate(-7deg)}50%{transform:translateY(6px) rotate(7deg)}}
-  @keyframes rcSwing2{0%,100%{transform:translateY(0) rotate(7deg)}50%{transform:translateY(7px) rotate(-7deg)}}
-
-  .rc-copy{margin-top:18px;text-align:center}
-  .rc-ar{font-size:34px;font-weight:1000;letter-spacing:.2px;color:#fff;text-shadow:0 18px 60px rgba(0,0,0,.7);line-height:1.1}
-  .rc-en{margin-top:8px;font-size:46px;font-weight:1000;letter-spacing:.6px;
-    background:linear-gradient(90deg, #ffffff, #ffd700, #00d2ff, #ffffff);
-    -webkit-background-clip:text;background-clip:text;color:transparent;
-    filter:drop-shadow(0 16px 55px rgba(0,0,0,.75));
-    animation:rcShine 2.4s ease-in-out infinite;
-  }
-  @keyframes rcShine{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
-  .rc-sub{margin-top:10px;font-size:13px;color:rgba(255,255,255,.70);letter-spacing:.3px}
-
-  .rc-skip{position:fixed;top:18px;right:18px;z-index:3;border:none;cursor:pointer;
-    padding:10px 14px;border-radius:999px;font-weight:1000;font-size:12px;
-    background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:#fff;
-    backdrop-filter:blur(14px);
-  }
-  .rc-skip:active{transform:scale(.98)}
-
-  /* enter / exit choreography */
-  #ramadanCine .rc-stage{opacity:0;transform:translateY(18px) scale(.98);transition:opacity .75s ease, transform .85s cubic-bezier(.2,.9,.2,1)}
-  #ramadanCine.show .rc-stage{opacity:1;transform:translateY(0) scale(1)}
-  #ramadanCine.exit{transition:opacity .65s ease;opacity:0}
-  #ramadanCine.exit .rc-stage{transform:translateY(10px) scale(.985);opacity:0}
-
-  @media (max-width:420px){
-    .rc-en{font-size:36px}
-    .rc-ar{font-size:26px}
-    .rc-emblem{width:100px;height:100px}
-    .rc-stage{border-radius:26px}
-  }
-</style>
 </head>
 
 <body>
-<!-- ===== Ramadan Cinematic Intro (first visit) ===== -->
-<div id="ramadanCine" aria-hidden="true">
-  <div class="rc-bg"></div>
-  <div class="rc-beams"></div>
-  <div class="rc-stars"></div>
-  <div class="rc-dust"></div>
-  <div class="rc-noise"></div>
-  <div class="rc-vignette"></div>
-
-  <button class="rc-skip" onclick="closeRamadanCine(true)">Skip</button>
-
-  <div class="rc-stage" role="dialog" aria-label="Ramadan Kareem">
-    <div class="rc-lantern l1" aria-hidden="true">
-      <svg viewBox="0 0 64 120" width="64" height="120">
-        <defs>
-          <linearGradient id="lg1" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0" stop-color="rgba(255,215,0,.95)"/>
-            <stop offset="1" stop-color="rgba(0,210,255,.65)"/>
-          </linearGradient>
-        </defs>
-        <path d="M32 0c2 0 4 2 4 4v10h-8V4c0-2 2-4 4-4z" fill="rgba(255,255,255,.35)"/>
-        <path d="M22 18h20l6 10-6 10H22l-6-10 6-10z" fill="rgba(255,255,255,.12)" stroke="rgba(255,255,255,.18)"/>
-        <path d="M18 38h28l8 14-8 14H18l-8-14 8-14z" fill="rgba(0,0,0,.35)" stroke="rgba(255,255,255,.14)"/>
-        <path d="M20 40h24l6 12-6 12H20l-6-12 6-12z" fill="url(#lg1)" opacity=".28"/>
-        <path d="M22 66h20l6 10-6 10H22l-6-10 6-10z" fill="rgba(255,255,255,.10)" stroke="rgba(255,255,255,.12)"/>
-        <circle cx="32" cy="56" r="10" fill="rgba(255,215,0,.22)"/>
-        <path d="M28 84h8v10c0 3-2 6-4 6s-4-3-4-6V84z" fill="rgba(255,255,255,.18)"/>
-      </svg>
-    </div>
-
-    <div class="rc-lantern l2" aria-hidden="true">
-      <svg viewBox="0 0 64 120" width="64" height="120">
-        <defs>
-          <linearGradient id="lg2" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0" stop-color="rgba(0,210,255,.95)"/>
-            <stop offset="1" stop-color="rgba(255,215,0,.65)"/>
-          </linearGradient>
-        </defs>
-        <path d="M32 0c2 0 4 2 4 4v10h-8V4c0-2 2-4 4-4z" fill="rgba(255,255,255,.35)"/>
-        <path d="M22 18h20l6 10-6 10H22l-6-10 6-10z" fill="rgba(255,255,255,.12)" stroke="rgba(255,255,255,.18)"/>
-        <path d="M18 38h28l8 14-8 14H18l-8-14 8-14z" fill="rgba(0,0,0,.35)" stroke="rgba(255,255,255,.14)"/>
-        <path d="M20 40h24l6 12-6 12H20l-6-12 6-12z" fill="url(#lg2)" opacity=".28"/>
-        <path d="M22 66h20l6 10-6 10H22l-6-10 6-10z" fill="rgba(255,255,255,.10)" stroke="rgba(255,255,255,.12)"/>
-        <circle cx="32" cy="56" r="10" fill="rgba(0,210,255,.20)"/>
-        <path d="M28 84h8v10c0 3-2 6-4 6s-4-3-4-6V84z" fill="rgba(255,255,255,.18)"/>
-      </svg>
-    </div>
-
-    <div class="rc-row">
-      <div class="rc-emblem" aria-hidden="true">
-        <div class="rc-crescent"></div>
-      </div>
-    </div>
-
-    <div class="rc-copy">
-      <div class="rc-ar">رمضان كريم</div>
-      <div class="rc-en">Ramadan Kareem</div>
-      <div class="rc-sub">May this month bring you light, peace, and good vibes ✨</div>
-    </div>
-  </div>
-</div>
-
   <main class="visually-hidden-seo" aria-hidden="false">
     <h1>HypeZone Elite — Morocco rooms by city and neighborhood</h1>
     <p>HypeZone is a Morocco-based social zone where you can join rooms by city and neighborhood, chat locally, and post vibes.</p>
@@ -1043,7 +752,8 @@
 
       <div id="feedView">
         <div class="event-banner">
-          <img src="https://i.postimg.cc/Jzk5f5fw/Hype-Zone.png" alt="Event banner">
+          <img id="eventBannerImg" src="https://i.postimg.cc/Jzk5f5fw/Hype-Zone.png" alt="Event banner">
+          <video id="eventBannerVideo" muted playsinline autoplay loop preload="metadata"></video>
         </div>
         <div class="feed" id="feedList"></div>
       </div>
@@ -3334,242 +3044,47 @@ async function openProfile(id){
 
     init();
   </script>
-<script>
-  // ===== Ramadan Cinematic Intro (first visit only) =====
-  (function(){
-    const KEY = "hz_ramadan_seen_v1";
-    const OVERLAY_ID = "ramadanCine";
 
-    function show(){
-      const el = document.getElementById(OVERLAY_ID);
-      if(!el) return;
-      el.classList.add("show");
-      el.setAttribute("aria-hidden","false");
-      document.body.style.overflow = "hidden";
-      // auto-close after cinematic beat
-      window.setTimeout(()=>close(false), 5200);
-    }
+  <script>
+    // Randomly show the banner image OR a silent looping video (like a GIF) on each page refresh.
+    (function(){
+      const bannerImg = document.getElementById("eventBannerImg") || document.querySelector(".event-banner img");
+      const bannerVid = document.getElementById("eventBannerVideo");
+      if(!bannerImg || !bannerVid) return;
 
-    window.closeRamadanCine = function(force){
-      close(!!force);
-    };
+      const vids = [
+        "https://c.top4top.io/m_3702jjcd30.mp4",
+        "https://i.top4top.io/m_3702sbgfz0.mp4",
+        "https://k.top4top.io/m_3702443pz0.mp4"
+      ];
 
-    function close(force){
-      const el = document.getElementById(OVERLAY_ID);
-      if(!el || !el.classList.contains("show")) return;
-      try{ localStorage.setItem(KEY,"1"); }catch(e){}
-      el.classList.add("exit");
-      window.setTimeout(()=>{
-        el.classList.remove("show","exit");
-        el.setAttribute("aria-hidden","true");
-        document.body.style.overflow = "";
-      }, 650);
-    }
-
-    document.addEventListener("keydown",(e)=>{
-      if(e.key==="Escape") close(true);
-    });
-
-    document.addEventListener("DOMContentLoaded", ()=>{
-      let seen = false;
-      try{ seen = localStorage.getItem(KEY)==="1"; }catch(e){}
-      if(!seen){
-        // tiny delay so it feels like a real "cold open"
-        setTimeout(show, 120);
+      const pick = Math.floor(Math.random() * (vids.length + 1)); // 0=image, 1..n=video
+      if(pick === 0){
+        bannerVid.style.display = "none";
+        bannerImg.style.display = "block";
+        return;
       }
-    });
-  })();
-</script>
 
-<!-- ===== Ramadan overlay (on top of site) ===== -->
-<div id="ramadanOverlay" aria-hidden="true">
-  <canvas id="ramadanCanvas"></canvas>
-  <div class="ramadan-grain"></div>
+      bannerImg.style.display = "none";
+      bannerVid.style.display = "block";
+      bannerVid.src = vids[pick - 1];
 
-  <div class="ramadan-crescent" aria-hidden="true">
-    <!-- Crescent SVG (evenodd) -->
-    <svg viewBox="0 0 200 200" width="100%" height="100%">
-      <defs>
-        <radialGradient id="hzRamadanGrad" cx="35%" cy="30%" r="75%">
-          <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
-          <stop offset="42%" stop-color="#FFD700" stop-opacity="0.95"/>
-          <stop offset="100%" stop-color="#00d2ff" stop-opacity="0.30"/>
-        </radialGradient>
-        <filter id="hzRamadanGlow">
-          <feGaussianBlur stdDeviation="4" result="b"/>
-          <feMerge>
-            <feMergeNode in="b"/>
-            <feMergeNode in="SourceGraphic"/>
-          </feMerge>
-        </filter>
-      </defs>
-      <path fill="url(#hzRamadanGrad)" filter="url(#hzRamadanGlow)" fill-rule="evenodd"
-            d="M120,20
-               A80,80 0 1,1 120,180
-               A60,80 0 1,0 120,20 Z"/>
-      <!-- small star -->
-      <path d="M144 62l6 14 15 1-12 9 4 14-13-8-13 8 4-14-12-9 15-1z"
-            fill="rgba(255,255,255,.85)" filter="url(#hzRamadanGlow)"/>
-    </svg>
-  </div>
+      // Enforce silent autoplay loop
+      bannerVid.muted = true;
+      bannerVid.volume = 0;
+      bannerVid.autoplay = true;
+      bannerVid.loop = true;
+      bannerVid.setAttribute("playsinline", "");
+      bannerVid.setAttribute("webkit-playsinline", "");
+      bannerVid.removeAttribute("controls");
 
-  <div class="ramadan-titleWrap">
-    <div class="ramadan-ar ramadan-shine" lang="ar" dir="rtl">رمضان كريم</div>
-    <div class="ramadan-en ramadan-shine">Ramadan Kareem</div>
-    <div class="ramadan-sub">HypeZone — Ramadan Event</div>
-  </div>
-
-  <button id="ramadanSkip" type="button">Skip</button>
-</div>
-
-<script>
-
-/* ===== Ramadan overlay logic + fireworks ===== */
-(function(){
-  const KEY = "hz_ramadan_seen_v1";
-  const overlay = document.getElementById("ramadanOverlay");
-  const canvas = document.getElementById("ramadanCanvas");
-  const skipBtn = document.getElementById("ramadanSkip");
-  if(!overlay || !canvas) return;
-
-  // show ONLY first visit
-  const already = localStorage.getItem(KEY) === "1";
-  if(already) return;
-
-  let ctx = canvas.getContext("2d");
-  let w=0,h=0, dpr=Math.max(1, Math.min(2, window.devicePixelRatio||1));
-  function resize(){
-    w = Math.floor(window.innerWidth);
-    h = Math.floor(window.innerHeight);
-    canvas.width = Math.floor(w*dpr);
-    canvas.height = Math.floor(h*dpr);
-    canvas.style.width = w+"px";
-    canvas.style.height = h+"px";
-    ctx.setTransform(dpr,0,0,dpr,0,0);
-  }
-  resize();
-  window.addEventListener("resize", resize);
-
-  overlay.classList.add("show");
-  overlay.setAttribute("aria-hidden","false");
-
-  // Fireworks
-  const bursts = [];
-  const gravity = 0.06;
-  const friction = 0.992;
-
-  function rand(a,b){return a + Math.random()*(b-a);}
-  function pick(arr){return arr[(Math.random()*arr.length)|0];}
-
-  const palette = [
-    [255,215,0],[0,210,255],[255,255,255],[255,71,87],[46,204,113]
-  ];
-
-  function spawnBurst(){
-    const x = rand(w*0.18, w*0.82);
-    const y = rand(h*0.10, h*0.48);
-    const color = pick(palette);
-    const count = Math.floor(rand(45, 80));
-    const parts = [];
-    for(let i=0;i<count;i++){
-      const a = rand(0, Math.PI*2);
-      const sp = rand(2.2, 6.6);
-      parts.push({
-        x, y,
-        vx: Math.cos(a)*sp,
-        vy: Math.sin(a)*sp,
-        life: rand(38, 70),
-        t: 0,
-        r: rand(1.2, 2.4),
-        c: color
-      });
-    }
-    bursts.push(parts);
-  }
-
-  // initial bursts (cinematic "boom")
-  spawnBurst(); setTimeout(spawnBurst, 220); setTimeout(spawnBurst, 520);
-
-  let last = performance.now();
-  let nextSpawn = last + 420;
-
-  function draw(){
-    const now = performance.now();
-    const dt = Math.min(33, now - last);
-    last = now;
-
-    // fade trail
-    ctx.fillStyle = "rgba(0,0,0,0.20)";
-    ctx.fillRect(0,0,w,h);
-
-    // occasional new bursts
-    if(now > nextSpawn){
-      spawnBurst();
-      nextSpawn = now + rand(380, 760);
-    }
-
-    // draw particles
-    for(let bi=bursts.length-1; bi>=0; bi--){
-      const parts = bursts[bi];
-      for(let pi=parts.length-1; pi>=0; pi--){
-        const p = parts[pi];
-        p.t += dt/16.67;
-        p.life -= 1.0 * (dt/16.67);
-        if(p.life <= 0){
-          parts.splice(pi,1);
-          continue;
-        }
-        p.vx *= friction;
-        p.vy *= friction;
-        p.vy += gravity * (dt/16.67);
-
-        p.x += p.vx * (dt/16.67);
-        p.y += p.vy * (dt/16.67);
-
-        const alpha = Math.max(0, Math.min(1, p.life/70));
-        ctx.beginPath();
-        ctx.fillStyle = `rgba(${p.c[0]},${p.c[1]},${p.c[2]},${alpha})`;
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
-        ctx.fill();
-
-        // tiny glow streak
-        ctx.strokeStyle = `rgba(${p.c[0]},${p.c[1]},${p.c[2]},${alpha*0.55})`;
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(p.x, p.y);
-        ctx.lineTo(p.x - p.vx*1.4, p.y - p.vy*1.4);
-        ctx.stroke();
-      }
-      if(parts.length === 0) bursts.splice(bi,1);
-    }
-
-    raf = requestAnimationFrame(draw);
-  }
-
-  let raf = requestAnimationFrame(draw);
-
-  function closeOverlay(){
-    try{ localStorage.setItem(KEY,"1"); }catch(e){}
-    overlay.classList.add("fadeOut");
-    overlay.setAttribute("aria-hidden","true");
-    setTimeout(()=>{
-      cancelAnimationFrame(raf);
-      overlay.remove();
-    }, 560);
-  }
-
-  // auto close after 4.8s
-  const autoT = setTimeout(closeOverlay, 4800);
-
-  if(skipBtn){
-    skipBtn.addEventListener("click", ()=>{
-      clearTimeout(autoT);
-      closeOverlay();
-    });
-  }
-})();
-
-</script>
+      try{
+        bannerVid.load();
+        const p = bannerVid.play();
+        if(p && p.catch) p.catch(()=>{});
+      }catch(e){}
+    })();
+  </script>
 
 </body>
 </html>
