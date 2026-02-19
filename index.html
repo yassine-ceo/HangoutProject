@@ -681,7 +681,109 @@
       .post-visual{height:clamp(220px,28vh,380px)}
       .event-banner img{height:130px}
     }
-  </style>
+  
+/* ===== Ramadan overlay (on top of site) ===== */
+#ramadanOverlay{
+  position:fixed; inset:0; z-index:6500;
+  display:none;
+  background:radial-gradient(1200px 800px at 50% 20%, rgba(255,215,0,.14), rgba(0,0,0,.78) 55%, rgba(0,0,0,.92) 100%);
+  overflow:hidden;
+  pointer-events:none;
+}
+#ramadanOverlay.show{display:block;}
+#ramadanOverlay.fadeOut{animation:ramadanFadeOut .55s ease forwards;}
+@keyframes ramadanFadeOut{to{opacity:0;}}
+#ramadanCanvas{position:absolute; inset:0; width:100%; height:100%;}
+.ramadan-grain{
+  position:absolute; inset:-40%;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
+  opacity:.11; mix-blend-mode:overlay;
+  animation:ramadanGrain 2.2s steps(2) infinite;
+  pointer-events:none;
+}
+@keyframes ramadanGrain{0%{transform:translate3d(-3%, -2%,0)}50%{transform:translate3d(2%, 3%,0)}100%{transform:translate3d(-2%, 1%,0)}}
+
+.ramadan-crescent{
+  position:absolute;
+  left:50%;
+  top:-140px;
+  width:170px;height:170px;
+  transform:translateX(-50%);
+  filter:drop-shadow(0 18px 50px rgba(0,210,255,.20)) drop-shadow(0 0 18px rgba(255,215,0,.22));
+  animation:ramadanDrop 1.1s cubic-bezier(.15,.95,.25,1) forwards;
+}
+@keyframes ramadanDrop{
+  0%{transform:translate(-50%,-20px) scale(.9); opacity:0}
+  70%{opacity:1}
+  100%{transform:translate(-50%, 180px) scale(1); opacity:1}
+}
+
+.ramadan-titleWrap{
+  position:absolute;
+  left:50%;
+  top:46%;
+  transform:translate(-50%,-50%);
+  width:min(680px,92vw);
+  text-align:center;
+  pointer-events:none;
+}
+.ramadan-ar{
+  font-size:46px;
+  font-weight:1000;
+  letter-spacing:.2px;
+  line-height:1.05;
+  margin-bottom:10px;
+  text-shadow:0 16px 70px rgba(0,0,0,.75);
+}
+.ramadan-en{
+  font-size:34px;
+  font-weight:1000;
+  letter-spacing:1px;
+  text-transform:none;
+  text-shadow:0 16px 70px rgba(0,0,0,.75);
+}
+.ramadan-shine{
+  background:linear-gradient(90deg, rgba(255,255,255,.55), rgba(255,215,0,1), rgba(0,210,255,1), rgba(255,255,255,.55));
+  background-size:220% 100%;
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+  animation:ramadanShine 1.15s ease-in-out infinite;
+}
+@keyframes ramadanShine{
+  0%{background-position:0% 50%}
+  100%{background-position:100% 50%}
+}
+
+.ramadan-sub{
+  margin-top:14px;
+  font-size:12px;
+  font-weight:900;
+  color:rgba(255,255,255,.70);
+  letter-spacing:.5px;
+}
+#ramadanSkip{
+  position:absolute;
+  right:14px; top:14px;
+  padding:10px 12px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(0,0,0,.35);
+  color:#fff;
+  font-weight:900;
+  font-size:12px;
+  cursor:pointer;
+  backdrop-filter:blur(12px);
+  pointer-events:auto;
+}
+#ramadanSkip:active{transform:scale(.98);}
+@media (max-width:420px){
+  .ramadan-ar{font-size:38px}
+  .ramadan-en{font-size:28px}
+  .ramadan-crescent{width:150px;height:150px}
+}
+
+</style>
   <script>
     document.addEventListener("contextmenu",e=>e.preventDefault());
     document.addEventListener("copy",e=>e.preventDefault());
@@ -3278,5 +3380,196 @@ async function openProfile(id){
     });
   })();
 </script>
+
+<!-- ===== Ramadan overlay (on top of site) ===== -->
+<div id="ramadanOverlay" aria-hidden="true">
+  <canvas id="ramadanCanvas"></canvas>
+  <div class="ramadan-grain"></div>
+
+  <div class="ramadan-crescent" aria-hidden="true">
+    <!-- Crescent SVG (evenodd) -->
+    <svg viewBox="0 0 200 200" width="100%" height="100%">
+      <defs>
+        <radialGradient id="hzRamadanGrad" cx="35%" cy="30%" r="75%">
+          <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
+          <stop offset="42%" stop-color="#FFD700" stop-opacity="0.95"/>
+          <stop offset="100%" stop-color="#00d2ff" stop-opacity="0.30"/>
+        </radialGradient>
+        <filter id="hzRamadanGlow">
+          <feGaussianBlur stdDeviation="4" result="b"/>
+          <feMerge>
+            <feMergeNode in="b"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      </defs>
+      <path fill="url(#hzRamadanGrad)" filter="url(#hzRamadanGlow)" fill-rule="evenodd"
+            d="M120,20
+               A80,80 0 1,1 120,180
+               A60,80 0 1,0 120,20 Z"/>
+      <!-- small star -->
+      <path d="M144 62l6 14 15 1-12 9 4 14-13-8-13 8 4-14-12-9 15-1z"
+            fill="rgba(255,255,255,.85)" filter="url(#hzRamadanGlow)"/>
+    </svg>
+  </div>
+
+  <div class="ramadan-titleWrap">
+    <div class="ramadan-ar ramadan-shine" lang="ar" dir="rtl">رمضان كريم</div>
+    <div class="ramadan-en ramadan-shine">Ramadan Kareem</div>
+    <div class="ramadan-sub">HypeZone — Ramadan Event</div>
+  </div>
+
+  <button id="ramadanSkip" type="button">Skip</button>
+</div>
+
+<script>
+
+/* ===== Ramadan overlay logic + fireworks ===== */
+(function(){
+  const KEY = "hz_ramadan_seen_v1";
+  const overlay = document.getElementById("ramadanOverlay");
+  const canvas = document.getElementById("ramadanCanvas");
+  const skipBtn = document.getElementById("ramadanSkip");
+  if(!overlay || !canvas) return;
+
+  // show ONLY first visit
+  const already = localStorage.getItem(KEY) === "1";
+  if(already) return;
+
+  let ctx = canvas.getContext("2d");
+  let w=0,h=0, dpr=Math.max(1, Math.min(2, window.devicePixelRatio||1));
+  function resize(){
+    w = Math.floor(window.innerWidth);
+    h = Math.floor(window.innerHeight);
+    canvas.width = Math.floor(w*dpr);
+    canvas.height = Math.floor(h*dpr);
+    canvas.style.width = w+"px";
+    canvas.style.height = h+"px";
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  resize();
+  window.addEventListener("resize", resize);
+
+  overlay.classList.add("show");
+  overlay.setAttribute("aria-hidden","false");
+
+  // Fireworks
+  const bursts = [];
+  const gravity = 0.06;
+  const friction = 0.992;
+
+  function rand(a,b){return a + Math.random()*(b-a);}
+  function pick(arr){return arr[(Math.random()*arr.length)|0];}
+
+  const palette = [
+    [255,215,0],[0,210,255],[255,255,255],[255,71,87],[46,204,113]
+  ];
+
+  function spawnBurst(){
+    const x = rand(w*0.18, w*0.82);
+    const y = rand(h*0.10, h*0.48);
+    const color = pick(palette);
+    const count = Math.floor(rand(45, 80));
+    const parts = [];
+    for(let i=0;i<count;i++){
+      const a = rand(0, Math.PI*2);
+      const sp = rand(2.2, 6.6);
+      parts.push({
+        x, y,
+        vx: Math.cos(a)*sp,
+        vy: Math.sin(a)*sp,
+        life: rand(38, 70),
+        t: 0,
+        r: rand(1.2, 2.4),
+        c: color
+      });
+    }
+    bursts.push(parts);
+  }
+
+  // initial bursts (cinematic "boom")
+  spawnBurst(); setTimeout(spawnBurst, 220); setTimeout(spawnBurst, 520);
+
+  let last = performance.now();
+  let nextSpawn = last + 420;
+
+  function draw(){
+    const now = performance.now();
+    const dt = Math.min(33, now - last);
+    last = now;
+
+    // fade trail
+    ctx.fillStyle = "rgba(0,0,0,0.20)";
+    ctx.fillRect(0,0,w,h);
+
+    // occasional new bursts
+    if(now > nextSpawn){
+      spawnBurst();
+      nextSpawn = now + rand(380, 760);
+    }
+
+    // draw particles
+    for(let bi=bursts.length-1; bi>=0; bi--){
+      const parts = bursts[bi];
+      for(let pi=parts.length-1; pi>=0; pi--){
+        const p = parts[pi];
+        p.t += dt/16.67;
+        p.life -= 1.0 * (dt/16.67);
+        if(p.life <= 0){
+          parts.splice(pi,1);
+          continue;
+        }
+        p.vx *= friction;
+        p.vy *= friction;
+        p.vy += gravity * (dt/16.67);
+
+        p.x += p.vx * (dt/16.67);
+        p.y += p.vy * (dt/16.67);
+
+        const alpha = Math.max(0, Math.min(1, p.life/70));
+        ctx.beginPath();
+        ctx.fillStyle = `rgba(${p.c[0]},${p.c[1]},${p.c[2]},${alpha})`;
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+        ctx.fill();
+
+        // tiny glow streak
+        ctx.strokeStyle = `rgba(${p.c[0]},${p.c[1]},${p.c[2]},${alpha*0.55})`;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y);
+        ctx.lineTo(p.x - p.vx*1.4, p.y - p.vy*1.4);
+        ctx.stroke();
+      }
+      if(parts.length === 0) bursts.splice(bi,1);
+    }
+
+    raf = requestAnimationFrame(draw);
+  }
+
+  let raf = requestAnimationFrame(draw);
+
+  function closeOverlay(){
+    try{ localStorage.setItem(KEY,"1"); }catch(e){}
+    overlay.classList.add("fadeOut");
+    overlay.setAttribute("aria-hidden","true");
+    setTimeout(()=>{
+      cancelAnimationFrame(raf);
+      overlay.remove();
+    }, 560);
+  }
+
+  // auto close after 4.8s
+  const autoT = setTimeout(closeOverlay, 4800);
+
+  if(skipBtn){
+    skipBtn.addEventListener("click", ()=>{
+      clearTimeout(autoT);
+      closeOverlay();
+    });
+  }
+})();
+
+</script>
+
 </body>
 </html>
